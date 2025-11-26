@@ -1,7 +1,7 @@
 import { config as createConfig, fields, collection } from '@keystatic/core';
 
 // Logic otomatis: Jika sedang Development, pakai Local. Jika tidak, pakai GitHub.
-const storageConfig = process.env.NODE_ENV === 'development' 
+const storageConfig = process.env.NODE_ENV === 'production' 
   ? { kind: 'local' } 
   : { 
       kind: 'github', 
