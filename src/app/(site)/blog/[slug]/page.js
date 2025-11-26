@@ -7,7 +7,11 @@ import {
   ArrowLeft, Calendar, Share2, MessageCircle, 
   ArrowRight, Clock, CheckCircle2, Bookmark 
 } from 'lucide-react';
-import { DocumentRenderer } from '@keystatic/core/renderer';
+
+// IMPORT RENDERER CONTENTFUL
+import { documentToReactComponents } from '@contentful/rich-text-react-renderer';
+import { BLOCKS, MARKS } from '@contentful/rich-text-types';
+
 import BlogInteractions from '@/components/BlogInteractions';
 
 export async function generateMetadata({ params }) {
@@ -35,6 +39,29 @@ export default async function BlogDetail({ params }) {
   const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2000&auto=format&fit=crop";
   const FALLBACK_AVATAR = "https://i.pravatar.cc/150?u=default";
 
+  // --- KONFIGURASI RENDERER CONTENTFUL (AGAR CANTIK) ---
+  const renderOptions = {
+    renderNode: {
+      [BLOCKS.PARAGRAPH]: (node, children) => <p className="mb-6 leading-relaxed text-stone-600">{children}</p>,
+      [BLOCKS.HEADING_1]: (node, children) => <h1 className="text-3xl font-bold text-stone-900 mt-12 mb-6">{children}</h1>,
+      [BLOCKS.HEADING_2]: (node, children) => <h2 className="text-2xl font-bold text-stone-900 mt-10 mb-4 border-b border-stone-100 pb-2">{children}</h2>,
+      [BLOCKS.HEADING_3]: (node, children) => <h3 className="text-xl font-bold text-stone-800 mt-8 mb-3">{children}</h3>,
+      [BLOCKS.UL_LIST]: (node, children) => <ul className="list-disc pl-5 space-y-2 mb-6 text-stone-600">{children}</ul>,
+      [BLOCKS.OL_LIST]: (node, children) => <ol className="list-decimal pl-5 space-y-2 mb-6 text-stone-600">{children}</ol>,
+      [BLOCKS.QUOTE]: (node, children) => (
+        <blockquote className="border-l-4 border-[#2a3f9b] pl-6 italic text-stone-600 my-8 bg-stone-50 py-4 pr-4 rounded-r-xl relative">
+          <span className="absolute top-2 left-2 text-4xl text-[#2a3f9b] opacity-20">"</span>
+          {children}
+        </blockquote>
+      ),
+      [BLOCKS.HR]: () => <hr className="border-stone-200 my-10" />,
+    },
+    renderMark: {
+      [MARKS.BOLD]: (text) => <strong className="font-bold text-stone-800">{text}</strong>,
+      [MARKS.CODE]: (text) => <code className="bg-stone-100 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600">{text}</code>,
+    },
+  };
+
   return (
     <main className="min-h-screen bg-[#FAFAFA] font-sans">
       
@@ -44,7 +71,7 @@ export default async function BlogDetail({ params }) {
             src={post.image || FALLBACK_IMAGE} 
             alt={post.title} 
             fill 
-            className="object-cover brightness-[0.4]" // Lebih gelap agar teks putih terbaca
+            className="object-cover brightness-[0.4]"
             priority 
          />
          <div className="absolute inset-0 bg-gradient-to-t from-[#FAFAFA] via-transparent to-transparent"></div>
@@ -97,16 +124,10 @@ export default async function BlogDetail({ params }) {
                    Kembali ke Blog
                 </Link>
 
-                {/* ARTIKEL BODY */}
-                <article className="prose prose-lg prose-stone max-w-none 
-                    prose-headings:font-bold prose-headings:text-stone-900 
-                    prose-p:leading-loose prose-p:text-stone-600
-                    prose-a:text-[#2a3f9b] prose-a:no-underline hover:prose-a:underline
-                    prose-strong:text-stone-800
-                    prose-img:rounded-2xl prose-img:shadow-lg prose-img:border prose-img:border-stone-100">
-                   
+                {/* ARTIKEL BODY (CONTENTFUL RENDERER) */}
+                <article className="prose prose-lg prose-stone max-w-none">
                    {post.content ? (
-                     <DocumentRenderer document={post.content} />
+                     documentToReactComponents(post.content, renderOptions)
                    ) : (
                      <div className="p-12 bg-stone-50 rounded-3xl border-2 border-dashed border-stone-200 text-center">
                        <p className="text-stone-400 font-medium">Konten sedang disiapkan...</p>
@@ -116,10 +137,7 @@ export default async function BlogDetail({ params }) {
 
                 {/* SHARE & TAGS */}
                 <div className="mt-16 pt-8 border-t border-stone-100 flex flex-col sm:flex-row items-center justify-between gap-6">
-                   
-                   {/* PANGGIL KOMPONEN INTERAKTIF */}
                    <BlogInteractions title={post.title} slug={post.slug} />
-
                    <p className="text-xs text-stone-400 italic">Terakhir diupdate: {post.date}</p>
                 </div>
             </div>
@@ -141,10 +159,9 @@ export default async function BlogDetail({ params }) {
                   </div>
                </div>
 
-               {/* Contextual Service CTA (Paling Penting) */}
+               {/* Contextual Service CTA */}
                {relatedService && (
                  <div className="bg-[#2a3f9b] rounded-[2.5rem] p-8 text-white relative overflow-hidden text-center group shadow-2xl shadow-blue-900/30">
-                    {/* Decorative Blobs */}
                     <div className="absolute top-0 right-0 w-48 h-48 bg-white opacity-10 rounded-full blur-3xl -mr-10 -mt-10"></div>
                     <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-400 opacity-20 rounded-full blur-2xl -ml-10 -mb-10"></div>
                     
@@ -170,7 +187,7 @@ export default async function BlogDetail({ params }) {
                  </div>
                )}
 
-               {/* Newsletter / Contact Simple */}
+               {/* Newsletter / Contact */}
                <div className="bg-stone-50 rounded-[2rem] p-8 border border-stone-200 text-center">
                   <h4 className="font-bold text-stone-900 mb-2">Masih Bingung?</h4>
                   <p className="text-stone-500 text-sm mb-6">Konsultasikan masalah hukum bisnis Anda gratis via WhatsApp.</p>

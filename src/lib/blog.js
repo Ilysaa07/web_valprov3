@@ -1,41 +1,45 @@
-import { createReader } from '@keystatic/core/reader';
-import { keystaticConfig } from './keystatic'; 
+import { client } from './contentful';
 
-const reader = createReader(process.cwd(), keystaticConfig);
+// Helper untuk format data dari Contentful agar cocok dengan UI kita
+const parseContentfulPost = (item) => {
+  const fields = item.fields;
+  return {
+    slug: fields.slug,
+    title: fields.title,
+    excerpt: fields.excerpt,
+    category: fields.category,
+    date: fields.date ? new Date(fields.date).toLocaleDateString("id-ID", {
+      day: "numeric", month: "long", year: "numeric"
+    }) : "",
+    author: fields.author,
+    authorRole: fields.authorRole,
+    // Ambil URL gambar (tambah https:)
+    image: fields.image?.fields?.file?.url ? `https:${fields.image.fields.file.url}` : null,
+    authorImage: fields.authorImage?.fields?.file?.url ? `https:${fields.authorImage.fields.file.url}` : null,
+    relatedService: fields.relatedService,
+    content: fields.content, // Ini format Rich Text khusus Contentful
+  };
+};
 
-// 1. Ambil SEMUA Artikel (Sorted by Date)
+// 1. Ambil SEMUA Artikel
 export async function getSortedPostsData() {
-  const posts = await reader.collections.blog.all();
-
-  const formattedPosts = posts.map((post) => {
-    return {
-      slug: post.slug,
-      ...post.entry,
-    };
+  const response = await client.getEntries({
+    content_type: 'blogPost', // Sesuai ID di Contentful tadi
+    order: '-fields.date',    // Urutkan dari yang terbaru
   });
 
-  return formattedPosts.sort((a, b) => (a.date < b.date ? 1 : -1));
+  return response.items.map(parseContentfulPost);
 }
 
 // 2. Ambil SATU Artikel (Detail)
 export async function getPostData(slug) {
-  const post = await reader.collections.blog.read(slug);
-  
-  if (!post) return null;
+  const response = await client.getEntries({
+    content_type: 'blogPost',
+    'fields.slug': slug,
+    limit: 1,
+  });
 
-  // --- BAGIAN PENTING: RESOLVE CONTENT ---
-  // Keystatic sering mengembalikan content sebagai fungsi async.
-  // Kita harus memanggilnya untuk mendapatkan data JSON yang asli.
-  let finalContent = post.content;
-  
-  if (typeof finalContent === 'function') {
-    finalContent = await finalContent();
-  }
-  // ---------------------------------------
+  if (response.items.length === 0) return null;
 
-  return {
-    slug,
-    ...post,
-    content: finalContent, // Kirim konten yang sudah "matang" (bukan fungsi lagi)
-  };
+  return parseContentfulPost(response.items[0]);
 }
