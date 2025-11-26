@@ -1,29 +1,28 @@
 import { config as createConfig, fields, collection } from '@keystatic/core';
 
-// Logic otomatis: Jika sedang Development, pakai Local. Jika tidak, pakai GitHub.
-const storageConfig = process.env.NODE_ENV === 'production' 
+// PERBAIKAN LOGIKA:
+// Jika Development (Laptop) -> Local
+// Jika Production (Vercel) -> GitHub
+const storageConfig = process.env.NODE_ENV === 'development' 
   ? { kind: 'local' } 
   : { 
       kind: 'github', 
       repo: { 
-        owner: 'Ilysaa07', // Ganti dengan Username GitHub Anda
-        name: 'web_valprov3' // Ganti dengan Nama Repo Anda
+        owner: 'Ilysaa07', 
+        name: 'web_valprov3' 
       } 
     };
 
 export const keystaticConfig = createConfig({
   storage: storageConfig,
   
-  // --- SISA KONFIGURASI KOLEKSI TETAP SAMA SEPERTI SEBELUMNYA ---
   collections: {
     blog: collection({
-       // ... (kode koleksi blog Anda jangan dihapus/diubah) ...
        label: 'Blog',
        slugField: 'title',
        path: 'src/content/blog/*',
        format: { contentField: 'content' },
        schema: {
-          // ... (schema field Anda) ...
           title: fields.slug({ name: { label: 'Judul Artikel' } }),
           excerpt: fields.text({ label: 'Deskripsi Singkat', multiline: true }),
           date: fields.date({ label: 'Tanggal Publish' }),
