@@ -1,0 +1,29 @@
+[
+  {
+    "id": "INV-2024001",
+    "clientName": "PT Maju Bersama",
+    "service": "Pendirian PT Lengkap",
+    "status": "Proses Kemenkumham",
+    "lastUpdate": "20 Nov 2024",
+    "history": [
+      { "step": "Pemberkasan & Pembayaran", "date": "18 Nov 2024", "done": true },
+      { "step": "Pengecekan Nama PT", "date": "18 Nov 2024", "done": true },
+      { "step": "Tanda Tangan Minuta Akta", "date": "19 Nov 2024", "done": true },
+      { "step": "Pengesahan SK Kemenkumham", "date": "Sedang Proses", "done": false },
+      { "step": "Terbit NPWP & NIB", "date": "Menunggu", "done": false },
+      { "step": "Serah Terima Berkas", "date": "Menunggu", "done": false }
+    ]
+  },
+  {
+    "id": "INV-2024002",
+    "clientName": "CV Sentosa Abadi",
+    "service": "Perubahan Akta CV",
+    "status": "Selesai",
+    "lastUpdate": "22 Nov 2024",
+    "history": [
+      { "step": "Pemberkasan", "date": "15 Nov 2024", "done": true },
+      { "step": "Proses Notaris", "date": "17 Nov 2024", "done": true },
+      { "step": "Selesai & Kirim Dokumen", "date": "22 Nov 2024", "done": true }
+    ]
+  }
+]

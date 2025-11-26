@@ -32,3 +32,39 @@
   0% { transform: translateX(0%); }
   100% { transform: translateX(-100%); }
 }
+
+/* --- GOOGLE TRANSLATE CLEANUP --- */
+
+/* Sembunyikan Banner Atas Google */
+.goog-te-banner-frame.skiptranslate {
+    display: none !important;
+}
+
+/* Sembunyikan elemen body yang digeser Google */
+body {
+    top: 0px !important;
+}
+
+/* Sembunyikan tooltip saat hover teks (opsional, agar lebih bersih) */
+#goog-gt-tt {
+    display: none !important;
+}
+
+/* Sembunyikan teks "Powered by Google" */
+.goog-te-gadget {
+    font-size: 0px !important;
+    color: transparent !important;
+}
+
+/* Sembunyikan Icon Google */
+.goog-te-gadget .goog-te-gadget-icon {
+    display: none !important;
+}
+
+/* FIX NAVBAR LAYOUT SHIFT */
+/* Google sering menambahkan font tag yang bisa merusak flexbox */
+font {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    position: static !important;
+}

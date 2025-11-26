@@ -1,0 +1,273 @@
+[
+  {
+    "kelas": "1",
+    "kategori": "Barang",
+    "judul": "Bahan Kimia Industri & Sains",
+    "deskripsi": "Bahan kimia untuk industri, sains, fotografi, pertanian, hortikultura dan kehutanan; resin buatan yang belum diproses, plastik yang belum diproses; pupuk; kompos; bahan pemadam api; bahan perekat (lem) untuk industri."
+  },
+  {
+    "kelas": "2",
+    "kategori": "Barang",
+    "judul": "Cat & Pewarna",
+    "deskripsi": "Cat, pernis, lak; bahan pencegah karat dan pelindung kayu; bahan pewarna; mordan; resin alami yang masih mentah; logam dalam bentuk lembaran dan bubuk untuk pelukis, dekorator, pencetak dan seniman."
+  },
+  {
+    "kelas": "3",
+    "kategori": "Barang",
+    "judul": "Kosmetik & Pembersih",
+    "deskripsi": "Pemutih dan zat lainnya untuk mencuci; sediaan untuk membersihkan, mengkilapkan, membuang lemak dan menggosok; sabun; wangi-wangian (parfum), minyak atsiri, kosmetik, skincare, losion rambut; bahan pemeliharaan gigi (pasta gigi)."
+  },
+  {
+    "kode": "4",
+    "kelas": "4",
+    "kategori": "Barang",
+    "judul": "Minyak Industri & Bahan Bakar",
+    "deskripsi": "Minyak dan lemak industri; pelumas; zat pengikat debu; bahan bakar (termasuk bensin untuk motor) dan bahan penerangan; lilin, sumbu lampu."
+  },
+  {
+    "kelas": "5",
+    "kategori": "Barang",
+    "judul": "Farmasi & Obat-obatan",
+    "deskripsi": "Sediaan farmasi dan kedokteran hewan; sediaan higienis untuk keperluan medis; makanan dan zat pantangan yang beradaptasi untuk pemakaian medis atau kedokteran hewan, makanan bayi; suplemen diet; plester, bahan pembalut; bahan penambal gigi; disinfektan; sediaan pembasmi serangga (hama); fungisida, herbisida."
+  },
+  {
+    "kelas": "6",
+    "kategori": "Barang",
+    "judul": "Logam Biasa",
+    "deskripsi": "Logam biasa dan campurannya; bahan bangunan dari logam; bangunan transportabel dari logam; bahan-bahan logam untuk rel kereta api; kabel dan kawat non-listrik dari logam biasa; barang-barang besi; pipa logam; brankas; bijih-bijih logam."
+  },
+  {
+    "kelas": "7",
+    "kategori": "Barang",
+    "judul": "Mesin & Perkakas Mesin",
+    "deskripsi": "Mesin dan perkakas mesin; motor dan mesin (kecuali untuk kendaraan darat); kopling dan komponen transmisi mesin; alat pertanian (selain yang dioperasikan dengan tangan); inkubator penetas telur; mesin penjual otomatis."
+  },
+  {
+    "kelas": "8",
+    "kategori": "Barang",
+    "judul": "Perkakas Tangan",
+    "deskripsi": "Perkakas dan alat tangan (dioperasikan secara manual/manual); pisau, garpu dan sendok; senjata tajam; alat cukur."
+  },
+  {
+    "kelas": "9",
+    "kategori": "Barang",
+    "judul": "Alat Elektronik, Software & Aplikasi",
+    "deskripsi": "Software, aplikasi mobile (App), komputer, hardware; alat fotografi, sinematografi, optik (kacamata), timbang, ukur, sinyal; alat rekam, transmisi atau reproduksi suara atau gambar; media data magnetik; piringan hitam; mekanisme untuk peralatan yang bekerja dengan memasukkan koin; mesin kas; alat pemadam api."
+  },
+  {
+    "kelas": "10",
+    "kategori": "Barang",
+    "judul": "Alat Kesehatan & Medis",
+    "deskripsi": "Alat dan instrumen pembedahan, pengobatan, kedokteran, kedokteran gigi dan kedokteran hewan, anggota badan, mata dan gigi buatan; barang-barang ortopedik; bahan-bahan untuk penjahitan luka."
+  },
+  {
+    "kelas": "11",
+    "kategori": "Barang",
+    "judul": "Alat Penerangan & Pemanas",
+    "deskripsi": "Instalasi untuk penerangan (lampu), pemanasan, pembangkit uap, pengolahan masak, pendinginan, pengeringan, penyegaran udara (AC), pembagian air dan instalasi kebersihan (sanitasi)."
+  },
+  {
+    "kelas": "12",
+    "kategori": "Barang",
+    "judul": "Kendaraan",
+    "deskripsi": "Kendaraan; alat untuk bergerak di darat, udara atau air (Mobil, Motor, Sepeda, Perahu, Pesawat)."
+  },
+  {
+    "kelas": "13",
+    "kategori": "Barang",
+    "judul": "Senjata Api & Bahan Peledak",
+    "deskripsi": "Senjata api; amunisi dan proyektil; bahan peledak; kembang api."
+  },
+  {
+    "kelas": "14",
+    "kategori": "Barang",
+    "judul": "Perhiasan & Logam Mulia",
+    "deskripsi": "Logam mulia dan campurannya; perhiasan, batu permata (berlian, akik); instrumen waktu dan pengukur waktu (jam tangan, jam dinding)."
+  },
+  {
+    "kelas": "15",
+    "kategori": "Barang",
+    "judul": "Alat Musik",
+    "deskripsi": "Segala jenis alat musik (Gitar, Piano, Drum, dll)."
+  },
+  {
+    "kelas": "16",
+    "kategori": "Barang",
+    "judul": "Kertas & Cetakan",
+    "deskripsi": "Kertas, karton; barang cetakan (buku, majalah); bahan untuk menjilid buku; foto; alat tulis dan perekat untuk keperluan tulis menulis atau rumah tangga; bahan untuk seniman; kuas cat; mesin tik dan keperluan kantor (kecuali perabot); bahan pendidikan dan pengajaran (kecuali aparat); bahan plastik untuk kemasan."
+  },
+  {
+    "kelas": "17",
+    "kategori": "Barang",
+    "judul": "Karet & Plastik Setengah Jadi",
+    "deskripsi": "Karet, getah perca, getah, asbes, mika; plastik dalam bentuk ekstrusi untuk digunakan dalam manufaktur; materi paking, peredam dan penyekat; pipa fleksibel bukan dari logam."
+  },
+  {
+    "kelas": "18",
+    "kategori": "Barang",
+    "judul": "Kulit & Tas",
+    "deskripsi": "Kulit dan kulit imitasi; kulit binatang, kulit mentah; koper dan tas-tas (tas tangan, ransel); payung, payung besar dan tongkat jalan; cambuk, pelana dan perlengkapan kuda."
+  },
+  {
+    "kelas": "19",
+    "kategori": "Barang",
+    "judul": "Bahan Bangunan (Non-Logam)",
+    "deskripsi": "Bahan bangunan (bukan logam); pipa kaku bukan dari logam untuk bangunan; aspal, ter, dan bitumen; bangunan transportabel bukan dari logam; monumen bukan dari logam."
+  },
+  {
+    "kelas": "20",
+    "kategori": "Barang",
+    "judul": "Perabot & Furnitur",
+    "deskripsi": "Perabot rumah tangga (meja, kursi, lemari), cermin, bingkai gambar; barang-barang (yang tidak termasuk dalam kelas lain) dari kayu, gabus, buluh, rotan, anyaman, tanduk, tulang, gading, kulit kerang."
+  },
+  {
+    "kelas": "21",
+    "kategori": "Barang",
+    "judul": "Peralatan Rumah Tangga & Dapur",
+    "deskripsi": "Perkakas dan wadah untuk rumah tangga atau dapur; sisir dan bunga karang; sikat (kecuali kuas cat); bahan pembuatan sikat; alat-alat untuk membersihkan; wol besi; kaca yang belum dikerjakan atau dikerjakan sebagian (kecuali kaca bangunan); barang pecah belah, porselen dan tembikar."
+  },
+  {
+    "kelas": "22",
+    "kategori": "Barang",
+    "judul": "Tali, Jaring & Tenda",
+    "deskripsi": "Tambang, tali, jaring, tenda, gorden, terpal, layar, karung dan kantong (yang tidak termasuk dalam kelas lain); bahan pengisi (kecuali dari karet atau plastik); bahan serat tekstil mentah."
+  },
+  {
+    "kelas": "23",
+    "kategori": "Barang",
+    "judul": "Benang",
+    "deskripsi": "Benang dan benang untuk penggunaan tekstil."
+  },
+  {
+    "kelas": "24",
+    "kategori": "Barang",
+    "judul": "Tekstil & Sprei",
+    "deskripsi": "Tekstil dan barang-barang tekstil (Kain), yang tidak termasuk dalam kelas lain; sprei, selimut, taplak meja."
+  },
+  {
+    "kelas": "25",
+    "kategori": "Barang",
+    "judul": "Pakaian & Alas Kaki (Fashion)",
+    "deskripsi": "Pakaian (Kaos, Kemeja, Celana, Jaket, Batik), alas kaki (Sepatu, Sandal), tutup kepala (Topi, Peci, Jilbab)."
+  },
+  {
+    "kelas": "26",
+    "kategori": "Barang",
+    "judul": "Renda & Bordir",
+    "deskripsi": "Renda dan bordir, pita dan anyaman; kancing, kancing tekan, kait dan mata kait, peniti dan jarum; bunga buatan."
+  },
+  {
+    "kelas": "27",
+    "kategori": "Barang",
+    "judul": "Karpet & Alas Lantai",
+    "deskripsi": "Karpet, permadani, tikar, linoleum dan bahan pelapis lantai lainnya; hiasan dinding (bukan dari tekstil)."
+  },
+  {
+    "kelas": "28",
+    "kategori": "Barang",
+    "judul": "Mainan & Alat Olahraga",
+    "deskripsi": "Permainan dan mainan; alat-alat senam dan olahraga yang tidak termasuk dalam kelas lain; hiasan pohon natal."
+  },
+  {
+    "kelas": "29",
+    "kategori": "Barang",
+    "judul": "Makanan Olahan (Daging/Buah)",
+    "deskripsi": "Daging, ikan, unggas dan hewan buruan; sari daging; buah-buahan dan sayur-sayuran yang diawetkan, dikeringkan dan dimasak; jeli, selai, saus buah; telur, susu dan produk susu; minyak dan lemak yang dapat dimakan. (Frozen food, Keripik, Susu)."
+  },
+  {
+    "kelas": "30",
+    "kategori": "Barang",
+    "judul": "Makanan Pokok & Minuman Serbuk",
+    "deskripsi": "Kopi, teh, kakao, gula, beras, tapioka, sagu, bahan pengganti kopi; tepung dan sediaan terbuat dari gandum, roti, kue dan kembang gula, es konsumsi; madu, sirup kental; ragi, bubuk pengembang; garam, moster; cuka, saus (bumbu); rempah-rempah; es."
+  },
+  {
+    "kelas": "31",
+    "kategori": "Barang",
+    "judul": "Hasil Pertanian & Hewan Hidup",
+    "deskripsi": "Hasil-hasil pertanian, hortikultura, kehutanan dan biji-bijian yang tidak termasuk dalam kelas lain; binatang hidup; buah-buahan dan sayur-sayuran segar; benih, tanaman dan bunga alami; makanan hewan; gandum."
+  },
+  {
+    "kelas": "32",
+    "kategori": "Barang",
+    "judul": "Minuman Non-Alkohol",
+    "deskripsi": "Bir; air mineral dan air soda dan minuman tidak beralkohol lainnya; minuman buah dan jus buah; sirop dan sediaan lain untuk membuat minuman."
+  },
+  {
+    "kelas": "33",
+    "kategori": "Barang",
+    "judul": "Minuman Beralkohol",
+    "deskripsi": "Minuman beralkohol (kecuali bir). Anggur, Wine, Spirit."
+  },
+  {
+    "kelas": "34",
+    "kategori": "Barang",
+    "judul": "Tembakau & Rokok",
+    "deskripsi": "Tembakau; barang-barang keperluan perokok; korek api."
+  },
+  {
+    "kelas": "35",
+    "kategori": "Jasa",
+    "judul": "Periklanan & Manajemen Bisnis",
+    "deskripsi": "Periklanan; manajemen usaha; administrasi usaha; fungsi kantor. Termasuk jasa toko online (Marketplace), Retail Store, Toko Grosir, Konsultan Bisnis."
+  },
+  {
+    "kelas": "36",
+    "kategori": "Jasa",
+    "judul": "Keuangan & Real Estat",
+    "deskripsi": "Asuransi; urusan keuangan; urusan moneter; urusan real estat (Properti)."
+  },
+  {
+    "kelas": "37",
+    "kategori": "Jasa",
+    "judul": "Konstruksi & Perbaikan",
+    "deskripsi": "Pembangunan gedung (Kontraktor); perbaikan; jasa instalasi."
+  },
+  {
+    "kelas": "38",
+    "kategori": "Jasa",
+    "judul": "Telekomunikasi",
+    "deskripsi": "Jasa telekomunikasi (ISP, Penyiaran)."
+  },
+  {
+    "kelas": "39",
+    "kategori": "Jasa",
+    "judul": "Transportasi & Logistik",
+    "deskripsi": "Pengangkutan (Travel, Ekspedisi); pengemasan dan penyimpanan barang; pengaturan perjalanan."
+  },
+  {
+    "kelas": "40",
+    "kategori": "Jasa",
+    "judul": "Pengolahan Material",
+    "deskripsi": "Perawatan bahan (Maklon, Percetakan, Penjahitan)."
+  },
+  {
+    "kelas": "41",
+    "kategori": "Jasa",
+    "judul": "Pendidikan & Hiburan",
+    "deskripsi": "Pendidikan; penyediaan pelatihan; hiburan; kegiatan olahraga dan kesenian. (Event Organizer, Kursus, Seminar)."
+  },
+  {
+    "kelas": "42",
+    "kategori": "Jasa",
+    "judul": "Teknologi & Desain",
+    "deskripsi": "Jasa ilmiah dan teknologi serta penelitian dan desain yang berkaitan dengannya; jasa analisis dan penelitian industri; perancangan dan pengembangan perangkat keras dan perangkat lunak komputer (Software House, Desain Grafis, Arsitek)."
+  },
+  {
+    "kelas": "43",
+    "kategori": "Jasa",
+    "judul": "Jasa Makanan & Akomodasi",
+    "deskripsi": "Jasa penyediaan makanan dan minuman; akomodasi sementara. (Restoran, Kafe, Katering, Hotel, Kost)."
+  },
+  {
+    "kelas": "44",
+    "kategori": "Jasa",
+    "judul": "Kesehatan & Kecantikan",
+    "deskripsi": "Jasa medis; jasa pelayanan dokter hewan; pemeliharaan kesehatan dan kecantikan bagi manusia atau hewan; jasa pertanian, hortikultura dan kehutanan. (Klinik, Salon, Spa)."
+  },
+  {
+    "kelas": "45",
+    "kategori": "Jasa",
+    "judul": "Jasa Hukum & Keamanan",
+    "deskripsi": "Jasa hukum; jasa keamanan untuk perlindungan barang dan orang; jasa sosial yang diberikan oleh pihak lain untuk memenuhi kebutuhan individu."
+  }
+]

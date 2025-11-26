@@ -9,17 +9,20 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@formatjs/intl-localematcher": "^0.6.2",
     "@keystatic/core": "^0.5.48",
     "@keystatic/next": "^5.0.4",
     "lucide-react": "^0.554.0",
-    "next": "16.0.3",
-    "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "negotiator": "^1.0.0",
+    "next": "^14.2.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "16.0.3",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.33",
     "tailwindcss": "^4"
   }
 }

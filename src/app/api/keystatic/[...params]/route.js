@@ -1,6 +1,6 @@
 import { makeRouteHandler } from '@keystatic/next/route-handler';
-import config from '../../../../../keystatic.config';
+import { keystaticConfig } from '../../../../lib/keystatic';
 
 export const { GET, POST } = makeRouteHandler({
-  config,
+  config: keystaticConfig,
 });

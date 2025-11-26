@@ -1,0 +1,104 @@
+[
+  {
+    "term": "Akta Pendirian",
+    "slug": "akta-pendirian",
+    "kategori": "Legalitas",
+    "definisi": "Dokumen otentik yang dibuat di hadapan notaris yang memuat identitas pendiri, nama perusahaan, tempat kedudukan, maksud dan tujuan, serta modal perusahaan. Ini adalah syarat mutlak berdirinya badan hukum."
+  },
+  {
+    "term": "Badan Hukum",
+    "slug": "badan-hukum",
+    "kategori": "Hukum",
+    "definisi": "Subjek hukum yang diakui oleh negara yang dapat memiliki hak dan kewajiban sendiri, terpisah dari pendirinya. Contoh: PT (Perseroan Terbatas), Yayasan, Koperasi."
+  },
+  {
+    "term": "CV (Persekutuan Komanditer)",
+    "slug": "cv-persekutuan-komanditer",
+    "kategori": "Badan Usaha",
+    "definisi": "Bentuk badan usaha yang didirikan oleh minimal dua orang, terdiri dari Sekutu Aktif (Pengurus) dan Sekutu Pasif (Pemodal). Tidak berstatus badan hukum, sehingga harta pribadi sekutu aktif bisa terseret utang perusahaan."
+  },
+  {
+    "term": "Domisili Usaha",
+    "slug": "domisili-usaha",
+    "kategori": "Perizinan",
+    "definisi": "Alamat resmi tempat kedudukan suatu perusahaan. Untuk PT/CV, domisili harus berada di zona usaha/komersial dan tidak boleh di perumahan (khusus DKI Jakarta)."
+  },
+  {
+    "term": "KBLI (Klasifikasi Baku Lapangan Usaha Indonesia)",
+    "slug": "kbli",
+    "kategori": "Perizinan",
+    "definisi": "Kode klasifikasi resmi yang dikeluarkan BPS untuk mengelompokkan aktivitas ekonomi Indonesia. Kode 5 digit KBLI wajib dicantumkan dalam Akta dan NIB untuk menentukan jenis izin usaha."
+  },
+  {
+    "term": "Komisaris",
+    "slug": "komisaris",
+    "kategori": "Jabatan",
+    "definisi": "Organ Perseroan yang bertugas melakukan pengawasan secara umum dan/atau khusus sesuai dengan anggaran dasar serta memberi nasihat kepada Direksi."
+  },
+  {
+    "term": "Modal Dasar",
+    "slug": "modal-dasar",
+    "kategori": "Keuangan",
+    "definisi": "Seluruh nilai nominal saham Perseroan yang disebut dalam Anggaran Dasar. Sesuai UU Cipta Kerja, besaran modal dasar ditentukan berdasarkan kesepakatan pendiri (tidak ada minimal, kecuali bidang tertentu)."
+  },
+  {
+    "term": "Modal Ditempatkan",
+    "slug": "modal-ditempatkan",
+    "kategori": "Keuangan",
+    "definisi": "Jumlah saham yang sudah diambil atau disanggupi untuk dilunasi oleh para pendiri atau pemegang saham."
+  },
+  {
+    "term": "Modal Disetor",
+    "slug": "modal-disetor",
+    "kategori": "Keuangan",
+    "definisi": "Modal yang benar-benar telah disetorkan dalam bentuk uang atau benda ke dalam kas perseroan. Minimal 25% dari Modal Dasar harus ditempatkan dan disetor penuh."
+  },
+  {
+    "term": "NIB (Nomor Induk Berusaha)",
+    "slug": "nib",
+    "kategori": "Perizinan",
+    "definisi": "Identitas pelaku usaha yang diterbitkan oleh Lembaga OSS. NIB berlaku sebagai Tanda Daftar Perusahaan (TDP), Angka Pengenal Impor (API), dan Akses Kepabeanan."
+  },
+  {
+    "term": "NPWP Badan",
+    "slug": "npwp-badan",
+    "kategori": "Pajak",
+    "definisi": "Nomor Pokok Wajib Pajak yang diberikan kepada perusahaan (PT/CV) sebagai sarana dalam administrasi perpajakan yang dipergunakan sebagai tanda pengenal diri atau identitas Wajib Pajak."
+  },
+  {
+    "term": "OSS RBA (Online Single Submission Risk-Based Approach)",
+    "slug": "oss-rba",
+    "kategori": "Perizinan",
+    "definisi": "Sistem perizinan berusaha terintegrasi secara elektronik yang dikelola oleh Kementerian Investasi/BKPM. Izin yang keluar didasarkan pada tingkat risiko kegiatan usaha (Rendah, Menengah, Tinggi)."
+  },
+  {
+    "term": "PKP (Pengusaha Kena Pajak)",
+    "slug": "pkp",
+    "kategori": "Pajak",
+    "definisi": "Pengusaha yang melakukan penyerahan Barang/Jasa Kena Pajak. Wajib bagi perusahaan dengan omzet di atas 4,8 Miliar setahun, namun perusahaan baru juga bisa mengajukan secara sukarela."
+  },
+  {
+    "term": "PT Perorangan",
+    "slug": "pt-perorangan",
+    "kategori": "Badan Usaha",
+    "definisi": "Perseroan Terbatas yang didirikan oleh 1 (satu) orang saja yang merangkap sebagai Pemegang Saham dan Direktur. Khusus untuk Usaha Mikro dan Kecil (UMK)."
+  },
+  {
+    "term": "SK Kemenkumham",
+    "slug": "sk-kemenkumham",
+    "kategori": "Legalitas",
+    "definisi": "Surat Keputusan Menteri Hukum dan HAM yang mengesahkan pendirian badan hukum (PT/Yayasan). Tanpa SK ini, PT belum sah dianggap sebagai badan hukum."
+  },
+  {
+    "term": "Virtual Office",
+    "slug": "virtual-office",
+    "kategori": "Fasilitas",
+    "definisi": "Layanan penyewaan alamat kantor non-fisik untuk keperluan legalitas (domisili) dan surat-menyurat, namun penyewa tidak menempati ruangan kantor secara fisik sehari-hari."
+  },
+  {
+    "term": "Wanprestasi",
+    "slug": "wanprestasi",
+    "kategori": "Hukum",
+    "definisi": "Tindakan tidak memenuhi atau lalai melaksanakan kewajiban sebagaimana ditentukan dalam perjanjian/kontrak yang telah disepakati."
+  }
+]
