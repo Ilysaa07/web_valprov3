@@ -6,13 +6,23 @@ import {
   Phone, Mail, Clock, MessageCircle, ShieldCheck, 
   BookOpen, Calculator, Tag, FileText, ArrowRight,
   Instagram, Facebook, Linkedin, 
-  CalendarCheck, BookA, HelpCircle, Coins, Package
+  CalendarCheck, BookA, HelpCircle, Coins, Package,
+  Briefcase, HardHat, Zap, Award
 } from 'lucide-react';
 import { servicesData } from '@/lib/servicesData';
 
 // Import 2 Komponen Bahasa
 import GoogleTranslateScript from './GoogleTranslateScript';
 import LangDropdown from './LangDropdown';
+
+const iconMap = {
+  Briefcase: <Briefcase />,
+  FileText: <FileText />,
+  HardHat: <HardHat />,
+  Zap: <Zap />,
+  Award: <Award />,
+  Calculator: <Calculator />,
+};
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -102,7 +112,7 @@ export default function Navbar() {
                           {items.map((item, idx) => (
                             <Link key={idx} href={`/layanan/${item.slug}`} className="flex items-center gap-3 p-2 rounded-xl hover:bg-stone-50 transition group/item">
                                 <div className="w-8 h-8 rounded-lg bg-stone-100 text-stone-500 group-hover/item:bg-[#2a3f9b] group-hover/item:text-white flex items-center justify-center transition-all duration-300">
-                                  <div className="w-4 h-4">{item.icon}</div>
+                                  <div className="w-4 h-4">{iconMap[item.icon]}</div>
                                 </div>
                                 <div>
                                   <span className="block text-sm font-semibold text-stone-700 group-hover/item:text-[#2a3f9b] transition-colors">{item.title}</span>
