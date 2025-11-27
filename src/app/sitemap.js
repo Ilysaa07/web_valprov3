@@ -14,10 +14,10 @@ export default async function sitemap() {
   let blogUrls = [];
   try {
     const posts = await getSortedPostsData();
-    if (Array.isArray(posts)) {
+    if (posts && Array.isArray(posts) && posts.length > 0) {
       blogUrls = posts.map((post) => ({
         url: `${BASE_URL}/blog/${post.slug}`,
-        lastModified: new Date(post.date),
+        lastModified: post.date ? new Date(post.date) : lastModifiedDate,
         changeFrequency: 'weekly',
         priority: 0.8,
       }));

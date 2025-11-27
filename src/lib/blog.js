@@ -23,12 +23,22 @@ const parseContentfulPost = (item) => {
 
 // 1. Ambil SEMUA Artikel
 export async function getSortedPostsData() {
-  const response = await client.getEntries({
-    content_type: 'blogPost', // Sesuai ID di Contentful tadi
-    order: '-fields.date',    // Urutkan dari yang terbaru
-  });
+  try {
+    const response = await client.getEntries({
+      content_type: 'blogPost', // Sesuai ID di Contentful tadi
+      order: '-fields.date',    // Urutkan dari yang terbaru
+    });
 
-  return response.items.map(parseContentfulPost);
+    if (!response || !response.items || !Array.isArray(response.items)) {
+      console.warn('Contentful API returned invalid response or no items');
+      return [];
+    }
+
+    return response.items.map(parseContentfulPost);
+  } catch (error) {
+    console.error('Error fetching blog posts from Contentful:', error);
+    return [];
+  }
 }
 
 // 2. Ambil SATU Artikel (Detail)
