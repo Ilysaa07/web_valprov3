@@ -10,38 +10,67 @@ export default async function sitemap() {
   // Gunakan tanggal tetap untuk konten yang tidak sering berubah
   const lastModifiedDate = new Date('2025-01-01');
 
-  // 1. Ambil Data Blog (Dinamis dari file .mdoc)
-  const posts = await getSortedPostsData();
-  const blogUrls = posts.map((post) => ({
-    url: `${BASE_URL}/blog/${post.slug}`,
-    lastModified: new Date(post.date),
-    changeFrequency: 'weekly',
-    priority: 0.8,
-  }));
+  // 1. Ambil Data Blog (Dinamis dari Contentful)
+  let blogUrls = [];
+  try {
+    const posts = await getSortedPostsData();
+    if (Array.isArray(posts)) {
+      blogUrls = posts.map((post) => ({
+        url: `${BASE_URL}/blog/${post.slug}`,
+        lastModified: new Date(post.date),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to fetch blog posts for sitemap:', error);
+  }
 
   // 2. Ambil Data Layanan (dari servicesData.js)
-  const serviceUrls = servicesData.map((service) => ({
-    url: `${BASE_URL}/layanan/${service.slug}`,
-    lastModified: lastModifiedDate,
-    changeFrequency: 'monthly',
-    priority: 0.9,
-  }));
+  let serviceUrls = [];
+  try {
+    if (Array.isArray(servicesData)) {
+      serviceUrls = servicesData.map((service) => ({
+        url: `${BASE_URL}/layanan/${service.slug}`,
+        lastModified: lastModifiedDate,
+        changeFrequency: 'monthly',
+        priority: 0.9,
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to process services data for sitemap:', error);
+  }
 
   // 3. Ambil Data Lokasi/Area (dari locations.js)
-  const locationUrls = locations.map((loc) => ({
-    url: `${BASE_URL}/area/${loc.slug}`,
-    lastModified: lastModifiedDate,
-    changeFrequency: 'monthly',
-    priority: 0.7,
-  }));
+  let locationUrls = [];
+  try {
+    if (Array.isArray(locations)) {
+      locationUrls = locations.map((loc) => ({
+        url: `${BASE_URL}/area/${loc.slug}`,
+        lastModified: lastModifiedDate,
+        changeFrequency: 'monthly',
+        priority: 0.7,
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to process locations data for sitemap:', error);
+  }
 
   // 4. Ambil Data KBLI (dari kbli-full.json)
-  const kbliUrls = kbliData.map((kbli) => ({
-    url: `${BASE_URL}/kbli/${kbli.kode}`,
-    lastModified: lastModifiedDate,
-    changeFrequency: 'yearly',
-    priority: 0.6,
-  }));
+  let kbliUrls = [];
+  try {
+    if (Array.isArray(kbliData)) {
+      kbliUrls = kbliData.map((kbli) => ({
+        url: `${BASE_URL}/kbli/${kbli.kode}`,
+        lastModified: lastModifiedDate,
+        changeFrequency: 'yearly',
+        priority: 0.6,
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to process KBLI data for sitemap:', error);
+  }
+
 
   // 5. Halaman Statis Utama (dengan prioritas dan frekuensi yang disesuaikan)
   const staticRoutes = [
@@ -61,5 +90,5 @@ export default async function sitemap() {
     ...blogUrls, 
     ...locationUrls, 
     ...kbliUrls
-  ];
+  ].filter(Boolean); // Filter out any potential null/undefined entries
 }
