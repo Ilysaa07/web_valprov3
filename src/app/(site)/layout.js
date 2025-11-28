@@ -18,7 +18,7 @@ export const metadata = {
   },
   description: 'Jasa pendirian PT, CV, sertifikasi ISO, dan SBU Konstruksi terpercaya di Indonesia. Proses cepat, transparan, dan 100% legal.',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/logometa.svg',
   },
 };
 

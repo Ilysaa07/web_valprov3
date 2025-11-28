@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import FloatingButtons from "@/components/FloatingButtons";
 
 // Optimasi Font
 const inter = Inter({ 
@@ -16,7 +17,7 @@ export const metadata = {
   },
   description: 'Jasa pendirian PT, CV, sertifikasi ISO, dan SBU Konstruksi terpercaya di Indonesia. Proses cepat, transparan, dan 100% legal.',
   icons: {
-    icon: '/favicon.ico', // Pastikan file favicon.ico ada di folder public
+    icon: '/logometa.svg', // Gunakan logometa.svg dari folder public
   },
   openGraph: {
     title: 'Valpro Intertech - Solusi Legalitas Usaha',
@@ -31,6 +32,7 @@ export default function RootLayout({ children }) {
     <html lang="id" className="scroll-smooth">
       <body className={`${inter.className} bg-white text-stone-900 antialiased selection:bg-[#2a3f9b] selection:text-white`}>
         {children}
+        <FloatingButtons />
       </body>
     </html>
   );
