@@ -1,43 +1,61 @@
 import { Inter } from "next/font/google";
-import "../globals.css"; // Pastikan CSS global diimport
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import "../globals.css";
 
-// Menggunakan font Inter agar terlihat modern & clean (Humanis)
+import Navbar from "@/components/Navbar";
+import FloatingButtons from "@/components/FloatingButtons";
+import GoogleTranslateScript from "@/components/GoogleTranslateScript";
+
 const inter = Inter({ 
   subsets: ["latin"],
   variable: "--font-inter",
-  display: 'swap',
+  display: "swap",
 });
 
-// Metadata Global (SEO Dasar)
+export const viewport = {
+  themeColor: '#1e40af',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata = {
+  metadataBase: new URL('https://valprointertech.com'), 
   title: {
     default: 'Valpro Intertech | Jasa Legalitas & Perizinan Terpercaya',
     template: '%s | Valpro Intertech',
   },
-  description: 'Jasa pendirian PT, CV, sertifikasi ISO, dan SBU Konstruksi terpercaya di Indonesia. Proses cepat, transparan, dan 100% legal.',
-  icons: {
-    icon: '/logometa.svg',
+  description: 'Jasa pendirian PT, CV, sertifikasi ISO, dan SBU Konstruksi terpercaya di Indonesia.',
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="id" className="scroll-smooth">
-      <body className={`${inter.className} bg-white text-stone-900 antialiased selection:bg-[#2a3f9b] selection:text-white`}>
+      <body 
+        className={`${inter.className} bg-white text-stone-900 antialiased selection:bg-[#2a3f9b] selection:text-white`}
+        suppressHydrationWarning={true}
+      >
         
-        {/* 1. NAVBAR */}
-        <Navbar />
-
-        {/* 2. KONTEN HALAMAN */}
-        <div className="min-h-screen">
-          {children}
+        {/* PERBAIKAN: Bungkus semua konten React dalam satu DIV */}
+        {/* Ini mencegah bentrok dengan elemen yang diinject Google Translate ke Body */}
+        <div className="flex flex-col min-h-screen relative">
+          
+          <Navbar />
+          
+          <main className="flex-grow">
+             {children}
+          </main>
+          
+          <FloatingButtons />
+          
         </div>
-
-        {/* 3. FOOTER */}
-        <Footer />
-
+        
+        {/* Google Translate ditaruh di LUAR wrapper utama, tapi masih di dalam body */}
+        <GoogleTranslateScript />
+        
       </body>
     </html>
   );

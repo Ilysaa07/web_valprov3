@@ -1,33 +1,32 @@
 "use client";
 import { useEffect } from "react";
+import Script from "next/script";
 
 export default function GoogleTranslateScript() {
+  
   useEffect(() => {
-    // Mencegah script double
-    if (document.getElementById("google-translate-script")) return;
-
-    // 1. Siapkan fungsi inisialisasi
     window.googleTranslateElementInit = () => {
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: "id", // Bahasa asli website
-          includedLanguages: "en,ja,zh-CN,zh-TW,ko,id", // Bahasa target
-          autoDisplay: false,
-        },
-        "google_translate_element"
-      );
+      if (window.google && window.google.translate) {
+        new window.google.translate.TranslateElement(
+          {
+            pageLanguage: "id",
+            includedLanguages: "en,ja,zh-CN,zh-TW,ko,id",
+            autoDisplay: false,
+            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+          },
+          "google_translate_element"
+        );
+      }
     };
-
-    // 2. Inject Script Google
-    const script = document.createElement("script");
-    script.id = "google-translate-script";
-    script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-    script.async = true;
-    document.body.appendChild(script);
   }, []);
 
   return (
-    // Wadah tersembunyi untuk inisialisasi Google
-    <div id="google_translate_element" style={{ display: 'none' }} />
+    <>
+      <div id="google_translate_element" className="absolute top-0 left-0 opacity-0 pointer-events-none w-0 h-0 overflow-hidden" />
+      <Script
+        src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+        strategy="lazyOnload" 
+      />
+    </>
   );
 }

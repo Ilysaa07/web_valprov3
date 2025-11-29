@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 :root {
-  /* Opsional: Membuat warna dasar sedikit lebih hangat dibanding default browser */
   background-color: #ffffff;
 }
 
@@ -11,17 +10,24 @@
     animation: bounce-slow 4s infinite ease-in-out;
   }
 
-  /* Animasi Marquee */
+  /* Animasi Marquee (Running Text) */
   .animate-marquee {
     animation: marquee 40s linear infinite;
   }
+  
+  /* TAMBAHAN: Utility untuk animasi Float yang tadi belum ada class-nya */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
 
-  /* Efek Masking Fade Kiri-Kanan untuk Logo */
+  /* Efek Masking Fade Kiri-Kanan */
   .mask-image-gradient {
     mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
   }
 }
+
+/* --- KEYFRAMES --- */
 
 @keyframes bounce-slow {
   0%, 100% { transform: translateY(-5%); }
@@ -33,24 +39,39 @@
   100% { transform: translateX(-100%); }
 }
 
-/* --- GOOGLE TRANSLATE CLEANUP --- */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
 
-/* Sembunyikan Banner Atas Google */
-.goog-te-banner-frame.skiptranslate {
+/* --- GOOGLE TRANSLATE CLEANUP (Global Overrides) --- */
+/* Menaruh CSS ini disini lebih bagus daripada di JS */
+
+.goog-te-banner-frame {
     display: none !important;
 }
 
-/* Sembunyikan elemen body yang digeser Google */
 body {
     top: 0px !important;
+    position: static !important;
 }
 
-/* Sembunyikan tooltip saat hover teks (opsional, agar lebih bersih) */
-#goog-gt-tt {
+.goog-tooltip {
     display: none !important;
 }
 
-/* Sembunyikan teks "Powered by Google" */
+.goog-te-gadget-simple {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.goog-text-highlight {
+    background: none !important;
+    box-shadow: none !important;
+}
+
+/* Sembunyikan teks "Powered by Google" yang mengganggu layout */
 .goog-te-gadget {
     font-size: 0px !important;
     color: transparent !important;
@@ -61,17 +82,9 @@ body {
     display: none !important;
 }
 
-/* FIX NAVBAR LAYOUT SHIFT */
-/* Google sering menambahkan font tag yang bisa merusak flexbox */
+/* FIX NAVBAR LAYOUT SHIFT: Mencegah font tag Google merusak flexbox */
 font {
     background-color: transparent !important;
     box-shadow: none !important;
     position: static !important;
-}
-
-/* Di dalam globals.css */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
 }

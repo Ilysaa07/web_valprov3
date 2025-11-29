@@ -1,7 +1,7 @@
-"use client";
 import Image from 'next/image';
 import { ShieldCheck, CheckCircle2 } from 'lucide-react';
 
+// DATA STATIC (Di luar component agar tidak dirender ulang)
 const BANNER_IMAGES = [
   "/images/logos/bannerclient.png",
   "/images/logos/bannerclient2.png",
@@ -18,26 +18,29 @@ const BADGES = [
   { name: "Dirjen Pajak", src: "/images/logos/djp.png", desc: "PKP & KSWP Valid" },
 ];
 
-export default function ClientMarquee() {
-  const marqueeItems = [...BANNER_IMAGES, ...BANNER_IMAGES, ...BANNER_IMAGES, ...BANNER_IMAGES];
+const MARQUEE_ITEMS = [...BANNER_IMAGES, ...BANNER_IMAGES, ...BANNER_IMAGES, ...BANNER_IMAGES];
 
+export default function ClientMarquee() {
   return (
-    <section className="relative py-24 bg-stone-50 overflow-hidden font-sans border-t border-stone-200">
+    <section 
+      className="relative py-24 bg-stone-50 overflow-hidden font-sans border-t border-stone-200"
+      style={{ contentVisibility: 'auto' }}
+    >
       
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] opacity-70"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] opacity-70 pointer-events-none"></div>
       
-      <style jsx>{`
+      {/* CSS Animation Logic */}
+      <style>{`
         @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-25%); }
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-25%, 0, 0); }
         }
         .animate-scroll {
           animation: scroll 60s linear infinite;
+          will-change: transform;
         }
-        .animate-scroll:hover {
-          animation-play-state: paused;
-        }
+        /* Bagian hover:paused SUDAH DIHAPUS di sini */
       `}</style>
 
       <div className="relative max-w-7xl mx-auto px-6 z-10">
@@ -65,9 +68,9 @@ export default function ClientMarquee() {
 
         {/* --- PART 1: GOVERNMENT AUTHORITY --- */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-32">
-           {BADGES.map((badge, idx) => (
+           {BADGES.map((badge) => (
              <div 
-               key={idx} 
+               key={badge.name}
                className="group relative bg-white rounded-2xl p-4 border border-stone-100 hover:border-blue-100 transition-all duration-300 hover:shadow-xl hover:shadow-blue-900/5 hover:-translate-y-1 overflow-hidden"
              >
                 <div className="absolute top-0 left-0 w-full h-1 bg-stone-100 group-hover:bg-gradient-to-r group-hover:from-[#1e40af] group-hover:to-[#3b82f6] transition-all duration-500"></div>
@@ -78,6 +81,7 @@ export default function ClientMarquee() {
                         alt={badge.name}
                         width={60} height={60}
                         className="object-contain max-h-12 w-auto"
+                        loading="lazy"
                       />
                    </div>
                    <div>
@@ -91,7 +95,7 @@ export default function ClientMarquee() {
            ))}
         </div>
 
-        {/* --- PART 2: LOGO KLIEN (RAPAT & BESAR) --- */}
+        {/* --- PART 2: LOGO KLIEN (CONTINUOUS SCROLL) --- */}
         <div className="relative">
           <div className="flex items-center gap-4 mb-16">
              <span className="h-px flex-1 bg-gradient-to-r from-transparent via-stone-300 to-transparent"></span>
@@ -102,14 +106,11 @@ export default function ClientMarquee() {
           </div>
 
           <div className="w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_5%,_black_95%,transparent_100%)]">
-            
-            {/* UPDATED GAP: gap-8 (Mobile) & md:gap-16 (Desktop) */}
             <div className="flex w-max items-center gap-8 md:gap-16 animate-scroll py-8">
-              {marqueeItems.map((src, idx) => (
+              {MARQUEE_ITEMS.map((src, idx) => (
                 <div 
-                  key={idx} 
-                  // UKURAN TETAP BESAR: 300px (Mobile) / 500px (Desktop)
-                  className="relative w-[300px] h-[150px] md:w-[500px] md:h-[250px] group opacity-60 hover:opacity-100 transition-opacity duration-300"
+                  key={`${src}-${idx}`}
+                  className="relative w-[300px] h-[150px] md:w-[500px] md:h-[250px] group opacity-60 hover:opacity-100 transition-opacity duration-300 transform-gpu"
                 >
                   <Image
                     src={src}
@@ -117,6 +118,7 @@ export default function ClientMarquee() {
                     fill
                     className="object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500"
                     sizes="(max-width: 768px) 300px, 500px"
+                    loading="lazy"
                   />
                 </div>
               ))}
