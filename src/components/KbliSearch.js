@@ -1,29 +1,38 @@
 "use client";
 import { useState, useMemo } from 'react';
 import { Search, Copy, Check, FileText, AlertCircle, ArrowDown } from 'lucide-react';
-// Pastikan path ini sesuai dengan lokasi file json Anda
-import kbliData from '@/lib/kbli-full.json'; 
+import Link from 'next/link';
+import kbliDataRaw from '@/lib/kbli2020.json'; 
+import { getCategoryForCode, KBLI_CATEGORIES } from '@/lib/kbli-kategori';
+
+// Adapt the data structure
+const kbliData = kbliDataRaw.map(item => ({
+  kode: item["Kode KBLI"],
+  judul: item["KBLI"],
+  uraian: item["Deskripsi"],
+}));
 
 export default function KbliSearch() {
   const [query, setQuery] = useState("");
   const [copiedCode, setCopiedCode] = useState(null);
-  const [displayLimit, setDisplayLimit] = useState(20); // Virtual Pagination
+  const [displayLimit, setDisplayLimit] = useState(20);
 
-  // Logika Pencarian Cepat (Memoized)
   const filteredData = useMemo(() => {
-    if (!query) return kbliData;
+    if (!query) return []; // Return empty array if no query
     
     const lowerQuery = query.toLowerCase();
     return kbliData.filter(item => 
       item.kode.includes(lowerQuery) || 
       item.judul.toLowerCase().includes(lowerQuery) ||
-      item.uraian.toLowerCase().includes(lowerQuery)
+      (item.uraian && item.uraian.toLowerCase().includes(lowerQuery))
     );
   }, [query]);
 
   const visibleData = filteredData.slice(0, displayLimit);
 
-  const handleCopy = (code) => {
+  const handleCopy = (e, code) => {
+    e.preventDefault();
+    e.stopPropagation();
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
@@ -32,10 +41,8 @@ export default function KbliSearch() {
   return (
     <div className="w-full max-w-5xl mx-auto font-sans">
       
-      {/* --- SEARCH BAR (Sticky & Glassy) --- */}
       <div className="sticky top-28 z-30 mb-12">
         <div className="relative group">
-            {/* Glow Effect */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[#2a3f9b] to-blue-400 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
             
             <div className="relative bg-white/90 backdrop-blur-md rounded-full shadow-2xl flex items-center p-2 border border-stone-200">
@@ -49,7 +56,7 @@ export default function KbliSearch() {
                     value={query}
                     onChange={(e) => {
                         setQuery(e.target.value);
-                        setDisplayLimit(20); // Reset limit saat mengetik
+                        setDisplayLimit(20);
                     }}
                 />
                 {query && (
@@ -62,83 +69,72 @@ export default function KbliSearch() {
                 )}
             </div>
         </div>
-        <p className="text-center text-xs text-stone-500 mt-4 font-medium">
-            Menampilkan <span className="text-[#2a3f9b] font-bold">{visibleData.length}</span> dari total {kbliData.length} kode KBLI 2020
-        </p>
+        {query && (
+            <p className="text-center text-xs text-stone-500 mt-4 font-medium">
+                Hasil pencarian untuk <span className="text-[#2a3f9b] font-bold">"{query}"</span>. Menampilkan <span className="text-[#2a3f9b] font-bold">{visibleData.length}</span> dari {filteredData.length} hasil.
+            </p>
+        )}
       </div>
 
-      {/* --- RESULTS LIST --- */}
       <div className="space-y-6">
-        {visibleData.length > 0 ? (
-            visibleData.map((item, idx) => (
-                <div 
-                    key={idx} 
-                    className="group bg-white rounded-[2.5rem] p-8 border border-stone-200 hover:border-[#2a3f9b] hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-300 relative overflow-hidden"
-                >
-                    {/* Background Number Decoration */}
-                    <span className="absolute -right-6 -top-6 text-[120px] font-bold text-stone-50 opacity-50 select-none group-hover:text-blue-50/80 transition-colors pointer-events-none">
-                        {item.kode.slice(0, 2)}
-                    </span>
-
-                    <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start">
-                        
-                        {/* Kiri: Kode Box */}
-                        <div className="flex-shrink-0 w-full md:w-auto flex flex-col items-center md:items-stretch">
-                            <div className="bg-stone-50 border border-stone-200 rounded-3xl p-6 text-center min-w-[140px] group-hover:bg-[#2a3f9b] group-hover:border-[#2a3f9b] transition-colors duration-300">
-                                <p className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.2em] mb-1 group-hover:text-blue-200">KODE</p>
-                                <p className="text-4xl font-bold text-stone-900 group-hover:text-white tracking-tight">{item.kode}</p>
+        {query && visibleData.length > 0 ? (
+            visibleData.map((item, idx) => {
+                const categoryCode = getCategoryForCode(item.kode);
+                const categoryName = categoryCode ? KBLI_CATEGORIES[categoryCode] : "Tidak Diketahui";
+                return (
+                    <Link href={`/kbli/${item.kode}`} key={idx} className="block group bg-white rounded-2xl p-8 border border-stone-200 hover:border-[#2a3f9b] hover:shadow-lg transition-all duration-300 relative">
+                        <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start">
+                            <div className="flex-grow">
+                                <div className="flex items-center gap-4 mb-3">
+                                    <span className="text-xl font-bold text-[#2a3f9b]">{item.kode}</span>
+                                    {categoryCode && (
+                                        <span className="px-3 py-1 rounded-full bg-blue-50 text-[#2a3f9b] text-xs font-bold">{categoryCode}: {categoryName}</span>
+                                    )}
+                                </div>
+                                <h3 className="text-lg font-bold text-stone-900 mb-3 group-hover:text-blue-700">
+                                    {item.judul}
+                                </h3>
+                                <p className="text-stone-600 text-sm leading-relaxed line-clamp-2">
+                                    {item.uraian}
+                                </p>
                             </div>
-                            
-                            <button 
-                                onClick={() => handleCopy(item.kode)}
-                                className="mt-3 w-full py-2 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border border-stone-200 text-stone-500 hover:border-[#2a3f9b] hover:text-[#2a3f9b] hover:bg-white transition-all"
-                            >
-                                {copiedCode === item.kode ? (
-                                    <><Check size={14} className="text-green-500"/> Tersalin</>
-                                ) : (
-                                    <><Copy size={14}/> Salin Kode</>
-                                )}
-                            </button>
-                        </div>
-
-                        {/* Kanan: Konten */}
-                        <div className="flex-grow">
-                            <h3 className="text-2xl font-bold text-stone-900 mb-4 group-hover:text-[#2a3f9b] transition-colors leading-snug">
-                                {item.judul}
-                            </h3>
-                            <p className="text-stone-600 text-sm leading-relaxed mb-6">
-                                {item.uraian}
-                            </p>
-                            
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-stone-100 text-stone-500 text-xs font-medium">
-                                <FileText size={14} />
-                                <span>Kategori: {item.kategori || "Umum"}</span>
+                            <div className="flex-shrink-0">
+                                 <button 
+                                    onClick={(e) => handleCopy(e, item.kode)}
+                                    className="py-2 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border border-stone-200 text-stone-500 hover:border-green-500 hover:text-green-600 hover:bg-green-50 transition-all"
+                                >
+                                    {copiedCode === item.kode ? (
+                                        <><Check size={14} className="text-green-500"/> Tersalin</>
+                                    ) : (
+                                        <><Copy size={14}/> Salin Kode</>
+                                    )}
+                                </button>
                             </div>
                         </div>
-                    </div>
-                </div>
-            ))
+                    </Link>
+                )
+            })
         ) : (
-            // Empty State
-            <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-stone-200">
-                <div className="w-20 h-20 bg-stone-50 rounded-full flex items-center justify-center mx-auto mb-6 text-stone-400">
-                    <AlertCircle size={40} />
+             query && (
+                <div className="text-center py-24 bg-white rounded-2xl border-2 border-dashed border-stone-200">
+                    <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6 text-stone-400">
+                        <AlertCircle size={32} />
+                    </div>
+                    <h3 className="text-lg font-bold text-stone-900 mb-2">Tidak Ditemukan</h3>
+                    <p className="text-stone-500 max-w-md mx-auto text-sm">
+                        Kami tidak menemukan kode atau uraian yang cocok dengan kata kunci <strong>"{query}"</strong>. Coba gunakan kata yang lebih umum.
+                    </p>
                 </div>
-                <h3 className="text-xl font-bold text-stone-900 mb-2">Tidak ditemukan</h3>
-                <p className="text-stone-500 max-w-md mx-auto">
-                    Kami tidak menemukan kode atau uraian yang cocok dengan kata kunci <strong>"{query}"</strong>. Coba gunakan kata yang lebih umum.
-                </p>
-            </div>
+            )
         )}
 
-        {/* Load More Button */}
         {visibleData.length < filteredData.length && (
-            <div className="text-center pt-12 pb-20">
+            <div className="text-center pt-12">
                 <button 
                     onClick={() => setDisplayLimit(prev => prev + 20)}
-                    className="group px-8 py-4 bg-white border-2 border-stone-200 text-stone-600 font-bold rounded-full hover:border-[#2a3f9b] hover:text-[#2a3f9b] transition-all shadow-sm flex items-center gap-2 mx-auto"
+                    className="group px-6 py-3 bg-white border-2 border-stone-200 text-stone-600 font-bold rounded-full hover:border-[#2a3f9b] hover:text-[#2a3f9b] transition-all shadow-sm flex items-center gap-2 mx-auto text-sm"
                 >
-                    Tampilkan Lebih Banyak <ArrowDown size={18} className="group-hover:translate-y-1 transition-transform"/>
+                    Tampilkan Lebih Banyak <ArrowDown size={16} className="group-hover:translate-y-0.5 transition-transform"/>
                 </button>
             </div>
         )}

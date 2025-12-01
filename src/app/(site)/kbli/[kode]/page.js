@@ -1,7 +1,15 @@
-import kbliData from '@/lib/kbli-full.json';
+import kbliDataRaw from '@/lib/kbli2020.json';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Tag } from 'lucide-react';
+import { ArrowLeft, BookOpen } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { getCategoryForCode, KBLI_CATEGORIES } from '@/lib/kbli-kategori';
+
+// Adapt the data structure
+const kbliData = kbliDataRaw.map(item => ({
+  kode: item["Kode KBLI"],
+  judul: item["KBLI"],
+  uraian: item["Deskripsi"],
+}));
 
 // SEO Metadata Dinamis
 export async function generateMetadata({ params }) {
@@ -11,7 +19,7 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `KBLI ${data.kode}: ${data.judul} - Panduan Izin Usaha`,
-    description: `Penjelasan lengkap kode KBLI ${data.kode} (${data.judul}). Uraian kegiatan, kategori, dan persyaratan izin usaha OSS RBA.`,
+    description: `Penjelasan lengkap kode KBLI ${data.kode} (${data.judul}). Uraian kegiatan, dan persyaratan izin usaha OSS RBA.`,
   };
 }
 
@@ -29,25 +37,30 @@ export default function KbliDetailPage({ params }) {
 
   if (!data) return notFound();
 
+  const categoryCode = getCategoryForCode(data.kode);
+  const categoryName = categoryCode ? KBLI_CATEGORIES[categoryCode] : null;
+
   return (
     <main className="min-h-screen bg-[#FAFAFA] pt-32 pb-24 px-6 font-sans">
       <div className="max-w-3xl mx-auto">
          
          <Link href="/kbli" className="inline-flex items-center gap-2 text-stone-500 hover:text-[#2a3f9b] mb-8 text-sm font-medium transition-colors">
-            <ArrowLeft size={16} /> Kembali ke Pencarian
+            <ArrowLeft size={16} /> Kembali ke Pencarian & Kategori
          </Link>
 
          <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-stone-200 shadow-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#2a3f9b]/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
             
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-wrap items-center gap-4 mb-6">
                <div className="bg-stone-50 border border-stone-200 p-4 rounded-2xl text-center min-w-[100px]">
                   <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">KODE</p>
                   <p className="text-3xl font-bold text-[#2a3f9b]">{data.kode}</p>
                </div>
-               <div className="bg-blue-50 border border-blue-100 px-4 py-2 rounded-full text-xs font-bold text-[#2a3f9b] uppercase tracking-wider">
-                  KBLI 2020
-               </div>
+               {categoryCode && categoryName && (
+                <Link href={`/kbli/kategori/${categoryCode}`} className="bg-blue-50 border border-blue-100 px-4 py-2 rounded-full text-xs font-bold text-[#2a3f9b] uppercase tracking-wider hover:bg-blue-100 transition-colors">
+                    Kategori {categoryCode}: {categoryName}
+                </Link>
+               )}
             </div>
 
             <h1 className="text-2xl md:text-4xl font-bold text-stone-900 mb-6 leading-tight">
@@ -61,13 +74,6 @@ export default function KbliDetailPage({ params }) {
                <p className="text-stone-600 leading-relaxed text-base">
                   {data.uraian}
                </p>
-               
-               {data.kategori && (
-                 <div className="mt-6 pt-6 border-t border-stone-100 flex items-center gap-2 text-sm text-stone-500">
-                    <Tag size={16} /> 
-                    <strong>Kategori:</strong> {data.kategori}
-                 </div>
-               )}
             </div>
 
             {/* CTA KONTEKSTUAL */}
@@ -79,6 +85,7 @@ export default function KbliDetailPage({ params }) {
                <a 
                  href={`https://wa.me/6281399710085?text=Halo, saya mau konsultasi izin usaha untuk KBLI ${data.kode} (${data.judul})`}
                  target="_blank"
+                 rel="noopener noreferrer"
                  className="inline-block bg-white text-[#2a3f9b] px-6 py-3 rounded-xl font-bold text-sm hover:bg-blue-50 transition shadow-lg"
                >
                  Konsultasi Izin Usaha

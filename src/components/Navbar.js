@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
@@ -30,6 +30,9 @@ export default function Navbar() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  const dropdownRef = useRef(null);
+  const toolsRef = useRef(null);
+
   useEffect(() => {
     setMounted(true);
     
@@ -41,8 +44,22 @@ export default function Navbar() {
       });
     };
 
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+      if (toolsRef.current && !toolsRef.current.contains(event.target)) {
+        setToolsOpen(false);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const navbarClasses = useMemo(() => {
@@ -65,6 +82,16 @@ export default function Navbar() {
     return IconComponent ? <IconComponent size={16} /> : null;
   };
 
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+    setToolsOpen(false); // Close other dropdown
+  };
+
+  const toggleTools = () => {
+    setToolsOpen(!toolsOpen);
+    setDropdownOpen(false); // Close other dropdown
+  };
+
   return (
     <>
       <div className="hidden lg:block bg-[#0f172a] text-stone-300 text-[11px] font-medium py-2 relative z-[60]">
@@ -81,7 +108,7 @@ export default function Navbar() {
           </div>
           <div className="flex items-center gap-2">
              <Clock size={12} className="text-[#3b82f6]" />
-             <span>Senin - Jumat, 09:00 - 17:00 WIB</span>
+             <span>Senin - Sabtu, 09:00 - 17:00 WIB</span>
           </div>
         </div>
       </div>
@@ -110,12 +137,8 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-1">
             <Link href="/" className="px-4 py-2 text-stone-600 font-medium hover:text-[#1e40af] text-[13px] transition-colors rounded-full hover:bg-stone-50">Beranda</Link>
             
-            <div 
-              className="relative group"
-              onMouseEnter={() => setDropdownOpen(true)}
-              onMouseLeave={() => setDropdownOpen(false)}
-            >
-              <button className={`flex items-center gap-1 px-4 py-2 text-[13px] font-medium transition-all duration-200 rounded-full ${dropdownOpen ? 'text-[#1e40af] bg-stone-50' : 'text-stone-600 hover:text-[#1e40af] hover:bg-stone-50'}`}>
+            <div className="relative" ref={dropdownRef}>
+              <button onClick={toggleDropdown} className={`flex items-center gap-1 px-4 py-2 text-[13px] font-medium transition-all duration-200 rounded-full ${dropdownOpen ? 'text-[#1e40af] bg-stone-50' : 'text-stone-600 hover:text-[#1e40af] hover:bg-stone-50'}`}>
                 Layanan <ChevronDown size={14} className={`transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
@@ -155,12 +178,8 @@ export default function Navbar() {
               </div>
             </div>
 
-            <div 
-              className="relative group"
-              onMouseEnter={() => setToolsOpen(true)}
-              onMouseLeave={() => setToolsOpen(false)}
-            >
-              <button className={`flex items-center gap-1 px-4 py-2 text-[13px] font-medium transition-all duration-200 rounded-full ${toolsOpen ? 'text-[#1e40af] bg-stone-50' : 'text-stone-600 hover:text-[#1e40af] hover:bg-stone-50'}`}>
+            <div className="relative" ref={toolsRef}>
+              <button onClick={toggleTools} className={`flex items-center gap-1 px-4 py-2 text-[13px] font-medium transition-all duration-200 rounded-full ${toolsOpen ? 'text-[#1e40af] bg-stone-50' : 'text-stone-600 hover:text-[#1e40af] hover:bg-stone-50'}`}>
                 Alat Bantu <ChevronDown size={14} className={`transition-transform duration-200 ${toolsOpen ? 'rotate-180' : ''}`} />
               </button>
               
