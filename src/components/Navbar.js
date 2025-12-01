@@ -12,9 +12,6 @@ import {
 } from 'lucide-react';
 import { servicesData } from '@/lib/servicesData';
 
-// HAPUS IMPORT INI (Sudah ada di layout.js)
-// import GoogleTranslateScript from './GoogleTranslateScript';
-
 import LangDropdown from './LangDropdown';
 
 const iconMap = {
@@ -31,8 +28,11 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    
     const handleScroll = () => {
       const isScrolled = window.scrollY > 20;
       setScrolled(prev => {
@@ -44,6 +44,14 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const navbarClasses = useMemo(() => {
+    const baseClasses = "fixed w-full z-50 transition-all duration-300 ease-in-out";
+    if (mounted && scrolled) {
+      return `${baseClasses} bg-white/95 shadow-sm py-3 top-0 border-b border-stone-100 backdrop-blur-sm`;
+    }
+    return `${baseClasses} bg-white py-5 top-0 lg:top-[34px]`;
+  }, [mounted, scrolled]);
 
   const groupedServices = useMemo(() => ({
     "Legalitas & Izin": servicesData.filter(s => s.category === "Legal" || s.category === "Legalitas"),
@@ -59,9 +67,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* HAPUS KOMPONEN INI: <GoogleTranslateScript /> (Sudah ada di layout.js) */}
-
-      {/* --- TOP BAR --- */}
       <div className="hidden lg:block bg-[#0f172a] text-stone-300 text-[11px] font-medium py-2 relative z-[60]">
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center gap-6">
@@ -81,15 +86,9 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* --- MAIN NAVBAR --- */}
-      <nav className={`fixed w-full z-50 transition-all duration-300 ease-in-out ${
-        scrolled 
-          ? 'bg-white/95 shadow-sm py-3 top-0 border-b border-stone-100 backdrop-blur-sm' 
-          : 'bg-white py-5 top-0 lg:top-[34px]' 
-      }`}>
+      <nav className={navbarClasses}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
-          {/* LOGO */}
           <Link href="/" className="text-2xl font-bold text-stone-900 tracking-tight z-50 flex items-center gap-1 group/logo">
              <div className="rounded-lg flex items-center justify-center text-white transition-transform">
                <Image
@@ -108,11 +107,9 @@ export default function Navbar() {
              </span>
           </Link>
 
-          {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center space-x-1">
             <Link href="/" className="px-4 py-2 text-stone-600 font-medium hover:text-[#1e40af] text-[13px] transition-colors rounded-full hover:bg-stone-50">Beranda</Link>
             
-            {/* === MEGA MENU LAYANAN === */}
             <div 
               className="relative group"
               onMouseEnter={() => setDropdownOpen(true)}
@@ -158,7 +155,6 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* === MEGA MENU ALAT BANTU (TOOLS) === */}
             <div 
               className="relative group"
               onMouseEnter={() => setToolsOpen(true)}
@@ -170,7 +166,6 @@ export default function Navbar() {
               
               <div className={`absolute top-full -left-20 w-[600px] bg-white rounded-3xl shadow-xl border border-stone-100 p-6 transition-all duration-200 origin-top-left overflow-hidden z-50 ${toolsOpen ? 'opacity-100 translate-y-2 visible' : 'opacity-0 translate-y-6 invisible pointer-events-none'}`}>
                  <div className="grid grid-cols-2 gap-4">
-                    {/* Col 1 */}
                     <div className="space-y-2">
                         <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-2 px-2">Legalitas & Izin</p>
                         
@@ -195,7 +190,6 @@ export default function Navbar() {
                         </Link>
                     </div>
 
-                    {/* Col 2 */}
                     <div className="space-y-2">
                         <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-2 px-2">Bisnis & Keuangan</p>
                         
@@ -226,7 +220,6 @@ export default function Navbar() {
                     </div>
                  </div>
 
-                 {/* Footer Tool */}
                  <div className="mt-4 pt-4 border-t border-stone-100">
                     <Link href="/cek-status" className="flex items-center justify-between p-3 rounded-xl bg-stone-50 hover:bg-stone-100 transition group">
                         <div className="flex items-center gap-3">
@@ -242,19 +235,16 @@ export default function Navbar() {
             <Link href="/blog" className="px-4 py-2 text-stone-600 font-medium hover:text-[#1e40af] text-[13px] transition-colors rounded-full hover:bg-stone-50">Wawasan</Link>
             <Link href="/#tentang" className="px-4 py-2 text-stone-600 font-medium hover:text-[#1e40af] text-[13px] transition-colors rounded-full hover:bg-stone-50">Tentang Kami</Link>
 
-            {/* SEPARATOR & LANGUAGE SWITCHER */}
             <div className="w-px h-6 bg-stone-200 mx-2"></div>
             <LangDropdown />
           </div>
 
-          {/* CTA BUTTON */}
           <div className="hidden md:block ml-4">
             <Link href="https://wa.me/6281399710085" className="text-white px-5 py-2.5 rounded-full text-sm font-bold transition-all hover:shadow-lg hover:shadow-blue-500/20 flex items-center gap-2 hover:-translate-y-0.5 bg-gradient-to-r from-[#1e40af] to-[#3b82f6] active:scale-95">
                Konsultasi <ArrowRight size={16} />
             </Link>
           </div>
 
-          {/* MOBILE TOGGLE & LANG */}
           <div className="flex items-center gap-3 md:hidden">
               <LangDropdown />
               <button 
@@ -267,7 +257,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* MOBILE MENU */}
         {isOpen && (
           <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-2xl border-t border-stone-100 p-6 flex flex-col space-y-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-top-5 duration-200">
             <Link href="/" onClick={() => setIsOpen(false)} className="font-medium text-stone-700 text-lg">Beranda</Link>
