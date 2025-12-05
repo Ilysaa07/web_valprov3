@@ -19,17 +19,17 @@
     "firebase-admin": "^13.6.0",
     "lucide-react": "^0.554.0",
     "negotiator": "^1.0.0",
-    "next": "^14.2.15",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "next": "^16.0.7",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "react-google-recaptcha-v3": "^1.11.0",
     "sharp": "^0.34.5",
     "sweetalert2": "^11.26.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.33",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "^16.0.7",
     "tailwindcss": "^4"
   }
 }

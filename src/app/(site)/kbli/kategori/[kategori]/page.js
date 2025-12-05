@@ -6,8 +6,16 @@ import { BookOpen, ArrowLeft } from 'lucide-react';
 import KbliCard from '@/components/KbliCard';
 
 export async function generateMetadata({ params }) {
-  const { kategori } = params;
-  const categoryName = KBLI_CATEGORIES[kategori.toUpperCase()];
+  const { kategori } = params || {};
+
+  if (!kategori) {
+    return {
+      title: 'Kategori KBLI Tidak Ditemukan',
+    };
+  }
+
+  const categoryCode = kategori.toUpperCase();
+  const categoryName = KBLI_CATEGORIES[categoryCode];
 
   if (!categoryName) {
     return {
@@ -16,7 +24,7 @@ export async function generateMetadata({ params }) {
   }
 
   return {
-    title: `KBLI Kategori ${kategori.toUpperCase()}: ${categoryName}`,
+    title: `KBLI Kategori ${categoryCode}: ${categoryName}`,
     description: `Daftar lengkap KBLI 2020 untuk kategori ${categoryName}.`,
   };
 }
@@ -28,7 +36,12 @@ export async function generateStaticParams() {
 }
 
 export default function KategoriPage({ params }) {
-  const { kategori } = params;
+  const { kategori } = params || {};
+
+  if (!kategori) {
+    notFound();
+  }
+
   const categoryCode = kategori.toUpperCase();
   const categoryName = KBLI_CATEGORIES[categoryCode];
 

@@ -269,7 +269,7 @@ const InvoicePreviewPage = ({ formData, handlePrint }) => {
                  </div>
 
                  <div style={{ marginTop: '32px', paddingTop: '8px', borderTop: '1px solid #e5e7eb', fontSize: '8px', color: '#9ca3af', textAlign: 'center', position: 'relative', zIndex: 10 }}>
-                     Waktu cetak: {new Date().toLocaleString('id-ID')} • Invoice ini dibuat secara otomatis oleh website ValproEMS.
+                     Waktu cetak: {new Date().toLocaleString('id-ID')} • Invoice ini dibuat secara otomatis oleh website ValproAdminPanel.
                  </div>
              </div>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Swal from 'sweetalert2';
 import { auth, db } from "../lib/firebase";
 import {
@@ -103,16 +103,80 @@ const InvoiceGenerator = () => {
     }
   }, []);
 
-  useEffect(() => {
-    calculateTotals();
-  }, [
-    formData.items,
-    formData.discountType,
-    formData.discountValue,
-    formData.taxType,
-    formData.taxValue,
-    formData.termins,
-  ]);
+  // Calculate totals using useMemo to prevent infinite loop
+  const calculatedTotals = useMemo(() => {
+    // 1) Hitung subtotal items
+    const subtotal = (formData.items || []).reduce((sum, item) => {
+      const mainAmount = (item.quantity || 0) * (item.unitPrice || 0);
+      const subItemsAmount = (item.subItems || []).reduce((subSum, subItem) => {
+        return subSum + ((subItem.unitPrice || 0) * (subItem.quantity || 1));
+      }, 0);
+      return sum + mainAmount + subItemsAmount;
+    }, 0);
+
+    // 2) Hitung Diskon
+    let discountAmount = 0;
+    if (formData.discountType === "percentage") {
+      discountAmount = (subtotal * (formData.discountValue || 0)) / 100;
+    } else {
+      discountAmount = formData.discountValue || 0;
+    }
+    const afterDiscount = Math.max(0, subtotal - discountAmount);
+
+    // 3) Hitung Pajak
+    let taxAmount = 0;
+    if (formData.taxType === "percentage") {
+      taxAmount = (afterDiscount * (formData.taxValue || 0)) / 100;
+    } else {
+      taxAmount = formData.taxValue || 0;
+    }
+    const total = Math.max(0, afterDiscount + taxAmount);
+
+    // 4) Hitung Termin — Update the main termins array with calculatedAmount
+    const updatedTermins = (formData.termins || []).map((t) => {
+      let calc = 0;
+      if (t.amountType === "percentage") {
+        calc = (Number(t.value || 0) / 100) * total;
+      } else {
+        calc = Number(t.value || 0);
+      }
+      return { ...t, calculatedAmount: Math.round(calc) };
+    });
+
+    const totalTerminPaid = updatedTermins.reduce((s, t) => s + (t.calculatedAmount || 0), 0);
+    const remainingAmount = Math.max(0, total - totalTerminPaid);
+
+    // 5) Auto Status
+    let newStatus = formData.status;
+    if (formData.status !== "cancelled") {
+      if (remainingAmount <= 0 && total > 0) newStatus = "paid";
+      else if (totalTerminPaid > 0) newStatus = "partial";
+      else if (formData.dueDate && new Date(formData.dueDate) < new Date()) newStatus = "overdue";
+    }
+
+    return {
+      subtotal,
+      discountAmount,
+      taxAmount,
+      total,
+      termins: updatedTermins,
+      totalTerminPaid,
+      remainingAmount,
+      status: newStatus,
+      // item.amount & subItem.amount diupdate
+      items: (formData.items || []).map((item) => {
+        const subItemsVal = (item.subItems || []).reduce((s, si) => s + ((si.quantity||1)*(si.unitPrice||0)), 0);
+        return {
+          ...item,
+          amount: ((item.quantity || 0) * (item.unitPrice || 0)) + subItemsVal,
+          subItems: (item.subItems || []).map((subItem) => ({
+            ...subItem,
+            amount: (subItem.quantity || 1) * (subItem.unitPrice || 0)
+          }))
+        };
+      }),
+    };
+  }, [JSON.stringify(formData.items), formData.discountType, formData.discountValue, formData.taxType, formData.taxValue, JSON.stringify(formData.termins), formData.status, formData.dueDate]);
 
   // Auto-update dueDate
   useEffect(() => {
@@ -203,10 +267,10 @@ const InvoiceGenerator = () => {
     return `INV-${datePrefix}-${String(highestNum + 1).padStart(4, "0")}`;
   };
 
-const calculateTotals = () => {
-  setFormData((prev) => {
+  // Now use a separate function to update formData with calculated values
+  const updateFormDataWithCalculatedValues = (prevFormData) => {
     // 1) Hitung subtotal items
-    const subtotal = (prev.items || []).reduce((sum, item) => {
+    const subtotal = (prevFormData.items || []).reduce((sum, item) => {
       const mainAmount = (item.quantity || 0) * (item.unitPrice || 0);
       const subItemsAmount = (item.subItems || []).reduce((subSum, subItem) => {
         return subSum + ((subItem.unitPrice || 0) * (subItem.quantity || 1));
@@ -216,24 +280,24 @@ const calculateTotals = () => {
 
     // 2) Hitung Diskon
     let discountAmount = 0;
-    if (prev.discountType === "percentage") {
-      discountAmount = (subtotal * (prev.discountValue || 0)) / 100;
+    if (prevFormData.discountType === "percentage") {
+      discountAmount = (subtotal * (prevFormData.discountValue || 0)) / 100;
     } else {
-      discountAmount = prev.discountValue || 0;
+      discountAmount = prevFormData.discountValue || 0;
     }
     const afterDiscount = Math.max(0, subtotal - discountAmount);
 
     // 3) Hitung Pajak
     let taxAmount = 0;
-    if (prev.taxType === "percentage") {
-      taxAmount = (afterDiscount * (prev.taxValue || 0)) / 100;
+    if (prevFormData.taxType === "percentage") {
+      taxAmount = (afterDiscount * (prevFormData.taxValue || 0)) / 100;
     } else {
-      taxAmount = prev.taxValue || 0;
+      taxAmount = prevFormData.taxValue || 0;
     }
     const total = Math.max(0, afterDiscount + taxAmount);
 
     // 4) Hitung Termin — Update the main termins array with calculatedAmount
-    const updatedTermins = (prev.termins || []).map((t) => {
+    const updatedTermins = (prevFormData.termins || []).map((t) => {
       let calc = 0;
       if (t.amountType === "percentage") {
         calc = (Number(t.value || 0) / 100) * total;
@@ -247,16 +311,15 @@ const calculateTotals = () => {
     const remainingAmount = Math.max(0, total - totalTerminPaid);
 
     // 5) Auto Status
-    let newStatus = prev.status;
-    if (prev.status !== "cancelled") {
+    let newStatus = prevFormData.status;
+    if (prevFormData.status !== "cancelled") {
       if (remainingAmount <= 0 && total > 0) newStatus = "paid";
       else if (totalTerminPaid > 0) newStatus = "partial";
-      else if (prev.dueDate && new Date(prev.dueDate) < new Date()) newStatus = "overdue";
+      else if (prevFormData.dueDate && new Date(prevFormData.dueDate) < new Date()) newStatus = "overdue";
     }
 
-    // 6) Return final state
     return {
-      ...prev,
+      ...prevFormData,
       subtotal,
       discountAmount,
       taxAmount,
@@ -267,7 +330,7 @@ const calculateTotals = () => {
       status: newStatus,
 
       // item.amount & subItem.amount diupdate
-      items: (prev.items || []).map((item) => {
+      items: (prevFormData.items || []).map((item) => {
         const subItemsVal = (item.subItems || []).reduce((s, si) => s + ((si.quantity||1)*(si.unitPrice||0)), 0);
         return {
           ...item,
@@ -279,13 +342,18 @@ const calculateTotals = () => {
         };
       }),
     };
-  });
-};
+  };
 
   // --- PDF Generation ---
 
   const generatePDFBlob = async () => {
-    const statusObj = INVOICE_STATUSES.find((s) => s.value === formData.status) || INVOICE_STATUSES[0];
+    // Gunakan data dengan perhitungan terbaru
+    const dataToUse = {
+      ...formData,
+      ...calculatedTotals
+    };
+
+    const statusObj = INVOICE_STATUSES.find((s) => s.value === dataToUse.status) || INVOICE_STATUSES[0];
     const statusLabel = statusObj.label.toUpperCase();
     const statusColor = statusObj.statusColor; // e.g. #00b050
 
@@ -300,7 +368,7 @@ const calculateTotals = () => {
     };
 
     // Build Items Rows
-    const itemsHtml = formData.items
+    const itemsHtml = dataToUse.items
       .filter((item) => item.description)
       .map((item) => {
         const subItemsHtml = (item.subItems || [])
@@ -326,7 +394,7 @@ const calculateTotals = () => {
       }).join("");
 
     // Build Termin Rows for Summary
-const terminRows = formData.termins.map((termin, idx) => {
+const terminRows = dataToUse.termins.map((termin, idx) => {
   const calc = termin.calculatedAmount || 0;
 
   return `
@@ -343,7 +411,7 @@ const terminRows = formData.termins.map((termin, idx) => {
       <html lang="id">
       <head>
         <meta charset="utf-8">
-        <title>Invoice ${formData.invoiceNumber}</title>
+        <title>Invoice ${dataToUse.invoiceNumber}</title>
         <style>
           @page { size: A4; margin: 0; }
           body { font-family: 'Arial', sans-serif; font-size: 12px; color: #374151; margin: 0; padding: 0; background: #fff; -webkit-print-color-adjust: exact; }
@@ -406,19 +474,21 @@ const terminRows = formData.termins.map((termin, idx) => {
 
           .print-meta { margin-top: 32px; font-size: 8px; color: #9ca3af; text-align: center; position: relative; z-index: 10; }
 
-          /* LUNAS overlay */
+          /* LUNAS overlay - centered like watermark */
           .lunas-overlay {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) rotate(-12deg);
-            font-size: 64px;
+            transform: translate(-50%, -50%) rotate(-25deg);
+            font-size: 80px;
             font-weight: 900;
             color: #18a558;
-            opacity: 0.18;
-            letter-spacing: 6px;
+            opacity: 0.12;
+            letter-spacing: 8px;
             pointer-events: none;
             z-index: 2;
+            text-transform: uppercase;
+            font-family: 'Arial Black', 'Arial Bold', Gadget, sans-serif;
           }
         </style>
       </head>
@@ -431,24 +501,24 @@ const terminRows = formData.termins.map((termin, idx) => {
           <!-- Header -->
           <div class="header">
             <div class="header-left">
-              <h1 class="company-name">${formData.businessName}</h1>
-              <p class="company-sub">${formData.businessSubtitle || ""}</p>
-              <p class="company-address">${formData.businessAddress.replace(/\n/g, '<br/>')}</p>
+              <h1 class="company-name">${dataToUse.businessName}</h1>
+              <p class="company-sub">${dataToUse.businessSubtitle || ""}</p>
+              <p class="company-address">${dataToUse.businessAddress.replace(/\n/g, '<br/>')}</p>
             </div>
             <div class="header-right">
               <h2 class="invoice-title">INVOICE</h2>
               <table class="meta-table">
                 <tr>
                   <td class="meta-label">No. Invoice:</td>
-                  <td class="meta-value">${formData.invoiceNumber || "DRAFT"}</td>
+                  <td class="meta-value">${dataToUse.invoiceNumber || "DRAFT"}</td>
                 </tr>
                 <tr>
                   <td class="meta-label">Tanggal:</td>
-                  <td class="meta-value">${fmtDate(formData.issueDate)}</td>
+                  <td class="meta-value">${fmtDate(dataToUse.issueDate)}</td>
                 </tr>
                 <tr>
                   <td class="meta-label">Jatuh Tempo:</td>
-                  <td class="meta-value">${fmtDate(formData.dueDate)}</td>
+                  <td class="meta-value">${fmtDate(dataToUse.dueDate)}</td>
                 </tr>
                 <tr>
                   <td class="meta-label">Status:</td>
@@ -461,10 +531,10 @@ const terminRows = formData.termins.map((termin, idx) => {
           <!-- Recipient -->
           <div class="recipient-section">
             <h3 class="recipient-label">Ditagihkan Kepada:</h3>
-            <div class="recipient-name">${formData.clientName || "NAMA KLIEN"}</div>
-            <div class="recipient-detail">${formData.clientAddress || ""}</div>
-            ${formData.clientPhone ? `<div class="recipient-detail">Telepon: ${formData.clientPhone}</div>` : ""}
-            ${formData.clientEmail ? `<div class="recipient-detail">Email: ${formData.clientEmail}</div>` : ""}
+            <div class="recipient-name">${dataToUse.clientName || "NAMA KLIEN"}</div>
+            <div class="recipient-detail">${dataToUse.clientAddress || ""}</div>
+            ${dataToUse.clientPhone ? `<div class="recipient-detail">Telepon: ${dataToUse.clientPhone}</div>` : ""}
+            ${dataToUse.clientEmail ? `<div class="recipient-detail">Email: ${dataToUse.clientEmail}</div>` : ""}
           </div>
 
           <!-- Table -->
@@ -487,36 +557,36 @@ const terminRows = formData.termins.map((termin, idx) => {
             <div class="summary-box">
               <div class="summary-row">
                 <span>Subtotal:</span>
-                <span class="summary-value">Rp ${fmtMoney(formData.subtotal)}</span>
+                <span class="summary-value">Rp ${fmtMoney(dataToUse.subtotal)}</span>
               </div>
-              ${formData.taxAmount > 0 ? `
+              ${dataToUse.taxAmount > 0 ? `
               <div class="summary-row">
-                <span>Pajak (${formData.taxType === 'percentage' ? formData.taxValue+'%' : 'Flat'}):</span>
-                <span class="summary-value">Rp ${fmtMoney(formData.taxAmount)}</span>
+                <span>Pajak (${dataToUse.taxType === 'percentage' ? dataToUse.taxValue+'%' : 'Flat'}):</span>
+                <span class="summary-value">Rp ${fmtMoney(dataToUse.taxAmount)}</span>
               </div>` : ''}
-              ${formData.discountAmount > 0 ? `
+              ${dataToUse.discountAmount > 0 ? `
               <div class="summary-row">
                 <span>Diskon:</span>
-                <span class="summary-value" style="color: #dc2626;">- Rp ${fmtMoney(formData.discountAmount)}</span>
+                <span class="summary-value" style="color: #dc2626;">- Rp ${fmtMoney(dataToUse.discountAmount)}</span>
               </div>` : ''}
               <div class="summary-row total-row">
                 <span>Total</span>
-                <span>Rp. ${fmtMoney(formData.total)}</span>
+                <span>Rp. ${fmtMoney(dataToUse.total)}</span>
               </div>
               <div class="divider"></div>
               ${terminRows}
               <div class="remaining-row">
                 <span>Sisa Pembayaran</span>
-                <span>Rp. ${fmtMoney(formData.remainingAmount)}</span>
+                <span>Rp. ${fmtMoney(dataToUse.remainingAmount)}</span>
               </div>
-              ${formData.status === "paid" ? `<div class="lunas-overlay">LUNAS</div>` : ''}
+              ${dataToUse.status === "paid" ? `<div class="lunas-overlay">LUNAS</div>` : ''}
             </div>
           </div>
 
-          ${formData.notes ? `
+          ${dataToUse.notes ? `
           <div class="notes-section">
             <div class="notes-title">Catatan:</div>
-            <div class="notes-content">${formData.notes}</div>
+            <div class="notes-content">${dataToUse.notes}</div>
           </div>` : ''}
 
           <!-- Footer Boxes -->
@@ -524,14 +594,14 @@ const terminRows = formData.termins.map((termin, idx) => {
             <div class="footer-box">
               <div class="footer-title">Detail Pembayaran</div>
               <div class="footer-content">
-                ${formData.bankAccounts.map(acc => `
+                ${dataToUse.bankAccounts.map(acc => `
                   <div class="bank-item">
                     <img src="/images/banks/${acc.bank.toLowerCase()}.png" alt="${acc.bank}" class="bank-logo" />
                     <span>${acc.number}</span>
                   </div>
                 `).join('')}
                 <div style="margin-top: 8px; font-style: italic; color: #6b7280;">
-                  a.n ${formData.bankAccounts[0]?.holder || formData.businessName}
+                  a.n ${dataToUse.bankAccounts[0]?.holder || dataToUse.businessName}
                 </div>
               </div>
             </div>
@@ -540,24 +610,24 @@ const terminRows = formData.termins.map((termin, idx) => {
               <div class="footer-title">Kontak</div>
               <div class="footer-content">
                 <div class="contact-item">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon" style="margin-right: 8px; color: #4b5563;"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></svg> ${formData.businessPhone}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon" style="margin-right: 8px; color: #4b5563;"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></svg> ${dataToUse.businessPhone}
                 </div>
                 <div class="contact-item">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon" style="margin-right: 8px; color: #4b5563;"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /><rect x="2" y="4" width="20" height="16" rx="2" /></svg> ${formData.businessEmail}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon" style="margin-right: 8px; color: #4b5563;"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /><rect x="2" y="4" width="20" height="16" rx="2" /></svg> ${dataToUse.businessEmail}
                 </div>
                 <div class="contact-item">
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon" style="margin-right: 8px; color: #4b5563;">
   <circle cx="12" cy="12" r="10" />
   <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
   <path d="M2 12h20" />
-</svg> ${formData.businessWebsite}
+</svg> ${dataToUse.businessWebsite}
                 </div>
               </div>
             </div>
           </div>
 
           <div class="print-meta">
-            Waktu cetak: ${new Date().toLocaleString('id-ID')} • Invoice ini dibuat secara otomatis oleh website ValproEMS.
+            Waktu cetak: ${new Date().toLocaleString('id-ID')} • Invoice ini dibuat secara otomatis oleh website ValproAdminPanel.
           </div>
         </div>
       </body>
@@ -584,17 +654,23 @@ const terminRows = formData.termins.map((termin, idx) => {
 
   const openPreviewInNewWindow = async () => {
       try {
+          // Use calculated data like in the PDF generation
+          const dataForPreview = {
+            ...formData,
+            ...calculatedTotals
+          };
+
           const htmlContent = await generatePDFBlob();
 
           // Format date for filename (YYYYMMDD)
-          const issueDate = formData.issueDate || new Date().toISOString().split('T')[0];
+          const issueDate = dataForPreview.issueDate || new Date().toISOString().split('T')[0];
           const dateFormatted = issueDate.replace(/-/g, '');
 
           // Format client name for filename (replace special characters)
-          const clientNameFormatted = (formData.clientName || 'CUSTOMER').replace(/[^a-zA-Z0-9]/g, '_');
+          const clientNameFormatted = (dataForPreview.clientName || 'CUSTOMER').replace(/[^a-zA-Z0-9]/g, '_');
 
           // Format invoice number for filename
-          const invoiceNumberFormatted = (formData.invoiceNumber || 'DRAFT').replace(/[^a-zA-Z0-9]/g, '_');
+          const invoiceNumberFormatted = (dataForPreview.invoiceNumber || 'DRAFT').replace(/[^a-zA-Z0-9]/g, '_');
 
           // Create the formatted filename
           const fileName = `INVOICE_${clientNameFormatted}_${dateFormatted}_${invoiceNumberFormatted}`;
@@ -706,9 +782,6 @@ const addTermin = () => {
       }
     ]
   }));
-
-  // ❤️ WAJIB
-  calculateTotals();
 };
 
 
@@ -787,9 +860,6 @@ const updateTermin = (id, field, value) => {
 
     return updated;
   });
-
-  // ❤️ WAJIB
-  calculateTotals();
 };
 
 
@@ -964,7 +1034,8 @@ const editInvoice = (invoice) => {
       return;
     }
 
-    // Validate termin amounts before saving
+    // Recalculate values to ensure they are accurate before saving
+    // This is similar to the updateFormDataWithCalculatedValues function but only for calculation
     const subtotal = (formData.items || []).reduce((sum, item) => {
       const mainAmount = (item.quantity || 0) * (item.unitPrice || 0);
       const subItemsAmount = (item.subItems || []).reduce((subSum, subItem) => {
@@ -991,9 +1062,32 @@ const editInvoice = (invoice) => {
     }
     const totalInvoice = Math.max(0, afterDiscount + taxAmount);
 
+    // Calculate updated termins with calculatedAmount
+    const updatedTerminsForSave = (formData.termins || []).map((t) => {
+      let calc = 0;
+      if (t.amountType === "percentage") {
+        calc = (Number(t.value || 0) / 100) * totalInvoice;
+      } else {
+        calc = Number(t.value || 0);
+      }
+      return { ...t, calculatedAmount: Math.round(calc) };
+    });
+
+    // Calculate total termin paid and remaining amount
+    const totalTerminPaidForSave = updatedTerminsForSave.reduce((s, t) => s + (t.calculatedAmount || 0), 0);
+    const remainingAmountForSave = Math.max(0, totalInvoice - totalTerminPaidForSave);
+
+    // Auto-determine status based on calculated values
+    let newStatusForSave = formData.status;
+    if (formData.status !== "cancelled") {
+      if (remainingAmountForSave <= 0 && totalInvoice > 0) newStatusForSave = "paid";
+      else if (totalTerminPaidForSave > 0) newStatusForSave = "partial";
+      else if (formData.dueDate && new Date(formData.dueDate) < new Date()) newStatusForSave = "overdue";
+    }
+
     // Check if termins exceed the total invoice amount
     let totalTerminValue = 0;
-    for (const termin of formData.termins) {
+    for (const termin of updatedTerminsForSave) {
       if (termin.amountType === "percentage") {
         totalTerminValue += (Number(termin.value || 0) / 100) * totalInvoice;
       } else {
@@ -1078,19 +1172,19 @@ const editInvoice = (invoice) => {
                     subItems: [],
                 }],
 
-            // Financial
-            subtotal: typeof formData.subtotal === 'number' ? formData.subtotal : 0,
+            // Financial - use recalculated values to ensure accuracy
+            subtotal: subtotal,
             discountType: formData.discountType || "percentage",
             discountValue: typeof formData.discountValue === 'number' ? formData.discountValue : 0,
-            discountAmount: typeof formData.discountAmount === 'number' ? formData.discountAmount : 0,
+            discountAmount: discountAmount,
             taxType: formData.taxType || "percentage",
             taxValue: typeof formData.taxValue === 'number' ? formData.taxValue : 0,
-            taxAmount: typeof formData.taxAmount === 'number' ? formData.taxAmount : 0,
-            total: typeof formData.total === 'number' ? formData.total : 0,
+            taxAmount: taxAmount,
+            total: totalInvoice,
 
-            // Termin - explicitly construct without undefined values
-            termins: Array.isArray(formData.termins)
-                ? formData.termins.map(termin => ({
+            // Termin - explicitly construct with recalculated amounts
+            termins: Array.isArray(updatedTerminsForSave)
+                ? updatedTerminsForSave.map(termin => ({
                     id: termin.id || Date.now(),
                     date: termin.date || new Date().toISOString().split("T")[0],
                     amountType: termin.amountType || "fixed",
@@ -1099,11 +1193,11 @@ const editInvoice = (invoice) => {
                     method: termin.method || ""
                 }))
                 : [],
-            totalTerminPaid: typeof formData.totalTerminPaid === 'number' ? formData.totalTerminPaid : 0,
-            remainingAmount: typeof formData.remainingAmount === 'number' ? formData.remainingAmount : 0,
+            totalTerminPaid: totalTerminPaidForSave,
+            remainingAmount: remainingAmountForSave,
 
-            // Status & Notes
-            status: formData.status || "draft",
+            // Status & Notes - use recalculated status
+            status: newStatusForSave,
             notes: formData.notes || "",
             internalNotes: formData.internalNotes || "",
 
@@ -1170,7 +1264,10 @@ const editInvoice = (invoice) => {
       {activeTab === "create" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <InvoiceForm
-            formData={formData}
+            formData={{
+              ...formData,
+              ...calculatedTotals
+            }}
             setFormData={setFormData}
             showPreview={showPreview}
             setShowPreview={setShowPreview}
@@ -1181,7 +1278,6 @@ const editInvoice = (invoice) => {
             addTermin={addTermin}
             updateTermin={updateTermin}
             removeTermin={removeTermin}
-            calculateTotals={calculateTotals}
             handleInputChange={handleInputChange}
             addItem={addItem}
             updateItem={updateItem}

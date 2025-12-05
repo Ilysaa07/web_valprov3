@@ -168,19 +168,21 @@ const InvoicePreview = ({ formData, handlePrint, setShowPreview }) => {
                             )}
                         </div>
 
-                        {/* LUNAS overlay on preview (Style 2 - green bold large) */}
+                        {/* LUNAS overlay on preview - centered like watermark */}
                         {formData.status === "paid" && (
                           <div style={{
                             position: 'absolute',
                             top: '50%',
                             left: '50%',
-                            transform: 'translate(-50%, -50%) rotate(-12deg)',
-                            fontSize: '64px',
+                            transform: 'translate(-50%, -50%) rotate(-25deg)',
+                            fontSize: '80px',
                             fontWeight: 900,
                             color: '#18a558',
-                            opacity: 0.18,
-                            letterSpacing: '6px',
-                            pointerEvents: 'none'
+                            opacity: 0.12,
+                            letterSpacing: '8px',
+                            pointerEvents: 'none',
+                            textTransform: 'uppercase',
+                            fontFamily: "'Arial Black', 'Arial Bold', Gadget, sans-serif"
                           }}>
                             LUNAS
                           </div>
@@ -235,7 +237,7 @@ const InvoicePreview = ({ formData, handlePrint, setShowPreview }) => {
                 </div>
 
                 <div className="mt-8 pt-4 border-t border-gray-100 text-[8px] text-gray-400 text-center">
-                    Waktu cetak: {new Date().toLocaleString('id-ID')} • Invoice ini dibuat secara otomatis oleh website ValproEMS.
+                    Waktu cetak: {new Date().toLocaleString('id-ID')} • Invoice ini dibuat secara otomatis oleh website ValproAdminPanel.
                 </div>
             </div>
 
