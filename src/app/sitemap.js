@@ -1,29 +1,38 @@
-import { servicesData } from '@/lib/servicesData';
-import { getSortedPostsData } from '@/lib/blog';
-import { locations } from '@/lib/locations';
-import kbliData from '@/lib/kbli-full.json';
+import { servicesData } from "@/lib/servicesData";
+import { getSortedPostsData } from "@/lib/blog";
+import { locations } from "@/lib/locations";
+import kbliData from "@/lib/kbli-full.json";
 
 // URL Dasar Website Anda
-const BASE_URL = 'https://valprointertech.com';
+const BASE_URL = "https://valprointertech.com";
 
 export default async function sitemap() {
   // Gunakan tanggal tetap untuk konten yang tidak sering berubah
-  const lastModifiedDate = new Date('2025-01-01');
+  const lastModifiedDate = new Date("2025-01-01");
 
   // 1. Ambil Data Blog (Dinamis dari Contentful)
   let blogUrls = [];
   try {
     const posts = await getSortedPostsData();
     if (posts && Array.isArray(posts) && posts.length > 0) {
-      blogUrls = posts.map((post) => ({
-        url: `${BASE_URL}/blog/${post.slug}`,
-        lastModified: post.date ? new Date(post.date) : lastModifiedDate,
-        changeFrequency: 'weekly',
-        priority: 0.8,
-      }));
+      blogUrls = posts.map((post) => {
+        let postDate = lastModifiedDate;
+        if (post.date) {
+          const parsedDate = new Date(post.date);
+          if (!isNaN(parsedDate.getTime())) {
+            postDate = parsedDate;
+          }
+        }
+        return {
+          url: `${BASE_URL}/blog/${post.slug}`,
+          lastModified: postDate,
+          changeFrequency: "weekly",
+          priority: 0.8,
+        };
+      });
     }
   } catch (error) {
-    console.error('Failed to fetch blog posts for sitemap:', error);
+    console.error("Failed to fetch blog posts for sitemap:", error);
   }
 
   // 2. Ambil Data Layanan (dari servicesData.js)
@@ -33,12 +42,12 @@ export default async function sitemap() {
       serviceUrls = servicesData.map((service) => ({
         url: `${BASE_URL}/layanan/${service.slug}`,
         lastModified: lastModifiedDate,
-        changeFrequency: 'monthly',
+        changeFrequency: "monthly",
         priority: 0.9,
       }));
     }
   } catch (error) {
-    console.error('Failed to process services data for sitemap:', error);
+    console.error("Failed to process services data for sitemap:", error);
   }
 
   // 3. Ambil Data Lokasi/Area (dari locations.js)
@@ -48,12 +57,12 @@ export default async function sitemap() {
       locationUrls = locations.map((loc) => ({
         url: `${BASE_URL}/area/${loc.slug}`,
         lastModified: lastModifiedDate,
-        changeFrequency: 'monthly',
+        changeFrequency: "monthly",
         priority: 0.7,
       }));
     }
   } catch (error) {
-    console.error('Failed to process locations data for sitemap:', error);
+    console.error("Failed to process locations data for sitemap:", error);
   }
 
   // 4. Ambil Data KBLI (dari kbli-full.json)
@@ -63,32 +72,71 @@ export default async function sitemap() {
       kbliUrls = kbliData.map((kbli) => ({
         url: `${BASE_URL}/kbli/${kbli.kode}`,
         lastModified: lastModifiedDate,
-        changeFrequency: 'yearly',
+        changeFrequency: "yearly",
         priority: 0.6,
       }));
     }
   } catch (error) {
-    console.error('Failed to process KBLI data for sitemap:', error);
+    console.error("Failed to process KBLI data for sitemap:", error);
   }
-
 
   // 5. Halaman Statis Utama (dengan prioritas dan frekuensi yang disesuaikan)
   const staticRoutes = [
-    { url: `${BASE_URL}/`, lastModified: new Date(), priority: 1.0, changeFrequency: 'daily' },
-    { url: `${BASE_URL}/blog`, lastModified: new Date(), priority: 0.8, changeFrequency: 'weekly' },
-    { url: `${BASE_URL}/kbli`, lastModified: lastModifiedDate, priority: 0.7, changeFrequency: 'monthly' },
-    { url: `${BASE_URL}/cek-merek`, lastModified: lastModifiedDate, priority: 0.7, changeFrequency: 'monthly' },
-    { url: `${BASE_URL}/kalkulator-pajak`, lastModified: lastModifiedDate, priority: 0.7, changeFrequency: 'monthly' },
-    { url: `${BASE_URL}/cek-nama-pt`, lastModified: lastModifiedDate, priority: 0.7, changeFrequency: 'monthly' },
-    { url: `${BASE_URL}/simulasi-biaya`, lastModified: lastModifiedDate, priority: 0.7, changeFrequency: 'monthly' },
-    { url: `${BASE_URL}/buat-surat`, lastModified: lastModifiedDate, priority: 0.7, changeFrequency: 'monthly' },
+    {
+      url: `${BASE_URL}/`,
+      lastModified: lastModifiedDate,
+      priority: 1.0,
+      changeFrequency: "daily",
+    },
+    {
+      url: `${BASE_URL}/blog`,
+      lastModified: lastModifiedDate,
+      priority: 0.8,
+      changeFrequency: "weekly",
+    },
+    {
+      url: `${BASE_URL}/kbli`,
+      lastModified: lastModifiedDate,
+      priority: 0.7,
+      changeFrequency: "monthly",
+    },
+    {
+      url: `${BASE_URL}/cek-merek`,
+      lastModified: lastModifiedDate,
+      priority: 0.7,
+      changeFrequency: "monthly",
+    },
+    {
+      url: `${BASE_URL}/kalkulator-pajak`,
+      lastModified: lastModifiedDate,
+      priority: 0.7,
+      changeFrequency: "monthly",
+    },
+    {
+      url: `${BASE_URL}/cek-nama-pt`,
+      lastModified: lastModifiedDate,
+      priority: 0.7,
+      changeFrequency: "monthly",
+    },
+    {
+      url: `${BASE_URL}/simulasi-biaya`,
+      lastModified: lastModifiedDate,
+      priority: 0.7,
+      changeFrequency: "monthly",
+    },
+    {
+      url: `${BASE_URL}/buat-surat`,
+      lastModified: lastModifiedDate,
+      priority: 0.7,
+      changeFrequency: "monthly",
+    },
   ];
 
   return [
-    ...staticRoutes, 
-    ...serviceUrls, 
-    ...blogUrls, 
-    ...locationUrls, 
-    ...kbliUrls
+    ...staticRoutes,
+    ...serviceUrls,
+    ...blogUrls,
+    ...locationUrls,
+    ...kbliUrls,
   ].filter(Boolean); // Filter out any potential null/undefined entries
 }

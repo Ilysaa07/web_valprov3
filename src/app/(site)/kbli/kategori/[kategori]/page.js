@@ -5,13 +5,6 @@ import { notFound } from 'next/navigation';
 import { BookOpen, ArrowLeft } from 'lucide-react';
 import KbliCard from '@/components/KbliCard';
 
-// Adapt the data structure once
-const kbliData = kbliDataRaw.map(item => ({
-  kode: item["Kode KBLI"],
-  judul: item["KBLI"],
-  uraian: item["Deskripsi"],
-}));
-
 export async function generateMetadata({ params }) {
   const { kategori } = params;
   const categoryName = KBLI_CATEGORIES[kategori.toUpperCase()];
@@ -42,6 +35,13 @@ export default function KategoriPage({ params }) {
   if (!categoryName) {
     notFound();
   }
+
+  // Adapt the data structure once inside the component to ensure it's defined
+  const kbliData = kbliDataRaw.map(item => ({
+    kode: item["Kode KBLI"],
+    judul: item["KBLI"],
+    uraian: item["Deskripsi"],
+  }));
 
   const filteredData = kbliData.filter(item => getCategoryForCode(item.kode) === categoryCode);
 

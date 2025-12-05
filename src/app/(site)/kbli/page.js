@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { BookOpen, ChevronRight } from 'lucide-react';
-import { KBLI_CATEGORIES } from '@/lib/kbli-kategori';
+import { KBLI_CATEGORIES, getCategoryForCode } from '@/lib/kbli-kategori';
+import kbliDataRaw from '@/lib/kbli2020.json';
 import KbliSearch from "@/components/KbliSearch";
+import KbliCard from '@/components/KbliCard'; // Assuming KbliCard is suitable for displaying individual KBLI items
 
 export const metadata = {
   title: 'Cek KBLI 2020 Terbaru & Lengkap (Online) - Valpro Intertech',
@@ -13,7 +15,23 @@ export const metadata = {
 };
 
 export default function KbliPage() {
-  const categories = Object.entries(KBLI_CATEGORIES);
+  const kbliData = kbliDataRaw.map(item => ({
+    kode: item["Kode KBLI"],
+    judul: item["KBLI"],
+    uraian: item["Deskripsi"],
+  }));
+
+  const groupedKbliData = Object.keys(KBLI_CATEGORIES).reduce((acc, categoryCode) => {
+    acc[categoryCode] = [];
+    return acc;
+  }, {});
+
+  kbliData.forEach(item => {
+    const categoryCode = getCategoryForCode(item.kode);
+    if (categoryCode && groupedKbliData[categoryCode]) {
+      groupedKbliData[categoryCode].push(item);
+    }
+  });
 
   return (
     <main className="min-h-screen bg-[#FAFAFA] font-sans">
@@ -44,22 +62,23 @@ export default function KbliPage() {
       </div>
       
       <div className="max-w-7xl mx-auto px-6 pb-24">
-        <h2 className="text-2xl font-bold text-stone-800 mb-8 text-center">Atau Telusuri Berdasarkan Kategori</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map(([code, name]) => (
-            <Link key={code} href={`/kbli/kategori/${code}`} className="group flex items-center justify-between p-6 bg-white rounded-2xl border border-stone-200 hover:border-[#2a3f9b] hover:shadow-lg transition-all duration-300">
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-stone-100 group-hover:bg-[#2a3f9b] rounded-xl transition-colors">
-                  <span className="text-xl font-bold text-[#2a3f9b] group-hover:text-white">{code}</span>
+        <h2 className="text-2xl font-bold text-stone-800 mb-8 text-center">Telusuri Berdasarkan Kategori</h2>
+        {Object.entries(KBLI_CATEGORIES).map(([code, name]) => (
+          <div key={code} className="mb-12">
+            <div className="flex items-center gap-4 mb-6">
+                <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-stone-100 rounded-xl">
+                  <span className="text-xl font-bold text-[#2a3f9b]">{code}</span>
                 </div>
-                <span className="font-semibold text-stone-700 group-hover:text-[#2a3f9b]">{name}</span>
-              </div>
-              <ChevronRight size={20} className="text-stone-400 group-hover:text-[#2a3f9b] transition-transform group-hover:translate-x-1" />
-            </Link>
-          ))}
-        </div>
+                <h3 className="text-xl font-bold text-stone-700">{name}</h3>
+            </div>
+            <div className="space-y-4">
+              {groupedKbliData[code] && groupedKbliData[code].map((item) => (
+                <KbliCard key={item.kode} item={item} />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
-
     </main>
   );
 }
