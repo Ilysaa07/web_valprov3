@@ -1,11 +1,15 @@
+"use client";
+
+import { useState, useEffect } from 'react';
 import { servicesData } from '@/lib/servicesData';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { 
-  ArrowLeft, CheckCircle2, MessageCircle, Phone, 
+import {
+  ArrowLeft, CheckCircle2, MessageCircle, Phone,
   Clock, ShieldCheck, FileText, ChevronRight, HelpCircle, Star
 } from 'lucide-react';
+import { getWhatsappSettings, createWhatsAppUrl } from '@/lib/whatsappSettings';
 
 // 1. METADATA SEO
 export async function generateMetadata({ params }) {

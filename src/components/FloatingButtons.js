@@ -3,13 +3,23 @@
 import { useState, useEffect } from 'react';
 import { ArrowUp } from 'lucide-react';
 import Image from 'next/image';
+import { getWhatsappSettings, createWhatsAppUrl } from '@/lib/whatsappSettings';
 
 export default function FloatingButtons() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState('6289518530306'); // Default value
 
   useEffect(() => {
     setIsMounted(true);
+
+    // Load WhatsApp number settings
+    const loadWhatsappSettings = async () => {
+      const settings = await getWhatsappSettings();
+      setWhatsappNumber(settings.secondaryNumber || settings.mainNumber || '6289518530306');
+    };
+
+    loadWhatsappSettings();
 
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
@@ -24,9 +34,9 @@ export default function FloatingButtons() {
   };
 
   const openWhatsApp = () => {
-    const phoneNumber = '6289518530306'; // Nomor WhatsApp Valpro
-    const message = encodeURIComponent('Halo, saya ingin bertanya tentang layanan Valpro...');
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    const message = 'Halo, saya ingin bertanya tentang layanan Valpro...';
+    const whatsappUrl = createWhatsAppUrl(whatsappNumber, message);
+    window.open(whatsappUrl, '_blank');
   };
 
   // Only render on client to prevent hydration mismatch

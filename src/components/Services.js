@@ -1,13 +1,14 @@
 "use client";
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
-  Briefcase, ArrowRight, CheckCircle2, Sparkles, PhoneCall, 
-  Scale, FileText, Building2, HardHat, Zap, ShieldCheck, 
-  Calculator, Gavel 
+import {
+  Briefcase, ArrowRight, CheckCircle2, Sparkles, PhoneCall,
+  Scale, FileText, Building2, HardHat, Zap, ShieldCheck,
+  Calculator, Gavel
 } from 'lucide-react';
 import { servicesData } from '@/lib/servicesData';
+import { getWhatsappSettings, createWhatsAppUrl } from '@/lib/whatsappSettings';
 
 // OPTIMASI 1: Static Icon Map (Tree Shaking)
 // Menggantikan "import * as LucideIcons" yang memuat ribuan icon.
@@ -28,7 +29,18 @@ const ICON_MAP = {
 
 export default function Services() {
   const [activeTab, setActiveTab] = useState("Semua");
-  
+  const [whatsappNumber, setWhatsappNumber] = useState('6281399710085'); // Default value
+
+  useEffect(() => {
+    // Load WhatsApp number settings
+    const loadWhatsappSettings = async () => {
+      const settings = await getWhatsappSettings();
+      setWhatsappNumber(settings.mainNumber || '6281399710085');
+    };
+
+    loadWhatsappSettings();
+  }, []);
+
   // OPTIMASI 2: Memoization Data Kategori
   // Mencegah looping `.map` dan `new Set` dijalankan ulang setiap kali render
   const categories = useMemo(() => {
@@ -38,8 +50,8 @@ export default function Services() {
   // OPTIMASI 3: Memoization Filter List
   // Filter hanya berjalan jika `activeTab` benar-benar berubah
   const filtered = useMemo(() => {
-    return activeTab === "Semua" 
-      ? servicesData 
+    return activeTab === "Semua"
+      ? servicesData
       : servicesData.filter(item => item.category === activeTab);
   }, [activeTab]);
 
@@ -200,11 +212,11 @@ export default function Services() {
 
               {/* Right Actions */}
               <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-                 <Link 
-                    href="https://wa.me/6281399710085" 
+                 <Link
+                    href={createWhatsAppUrl(whatsappNumber)}
                     className="px-8 py-4 bg-white text-[#1e40af] rounded-full font-bold text-lg hover:shadow-[0_10px_20px_rgba(0,0,0,0.1)] transition-all flex items-center justify-center gap-3 transform hover:-translate-y-1 hover:bg-stone-50 active:scale-95"
                  >
-                    <Image src="/whatsapp-icon.svg" alt="WhatsApp" width={24} height={24} loading="lazy" /> 
+                    <Image src="/whatsapp-icon.svg" alt="WhatsApp" width={24} height={24} loading="lazy" />
                     Chat WhatsApp
                  </Link>
                  

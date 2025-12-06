@@ -1,10 +1,23 @@
 "use client";
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, ShieldCheck, Check, Building2, FileText, Lock, ScrollText, Stamp, QrCode, Globe, FileBadge, MessageCircle, LayoutGrid, Star, Zap } from 'lucide-react';
+import { getWhatsappSettings, createWhatsAppUrl } from '@/lib/whatsappSettings';
 
 export default function Hero({ city = null }) {
-  
+  const [whatsappNumber, setWhatsappNumber] = useState('6281399710085'); // Default value
+
+  useEffect(() => {
+    // Load WhatsApp number settings
+    const loadWhatsappSettings = async () => {
+      const settings = await getWhatsappSettings();
+      setWhatsappNumber(settings.mainNumber || '6281399710085');
+    };
+
+    loadWhatsappSettings();
+  }, []);
+
   return (
     <section className="relative bg-[#F8FAFC] overflow-hidden font-sans min-h-screen flex items-center border-b border-slate-200 selection:bg-[#1e40af] selection:text-white">
       
@@ -63,13 +76,13 @@ export default function Hero({ city = null }) {
                
                <div className="flex flex-col sm:flex-row gap-4 mb-6">
                   {/* Primary CTA: WhatsApp (High Urgency & Trust) */}
-                  <Link 
-                     href="https://wa.me/6281399710085?text=Halo Valpro, saya ingin konsultasi pendirian badan usaha."
+                  <Link
+                     href={createWhatsAppUrl(whatsappNumber, 'Halo Valpro, saya ingin konsultasi pendirian badan usaha.')}
                      className="group relative overflow-hidden bg-[#1e40af] hover:bg-[#172554] text-white px-8 py-5 rounded-2xl font-bold text-base transition-all shadow-[0_10px_40px_-10px_rgba(30,64,175,0.5)] hover:shadow-[0_20px_60px_-15px_rgba(30,64,175,0.6)] transform hover:-translate-y-1 flex items-center justify-center gap-3"
                   >
                      {/* Shimmer Effect */}
                      <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
-                     
+
                      <MessageCircle size={24} fill="currentColor" className="text-white/90" />
                      <div className="flex flex-col items-start leading-none">
                         <span className="text-[10px] uppercase tracking-wider text-blue-200 font-medium mb-1">Respon Cepat</span>

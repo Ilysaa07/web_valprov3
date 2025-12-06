@@ -408,230 +408,519 @@ const terminRows = dataToUse.termins.map((termin, idx) => {
 
     return `
       <!DOCTYPE html>
-      <html lang="id">
-      <head>
-        <meta charset="utf-8">
-        <title>Invoice ${dataToUse.invoiceNumber}</title>
-        <style>
-          @page { size: A4; margin: 0; }
-          body { font-family: 'Arial', sans-serif; font-size: 12px; color: #374151; margin: 0; padding: 0; background: #fff; -webkit-print-color-adjust: exact; }
-          .container { width: 210mm; min-height: 297mm; padding: 15mm 20mm; margin: 0 auto; box-sizing: border-box; position: relative; }
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Invoice ${dataToUse.invoiceNumber}</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    body { 
+      font-family: 'Arial', sans-serif; 
+      font-size: 12px; 
+      color: #374151; 
+      margin: 0; 
+      padding: 0; 
+      background: #fff; 
+      -webkit-print-color-adjust: exact; 
+      print-color-adjust: exact;
+    }
+    .container { 
+      width: 210mm; 
+      min-height: 297mm; 
+      padding: 15mm 20mm; 
+      margin: 0 auto; 
+      box-sizing: border-box; 
+      position: relative; 
+    }
 
-          /* Watermark */
-          .watermark-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: -1; pointer-events: none; opacity: 0.1; }
-          .watermark-container img { width: 520px; display: block; }
+    /* Watermark */
+    .watermark-container { 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 0; 
+      pointer-events: none; 
+      opacity: 0.1; 
+    }
+    .watermark-container img { 
+      width: 520px; 
+      display: block; 
+    }
 
-          /* Header */
-          .header { display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; z-index: 10; }
-          .header-left { display: flex; flex-direction: column; justify-content: flex-start; }
-          .header-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start; }
-          .company-name { font-size: 22px; font-weight: bold; color: #002060; line-height: 1.1; margin-bottom: 2px; }
-          .company-sub { font-size: 12px; font-weight: bold; color: #4b5563; margin-bottom: 4px; }
-          .company-address { font-size: 10px; color: #4b5563; max-width: 250px; line-height: 1.2; white-space: pre-line; margin-bottom: 0; }
-          .invoice-title { font-size: 26px; font-weight: bold; color: #002060; letter-spacing: 0.05em; margin: 0 0 6px 0; }
-          .meta-table { font-size: 12px; border-collapse: collapse; margin-top: 0; }
-          .meta-table td { padding: 2px 0; }
-          .meta-label { color: #6b7280; padding-right: 16px; text-align: left; width: 100px; }
-          .meta-value { font-weight: bold; text-align: right; color: #002060; }
-          .status-text { color: ${statusColor}; font-weight: bold; text-transform: uppercase; }
+    /* LUNAS Overlay - Sama seperti watermark */
+    .lunas-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .lunas-overlay span {
+      font-size: 150px;
+      font-weight: 900;
+      color: #18a558;
+      opacity: 0.15;
+      letter-spacing: 20px;
+      text-transform: uppercase;
+      font-family: 'Arial Black', 'Arial Bold', Gadget, sans-serif;
+      transform: rotate(-25deg);
+      white-space: nowrap;
+    }
 
-          /* Recipient */
-          .recipient-section { margin-bottom: 32px; margin-top: 32px; position: relative; z-index: 10; }
-          .recipient-label { color: #002060; font-weight: bold; font-size: 14px; margin-bottom: 8px; }
-          .recipient-name { font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
-          .recipient-detail { font-size: 12px; color: #4b5563; margin-top: 2px; }
+    /* Header */
+    .header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-start;
+      margin-bottom: 32px; 
+      position: relative; 
+      z-index: 10; 
+    }
+    .header-left { 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: flex-start; 
+    }
+    .header-right { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: flex-end; 
+      justify-content: flex-start; 
+    }
+    .company-name { 
+      font-size: 26px; 
+      font-weight: bold; 
+      color: #002060; 
+      line-height: 26px;
+      margin: 0 0 6px 0;
+    }
+    .company-sub { 
+      font-size: 12px; 
+      font-weight: bold; 
+      color: #4b5563; 
+      line-height: 1.4;
+      margin: 0 0 6px 0;
+    }
+    .company-address { 
+      font-size: 10px; 
+      color: #4b5563; 
+      max-width: 280px; 
+      line-height: 1.5;
+      margin: 0; 
+    }
+    .invoice-title { 
+      font-size: 29px; 
+      font-weight: bold; 
+      color: #002060; 
+      letter-spacing: 0.05em; 
+      line-height: 26px;
+      margin: 0 0 15px 0;
+    }
+    .meta-table { 
+      font-size: 12px; 
+      border-collapse: collapse; 
+      margin: 0;
+    }
+    .meta-table td { 
+    padding: 2px 0;  /* Dikurangi dari 4px ke 2px */
+    vertical-align: top;
+    line-height: 1.4;  /* Dikurangi dari 1.4 ke 1.3 */
+    }
+    .meta-label { 
+      color: #6b7280; 
+      padding-right: 16px; 
+      text-align: left; 
+      width: 100px;
+      white-space: nowrap;
+    }
+    .meta-value { 
+      font-weight: bold; 
+      text-align: right; 
+      color: #002060; 
+    }
+    .status-text { 
+      color: ${statusColor}; 
+      font-weight: bold; 
+      text-transform: uppercase; 
+    }
 
-          /* Items Table */
-          .items-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; position: relative; z-index: 10; }
-          .items-table th { background-color: #002060; color: white; padding: 12px 12px; font-size: 12px; text-align: left; font-weight: bold; }
-          .items-table th:nth-child(2) { text-align: center; }
-          .items-table th:nth-child(3), .items-table th:nth-child(4) { text-align: right; }
-          .items-table td { border-bottom: 1px solid #e5e7eb; padding: 12px 12px; font-size: 12px; vertical-align: top; }
+    /* Recipient */
+    .recipient-section { 
+      margin-bottom: 32px; 
+      margin-top: 32px; 
+      position: relative; 
+      z-index: 10; 
+    }
+    .recipient-label { 
+      color: #002060; 
+      font-weight: bold; 
+      font-size: 14px; 
+      margin-bottom: 8px; 
+    }
+    .recipient-name { 
+      font-size: 14px; 
+      font-weight: bold; 
+      text-transform: uppercase; 
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    .recipient-detail { 
+      font-size: 12px; 
+      color: #4b5563; 
+      margin-top: 4px;
+      line-height: 1.4;
+    }
 
-          /* Summary */
-          .summary-container { display: flex; justify-content: flex-end; margin-bottom: 48px; position: relative; z-index: 10; }
-          .summary-box { width: 45%; background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; position: relative; }
-          .summary-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; color: #4b5563; }
-          .summary-value { font-weight: 600; color: #111827; }
-          .divider { border-bottom: 1px solid #e5e7eb; margin: 8px 0; }
-          .total-row { font-size: 14px; font-weight: bold; color: #002060; margin-top: 8px; }
-          .remaining-row { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #002060; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb; }
+    /* Items Table */
+    .items-table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-bottom: 32px; 
+      position: relative; 
+      z-index: 10; 
+    }
+    .items-table th { 
+      background-color: #002060; 
+      color: white; 
+      padding: 12px; 
+      font-size: 12px; 
+      text-align: left; 
+      font-weight: bold; 
+    }
+    .items-table th:nth-child(2) { 
+      text-align: center; 
+    }
+    .items-table th:nth-child(3), 
+    .items-table th:nth-child(4) { 
+      text-align: right; 
+    }
+    .items-table td { 
+      border-bottom: 1px solid #e5e7eb; 
+      padding: 12px; 
+      font-size: 12px; 
+      vertical-align: top;
+      line-height: 1.4;
+    }
+    .items-table td:nth-child(2) { 
+      text-align: center; 
+    }
+    .items-table td:nth-child(3), 
+    .items-table td:nth-child(4) { 
+      text-align: right; 
+    }
 
-          /* Notes */
-          .notes-section { margin-bottom: 32px; padding: 12px; background: #f9fafb; border-left: 4px solid #002060; border-radius: 0 4px 4px 0; position: relative; z-index: 10; }
-          .notes-title { font-size: 12px; font-weight: bold; color: #002060; margin-bottom: 4px; }
-          .notes-content { font-size: 12px; color: #4b5563; white-space: pre-line; }
+    /* Summary */
+    .summary-container { 
+      display: flex; 
+      justify-content: flex-end; 
+      margin-bottom: 32px; 
+      position: relative; 
+      z-index: 10; 
+    }
+    .summary-box { 
+      width: 45%; 
+      background: rgba(255, 255, 255, 0.3);
+      border: 1px solid #d1d5db; 
+      border-radius: 8px; 
+      padding: 16px; 
+      position: relative; 
+      backdrop-filter: blur(2px);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .summary-row { 
+      display: flex; 
+      justify-content: space-between; 
+      margin-bottom: 6px; 
+      font-size: 12px; 
+      color: #4b5563;
+      line-height: 1.4;
+    }
+    .summary-value { 
+      font-weight: 600; 
+      color: #111827; 
+    }
+    .divider { 
+      border-bottom: 1px solid #d1d5db; 
+      margin: 10px 0; 
+    }
+    .total-row { 
+      font-size: 14px; 
+      font-weight: bold; 
+      color: #002060; 
+      margin-top: 10px; 
+    }
+    .remaining-row { 
+      display: flex; 
+      justify-content: space-between; 
+      font-size: 12px; 
+      font-weight: bold; 
+      color: #002060; 
+      margin-top: 10px; 
+      padding-top: 10px; 
+      border-top: 2px solid #002060; 
+    }
 
-          /* Footer */
-          .footer-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; position: relative; z-index: 10; }
-          .footer-box { border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; background: white; }
-          .footer-title { display: flex; align-items: center; border-left: 4px solid #002060; padding-left: 8px; font-size: 12px; font-weight: bold; color: #002060; margin-bottom: 12px; }
-          .footer-content { font-size: 10px; color: #4b5563; line-height: 1.5; }
-          .bank-item { display: flex; align-items: center; margin-bottom: 8px; }
-          .bank-logo { width: 32px; height: auto; margin-right: 8px; }
-          .contact-item { display: flex; align-items: center; margin-bottom: 8px; }
-          .contact-icon { width: 12px; height: 12px; margin-right: 8px; color: #4b5563; }
+    /* Notes */
+    .notes-section { 
+      margin-bottom: 32px; 
+      padding: 14px; 
+      background: rgba(249, 250, 251, 0.8); 
+      border-left: 4px solid #002060; 
+      border-radius: 0 4px 4px 0; 
+      position: relative; 
+      z-index: 10; 
+    }
+    .notes-title { 
+      font-size: 12px; 
+      font-weight: bold; 
+      color: #002060; 
+      margin-bottom: 6px; 
+    }
+    .notes-content { 
+      font-size: 12px; 
+      color: #4b5563; 
+      white-space: pre-line;
+      line-height: 1.5;
+    }
 
-          .print-meta { margin-top: 32px; font-size: 8px; color: #9ca3af; text-align: center; position: relative; z-index: 10; }
+    /* Footer */
+    .footer-container { 
+      display: grid; 
+      grid-template-columns: repeat(2, 1fr); 
+      gap: 20px; 
+      position: relative; 
+      z-index: 10;
+      margin-bottom: 24px;
+    }
+    .footer-box { 
+      border: 1px solid #d1d5db; 
+      border-radius: 8px; 
+      padding: 16px; 
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(2px);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .footer-title { 
+      display: flex; 
+      align-items: center; 
+      border-left: 4px solid #002060; 
+      padding-left: 8px; 
+      font-size: 12px; 
+      font-weight: bold; 
+      color: #002060; 
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .footer-content { 
+      font-size: 10px; 
+      color: #4b5563; 
+      line-height: 1.6; 
+    }
+    .bank-item { 
+      display: flex; 
+      align-items: center; 
+      margin-bottom: 10px; 
+    }
+    .bank-logo { 
+      width: 32px; 
+      height: auto; 
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .contact-item { 
+      display: flex; 
+      align-items: center; 
+      margin-bottom: 10px; 
+    }
+    .contact-icon { 
+      width: 12px; 
+      height: 12px; 
+      margin-right: 8px; 
+      color: #4b5563;
+      flex-shrink: 0;
+    }
 
-          /* LUNAS overlay - centered like watermark */
-          .lunas-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-25deg);
-            font-size: 80px;
-            font-weight: 900;
-            color: #18a558;
-            opacity: 0.12;
-            letter-spacing: 8px;
-            pointer-events: none;
-            z-index: 2;
-            text-transform: uppercase;
-            font-family: 'Arial Black', 'Arial Bold', Gadget, sans-serif;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="watermark-container">
-            <img src="/logo.svg" alt="Logo" />
-          </div>
+    /* Print Meta */
+    .print-meta { 
+      margin-top: 24px; 
+      font-size: 8px; 
+      color: #9ca3af; 
+      text-align: center; 
+      position: relative; 
+      z-index: 10;
+      line-height: 1.4;
+    }
 
-          <!-- Header -->
-          <div class="header">
-            <div class="header-left">
-              <h1 class="company-name">${dataToUse.businessName}</h1>
-              <p class="company-sub">${dataToUse.businessSubtitle || ""}</p>
-              <p class="company-address">${dataToUse.businessAddress.replace(/\n/g, '<br/>')}</p>
+    @media print {
+      body { 
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact; 
+      }
+      .container {
+        page-break-after: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Watermark -->
+    <div class="watermark-container">
+      <img src="/logo.svg" alt="Logo" />
+    </div>
+
+    <!-- LUNAS Overlay - Sejajar dengan watermark -->
+    ${dataToUse.status === "paid" ? `
+    <div class="lunas-overlay">
+      <span>LUNAS</span>
+    </div>` : ''}
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <h1 class="company-name">${dataToUse.businessName}</h1>
+        <p class="company-sub">${dataToUse.businessSubtitle || ""}</p>
+        <p class="company-address">${dataToUse.businessAddress.replace(/\n/g, '<br/>')}</p>
+      </div>
+      <div class="header-right">
+        <h2 class="invoice-title">INVOICE</h2>
+        <table class="meta-table">
+          <tr>
+            <td class="meta-label">No. Invoice:</td>
+            <td class="meta-value">${dataToUse.invoiceNumber || "DRAFT"}</td>
+          </tr>
+          <tr>
+            <td class="meta-label">Tanggal:</td>
+            <td class="meta-value">${fmtDate(dataToUse.issueDate)}</td>
+          </tr>
+          <tr>
+            <td class="meta-label">Jatuh Tempo:</td>
+            <td class="meta-value">${fmtDate(dataToUse.dueDate)}</td>
+          </tr>
+          <tr>
+            <td class="meta-label">Status:</td>
+            <td class="meta-value status-text">${statusLabel}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recipient -->
+    <div class="recipient-section">
+      <h3 class="recipient-label">Ditagihkan Kepada:</h3>
+      <div class="recipient-name">${dataToUse.clientName || "NAMA KLIEN"}</div>
+      <div class="recipient-detail">${dataToUse.clientAddress || ""}</div>
+      ${dataToUse.clientPhone ? `<div class="recipient-detail">Telepon: ${dataToUse.clientPhone}</div>` : ""}
+      ${dataToUse.clientEmail ? `<div class="recipient-detail">Email: ${dataToUse.clientEmail}</div>` : ""}
+    </div>
+
+    <!-- Items Table -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th style="width: 50%;">Deskripsi</th>
+          <th style="width: 10%;">Jumlah</th>
+          <th style="width: 20%;">Harga Satuan</th>
+          <th style="width: 20%;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemsHtml}
+      </tbody>
+    </table>
+
+    <!-- Summary -->
+    <div class="summary-container">
+      <div class="summary-box">
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span class="summary-value">Rp ${fmtMoney(dataToUse.subtotal)}</span>
+        </div>
+        ${dataToUse.taxAmount > 0 ? `
+        <div class="summary-row">
+          <span>Pajak (${dataToUse.taxType === 'percentage' ? dataToUse.taxValue+'%' : 'Flat'}):</span>
+          <span class="summary-value">Rp ${fmtMoney(dataToUse.taxAmount)}</span>
+        </div>` : ''}
+        ${dataToUse.discountAmount > 0 ? `
+        <div class="summary-row">
+          <span>Diskon:</span>
+          <span class="summary-value" style="color: #dc2626;">- Rp ${fmtMoney(dataToUse.discountAmount)}</span>
+        </div>` : ''}
+        <div class="summary-row total-row">
+          <span>Total</span>
+          <span>Rp ${fmtMoney(dataToUse.total)}</span>
+        </div>
+        <div class="divider"></div>
+        ${terminRows}
+        <div class="remaining-row">
+          <span>Sisa Pembayaran</span>
+          <span>Rp ${fmtMoney(dataToUse.remainingAmount)}</span>
+        </div>
+      </div>
+    </div>
+
+    ${dataToUse.notes ? `
+    <div class="notes-section">
+      <div class="notes-title">Catatan:</div>
+      <div class="notes-content">${dataToUse.notes}</div>
+    </div>` : ''}
+
+    <!-- Footer Boxes -->
+    <div class="footer-container">
+      <div class="footer-box">
+        <div class="footer-title">Detail Pembayaran</div>
+        <div class="footer-content">
+          ${dataToUse.bankAccounts.map(acc => `
+            <div class="bank-item">
+              <img src="/images/banks/${acc.bank.toLowerCase()}.png" alt="${acc.bank}" class="bank-logo" />
+              <span>${acc.number}</span>
             </div>
-            <div class="header-right">
-              <h2 class="invoice-title">INVOICE</h2>
-              <table class="meta-table">
-                <tr>
-                  <td class="meta-label">No. Invoice:</td>
-                  <td class="meta-value">${dataToUse.invoiceNumber || "DRAFT"}</td>
-                </tr>
-                <tr>
-                  <td class="meta-label">Tanggal:</td>
-                  <td class="meta-value">${fmtDate(dataToUse.issueDate)}</td>
-                </tr>
-                <tr>
-                  <td class="meta-label">Jatuh Tempo:</td>
-                  <td class="meta-value">${fmtDate(dataToUse.dueDate)}</td>
-                </tr>
-                <tr>
-                  <td class="meta-label">Status:</td>
-                  <td class="meta-value status-text">${statusLabel}</td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <!-- Recipient -->
-          <div class="recipient-section">
-            <h3 class="recipient-label">Ditagihkan Kepada:</h3>
-            <div class="recipient-name">${dataToUse.clientName || "NAMA KLIEN"}</div>
-            <div class="recipient-detail">${dataToUse.clientAddress || ""}</div>
-            ${dataToUse.clientPhone ? `<div class="recipient-detail">Telepon: ${dataToUse.clientPhone}</div>` : ""}
-            ${dataToUse.clientEmail ? `<div class="recipient-detail">Email: ${dataToUse.clientEmail}</div>` : ""}
-          </div>
-
-          <!-- Table -->
-          <table class="items-table">
-            <thead>
-              <tr>
-                <th style="width: 50%;">Deskripsi</th>
-                <th style="width: 10%; text-align: center;">Jumlah</th>
-                <th style="width: 20%; text-align: right;">Harga Satuan</th>
-                <th style="width: 20%; text-align: right;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHtml}
-            </tbody>
-          </table>
-
-          <!-- Summary -->
-          <div class="summary-container">
-            <div class="summary-box">
-              <div class="summary-row">
-                <span>Subtotal:</span>
-                <span class="summary-value">Rp ${fmtMoney(dataToUse.subtotal)}</span>
-              </div>
-              ${dataToUse.taxAmount > 0 ? `
-              <div class="summary-row">
-                <span>Pajak (${dataToUse.taxType === 'percentage' ? dataToUse.taxValue+'%' : 'Flat'}):</span>
-                <span class="summary-value">Rp ${fmtMoney(dataToUse.taxAmount)}</span>
-              </div>` : ''}
-              ${dataToUse.discountAmount > 0 ? `
-              <div class="summary-row">
-                <span>Diskon:</span>
-                <span class="summary-value" style="color: #dc2626;">- Rp ${fmtMoney(dataToUse.discountAmount)}</span>
-              </div>` : ''}
-              <div class="summary-row total-row">
-                <span>Total</span>
-                <span>Rp. ${fmtMoney(dataToUse.total)}</span>
-              </div>
-              <div class="divider"></div>
-              ${terminRows}
-              <div class="remaining-row">
-                <span>Sisa Pembayaran</span>
-                <span>Rp. ${fmtMoney(dataToUse.remainingAmount)}</span>
-              </div>
-              ${dataToUse.status === "paid" ? `<div class="lunas-overlay">LUNAS</div>` : ''}
-            </div>
-          </div>
-
-          ${dataToUse.notes ? `
-          <div class="notes-section">
-            <div class="notes-title">Catatan:</div>
-            <div class="notes-content">${dataToUse.notes}</div>
-          </div>` : ''}
-
-          <!-- Footer Boxes -->
-          <div class="footer-container">
-            <div class="footer-box">
-              <div class="footer-title">Detail Pembayaran</div>
-              <div class="footer-content">
-                ${dataToUse.bankAccounts.map(acc => `
-                  <div class="bank-item">
-                    <img src="/images/banks/${acc.bank.toLowerCase()}.png" alt="${acc.bank}" class="bank-logo" />
-                    <span>${acc.number}</span>
-                  </div>
-                `).join('')}
-                <div style="margin-top: 8px; font-style: italic; color: #6b7280;">
-                  a.n ${dataToUse.bankAccounts[0]?.holder || dataToUse.businessName}
-                </div>
-              </div>
-            </div>
-
-            <div class="footer-box">
-              <div class="footer-title">Kontak</div>
-              <div class="footer-content">
-                <div class="contact-item">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon" style="margin-right: 8px; color: #4b5563;"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></svg> ${dataToUse.businessPhone}
-                </div>
-                <div class="contact-item">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon" style="margin-right: 8px; color: #4b5563;"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /><rect x="2" y="4" width="20" height="16" rx="2" /></svg> ${dataToUse.businessEmail}
-                </div>
-                <div class="contact-item">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon" style="margin-right: 8px; color: #4b5563;">
-  <circle cx="12" cy="12" r="10" />
-  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-  <path d="M2 12h20" />
-</svg> ${dataToUse.businessWebsite}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="print-meta">
-            Waktu cetak: ${new Date().toLocaleString('id-ID')} • Invoice ini dibuat secara otomatis oleh website ValproAdminPanel.
+          `).join('')}
+          <div style="margin-top: 10px; font-style: italic; color: #6b7280;">
+            a.n ${dataToUse.bankAccounts[0]?.holder || dataToUse.businessName}
           </div>
         </div>
-      </body>
-      </html>
+      </div>
+
+      <div class="footer-box">
+        <div class="footer-title">Kontak</div>
+        <div class="footer-content">
+          <div class="contact-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></svg>
+            ${dataToUse.businessPhone}
+          </div>
+          <div class="contact-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /><rect x="2" y="4" width="20" height="16" rx="2" /></svg>
+            ${dataToUse.businessEmail}
+          </div>
+          <div class="contact-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+              <path d="M2 12h20" />
+            </svg>
+            ${dataToUse.businessWebsite}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="print-meta">
+      Waktu cetak: ${new Date().toLocaleString('id-ID')} • Invoice ini dibuat secara otomatis oleh website Valpro - InvoiceSystem.
+    </div>
+  </div>
+</body>
+</html>
     `;
   };
 

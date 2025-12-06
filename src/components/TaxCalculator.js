@@ -1,10 +1,22 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calculator, RefreshCw, TrendingUp, DollarSign } from 'lucide-react';
+import { getWhatsappSettings, createWhatsAppUrl } from '@/lib/whatsappSettings';
 
 export default function TaxCalculator() {
   const [omzet, setOmzet] = useState('');
   const [result, setResult] = useState(null);
+  const [whatsappNumber, setWhatsappNumber] = useState('6289518530306'); // Default value
+
+  useEffect(() => {
+    // Load WhatsApp number settings
+    const loadWhatsappSettings = async () => {
+      const settings = await getWhatsappSettings();
+      setWhatsappNumber(settings.secondaryNumber || settings.mainNumber || '6289518530306');
+    };
+
+    loadWhatsappSettings();
+  }, []);
 
   const formatRupiah = (number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -102,7 +114,7 @@ export default function TaxCalculator() {
                          <p className="text-xs text-stone-500 leading-relaxed mb-3">
                            Jangan sampai kena denda karena salah lapor. Kami bantu urus SPT Tahunan Anda.
                          </p>
-                         <a href="https://wa.me/6289518530306?text=Halo, saya mau konsultasi pajak UMKM" className="text-sm font-bold text-[#4f6bff] hover:text-white transition-colors flex items-center gap-1">
+                         <a href={createWhatsAppUrl(whatsappNumber, 'Halo, saya mau konsultasi pajak UMKM')} className="text-sm font-bold text-[#4f6bff] hover:text-white transition-colors flex items-center gap-1">
                             Konsultasi Pajak <RefreshCw size={14}/>
                          </a>
                       </div>

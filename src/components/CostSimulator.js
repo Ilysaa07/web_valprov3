@@ -1,6 +1,7 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Check, Calculator, HelpCircle, Send, ShieldCheck } from 'lucide-react';
+import { getWhatsappSettings, createWhatsAppUrl } from '@/lib/whatsappSettings';
 
 export default function CostSimulator() {
   // --- DATA HARGA (Bisa diubah sesuai harga asli Valpro) ---
@@ -53,13 +54,24 @@ export default function CostSimulator() {
 
   // Format Rupiah
   const formatRp = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+  const [whatsappNumber, setWhatsappNumber] = useState('6289518530306'); // Default value
+
+  useEffect(() => {
+    // Load WhatsApp number settings
+    const loadWhatsappSettings = async () => {
+      const settings = await getWhatsappSettings();
+      setWhatsappNumber(settings.secondaryNumber || settings.mainNumber || '6289518530306');
+    };
+
+    loadWhatsappSettings();
+  }, []);
 
   // Kirim ke WhatsApp
   const handleConsult = () => {
     const addonText = selectedAddons.length > 0 ? ` + Tambahan: ${selectedAddons.map(a => a.label).join(', ')}` : '';
-    
+
     const message = `Halo Tim Valpro, saya tertarik dengan simulasi biaya di website:
-    
+
 📦 *Paket:* ${selectedBase.label}
 ➕ *Add-ons:* ${addonText || '-'}
 
@@ -67,7 +79,8 @@ export default function CostSimulator() {
 
 Mohon info kelengkapan syaratnya. Terima kasih.`;
 
-    window.open(`https://wa.me/6289518530306?text=${encodeURIComponent(message)}`, '_blank');
+    const whatsappUrl = createWhatsAppUrl(whatsappNumber, message);
+    window.open(whatsappUrl, '_blank');
   };
 
   return (

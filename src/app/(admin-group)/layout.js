@@ -1,8 +1,9 @@
 import { Inter } from "next/font/google";
 import "../globals.css";
 
-const inter = Inter({ 
+const inter = Inter({
     subsets: ["latin"],
+    variable: "--font-inter",
     display: "swap",
 });
 
@@ -20,8 +21,8 @@ export const metadata = {
 
 export default function AdminLayout({ children }) {
     return (
-        <html lang="id">
-            <body className={`${inter.className} bg-slate-50 antialiased`}>
+        <html lang="id" className="scroll-smooth">
+            <body className={`${inter.variable} bg-slate-50 antialiased`} suppressHydrationWarning={true}>
                 {children}
             </body>
         </html>

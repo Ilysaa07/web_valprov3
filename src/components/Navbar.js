@@ -2,15 +2,16 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
-  Menu, X, ChevronDown, 
-  Phone, Mail, Clock, ShieldCheck, 
+import {
+  Menu, X, ChevronDown,
+  Phone, Mail, Clock, ShieldCheck,
   BookOpen, Calculator, Tag, FileText, ArrowRight,
-  Instagram, Facebook, Linkedin, 
+  Instagram, Facebook, Linkedin,
   CalendarCheck, BookA, HelpCircle, Coins, Package,
   Briefcase, HardHat, Zap, Award
 } from 'lucide-react';
 import { servicesData } from '@/lib/servicesData';
+import { getWhatsappSettings, createWhatsAppUrl } from '@/lib/whatsappSettings';
 
 import LangDropdown from './LangDropdown';
 
@@ -29,13 +30,22 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState('6281399710085'); // Default value
 
   const dropdownRef = useRef(null);
   const toolsRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
-    
+
+    // Load WhatsApp number settings
+    const loadWhatsappSettings = async () => {
+      const settings = await getWhatsappSettings();
+      setWhatsappNumber(settings.mainNumber || '6281399710085');
+    };
+
+    loadWhatsappSettings();
+
     const handleScroll = () => {
       const isScrolled = window.scrollY > 20;
       setScrolled(prev => {
@@ -55,7 +65,7 @@ export default function Navbar() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     document.addEventListener('mousedown', handleClickOutside);
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('mousedown', handleClickOutside);
@@ -170,7 +180,7 @@ export default function Navbar() {
                             <h4 className="font-bold text-stone-900 mb-2">Butuh Bantuan?</h4>
                             <p className="text-xs text-stone-500 mb-4">Konsultasikan kebutuhan bisnis Anda.</p>
                         </div>
-                        <Link href="https://wa.me/6281399710085" className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-[#1e40af] to-[#3b82f6] text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-95">
+                        <Link href={createWhatsAppUrl(whatsappNumber)} className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-[#1e40af] to-[#3b82f6] text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-95">
                             <Image src="/whatsapp-icon.svg" alt="WhatsApp" width={16} height={16}/> Chat Admin
                         </Link>
                     </div>
@@ -259,7 +269,7 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:block ml-4">
-            <Link href="https://wa.me/6281399710085" className="text-white px-5 py-2.5 rounded-full text-sm font-bold transition-all hover:shadow-lg hover:shadow-blue-500/20 flex items-center gap-2 hover:-translate-y-0.5 bg-gradient-to-r from-[#1e40af] to-[#3b82f6] active:scale-95">
+            <Link href={createWhatsAppUrl(whatsappNumber)} className="text-white px-5 py-2.5 rounded-full text-sm font-bold transition-all hover:shadow-lg hover:shadow-blue-500/20 flex items-center gap-2 hover:-translate-y-0.5 bg-gradient-to-r from-[#1e40af] to-[#3b82f6] active:scale-95">
                Konsultasi <ArrowRight size={16} />
             </Link>
           </div>
@@ -316,7 +326,7 @@ export default function Navbar() {
             </div>
 
             <Link href="/blog" onClick={() => setIsOpen(false)} className="font-medium text-stone-700">Wawasan</Link>
-            <Link href="https://wa.me/6281399710085" className="w-full bg-gradient-to-r from-[#1e40af] to-[#3b82f6] text-white py-4 rounded-xl text-center font-bold mt-4 shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+            <Link href={createWhatsAppUrl(whatsappNumber)} className="w-full bg-gradient-to-r from-[#1e40af] to-[#3b82f6] text-white py-4 rounded-xl text-center font-bold mt-4 shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
               <Image src="/whatsapp-icon.svg" alt="WhatsApp" width={16} height={16}/> Chat WhatsApp Sekarang
             </Link>
           </div>
