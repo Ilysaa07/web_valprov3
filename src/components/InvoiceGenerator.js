@@ -1502,6 +1502,33 @@ const editInvoice = (invoice) => {
             await addDoc(collection(db, "invoices"), payload);
         }
 
+        // Also save the invoice to the document repository
+        try {
+            // Generate a preview of the invoice for the repository
+            // In a real implementation, you would generate the actual PDF and save it
+            // For now, we'll just create a reference to the invoice data
+            const invoicePreviewUrl = `/invoice-preview/${payload.invoiceNumber}`;
+
+            // Save to document repository
+            await fetch('/api/documents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: auth.currentUser.uid,
+                    fileName: `${payload.invoiceNumber}.html`,
+                    fileUrl: invoicePreviewUrl,
+                    fileSize: 0, // Size would be calculated in real implementation
+                    fileType: 'html',
+                    category: 'invoice',
+                    relatedInvoice: payload.invoiceNumber,
+                    tags: ['invoice', payload.status, 'finance']
+                })
+            });
+        } catch (repoError) {
+            console.error('Error saving to document repository:', repoError);
+            // Don't fail the entire operation if repository save fails
+        }
+
         await loadInvoices();
         setActiveTab("history");
         Swal.fire({

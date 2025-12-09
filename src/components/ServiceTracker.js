@@ -10,6 +10,173 @@ export default function ServiceTracker() {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [unsubscribe, setUnsubscribe] = useState(null);
+  const [statusStages, setStatusStages] = useState(null); // Store the configurable status stages
+
+  // Load status stages configuration
+  useEffect(() => {
+    const fetchStatusStages = async () => {
+      try {
+        const response = await fetch('/api/admin/status-stages');
+        if (response.ok) {
+          const config = await response.json();
+          setStatusStages(config.stages);
+        } else {
+          // Fallback to default configuration
+          setStatusStages([
+            {
+              id: 'draft',
+              name: 'Draft',
+              steps: [
+                { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+                { id: 'waiting-payment', name: 'Menunggu Pembayaran', order: 2, isActive: true },
+                { id: 'admin-process', name: 'Proses Administrasi', order: 3, isActive: true },
+                { id: 'document-work', name: 'Pengerjaan Dokumen', order: 4, isActive: true },
+                { id: 'delivery', name: 'Serah Terima', order: 5, isActive: true }
+              ]
+            },
+            {
+              id: 'sent',
+              name: 'Dikirim',
+              steps: [
+                { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+                { id: 'invoice-sent', name: 'Invoice Dikirim', order: 2, isActive: true },
+                { id: 'waiting-payment', name: 'Menunggu Pembayaran', order: 3, isActive: true },
+                { id: 'admin-process', name: 'Proses Administrasi', order: 4, isActive: true },
+                { id: 'document-work', name: 'Pengerjaan Dokumen', order: 5, isActive: true },
+                { id: 'delivery', name: 'Serah Terima', order: 6, isActive: true }
+              ]
+            },
+            {
+              id: 'paid',
+              name: 'Lunas',
+              steps: [
+                { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+                { id: 'invoice-sent', name: 'Invoice Dikirim', order: 2, isActive: true },
+                { id: 'payment-received', name: 'Pembayaran Diterima', order: 3, isActive: true },
+                { id: 'admin-process', name: 'Proses Administrasi', order: 4, isActive: true },
+                { id: 'document-work', name: 'Pengerjaan Dokumen', order: 5, isActive: true },
+                { id: 'delivery', name: 'Serah Terima', order: 6, isActive: true }
+              ]
+            },
+            {
+              id: 'partial',
+              name: 'Dibayar Sebagian',
+              steps: [
+                { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+                { id: 'invoice-sent', name: 'Invoice Dikirim', order: 2, isActive: true },
+                { id: 'partial-payment', name: 'Pembayaran Sebagian', order: 3, isActive: true },
+                { id: 'waiting-balance', name: 'Menunggu Pelunasan', order: 4, isActive: true },
+                { id: 'admin-process', name: 'Proses Administrasi', order: 5, isActive: true },
+                { id: 'document-work', name: 'Pengerjaan Dokumen', order: 6, isActive: true }
+              ]
+            },
+            {
+              id: 'overdue',
+              name: 'Terlambat Pembayaran',
+              steps: [
+                { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+                { id: 'invoice-sent', name: 'Invoice Dikirim', order: 2, isActive: true },
+                { id: 'due-date-passed', name: 'Jatuh Tempo Pembayaran', order: 3, isActive: true },
+                { id: 'overdue-payment', name: 'Menunggu Pembayaran', order: 4, isActive: true },
+                { id: 'admin-process', name: 'Proses Administrasi', order: 5, isActive: true },
+                { id: 'document-work', name: 'Pengerjaan Dokumen', order: 6, isActive: true }
+              ]
+            },
+            {
+              id: 'cancelled',
+              name: 'Dibatalkan',
+              steps: [
+                { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+                { id: 'invoice-cancelled', name: 'Invoice Dibatalkan', order: 2, isActive: true },
+                { id: 'process-cancelled', name: 'Proses Dibatalkan', order: 3, isActive: true },
+                { id: 'admin-process', name: '-', order: 4, isActive: false },
+                { id: 'document-work', name: '-', order: 5, isActive: false },
+                { id: 'delivery', name: '-', order: 6, isActive: false }
+              ]
+            }
+          ]);
+        }
+      } catch (err) {
+        console.error("Error fetching status stages:", err);
+        // Fallback to default configuration
+        setStatusStages([
+          {
+            id: 'draft',
+            name: 'Draft',
+            steps: [
+              { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+              { id: 'waiting-payment', name: 'Menunggu Pembayaran', order: 2, isActive: true },
+              { id: 'admin-process', name: 'Proses Administrasi', order: 3, isActive: true },
+              { id: 'document-work', name: 'Pengerjaan Dokumen', order: 4, isActive: true },
+              { id: 'delivery', name: 'Serah Terima', order: 5, isActive: true }
+            ]
+          },
+          {
+            id: 'sent',
+            name: 'Dikirim',
+            steps: [
+              { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+              { id: 'invoice-sent', name: 'Invoice Dikirim', order: 2, isActive: true },
+              { id: 'waiting-payment', name: 'Menunggu Pembayaran', order: 3, isActive: true },
+              { id: 'admin-process', name: 'Proses Administrasi', order: 4, isActive: true },
+              { id: 'document-work', name: 'Pengerjaan Dokumen', order: 5, isActive: true },
+              { id: 'delivery', name: 'Serah Terima', order: 6, isActive: true }
+            ]
+          },
+          {
+            id: 'paid',
+            name: 'Lunas',
+            steps: [
+              { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+              { id: 'invoice-sent', name: 'Invoice Dikirim', order: 2, isActive: true },
+              { id: 'payment-received', name: 'Pembayaran Diterima', order: 3, isActive: true },
+              { id: 'admin-process', name: 'Proses Administrasi', order: 4, isActive: true },
+              { id: 'document-work', name: 'Pengerjaan Dokumen', order: 5, isActive: true },
+              { id: 'delivery', name: 'Serah Terima', order: 6, isActive: true }
+            ]
+          },
+          {
+            id: 'partial',
+            name: 'Dibayar Sebagian',
+            steps: [
+              { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+              { id: 'invoice-sent', name: 'Invoice Dikirim', order: 2, isActive: true },
+              { id: 'partial-payment', name: 'Pembayaran Sebagian', order: 3, isActive: true },
+              { id: 'waiting-balance', name: 'Menunggu Pelunasan', order: 4, isActive: true },
+              { id: 'admin-process', name: 'Proses Administrasi', order: 5, isActive: true },
+              { id: 'document-work', name: 'Pengerjaan Dokumen', order: 6, isActive: true }
+            ]
+          },
+          {
+            id: 'overdue',
+            name: 'Terlambat Pembayaran',
+            steps: [
+              { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+              { id: 'invoice-sent', name: 'Invoice Dikirim', order: 2, isActive: true },
+              { id: 'due-date-passed', name: 'Jatuh Tempo Pembayaran', order: 3, isActive: true },
+              { id: 'overdue-payment', name: 'Menunggu Pembayaran', order: 4, isActive: true },
+              { id: 'admin-process', name: 'Proses Administrasi', order: 5, isActive: true },
+              { id: 'document-work', name: 'Pengerjaan Dokumen', order: 6, isActive: true }
+            ]
+          },
+          {
+            id: 'cancelled',
+            name: 'Dibatalkan',
+            steps: [
+              { id: 'creation', name: 'Pembuatan Draft Invoice', order: 1, isActive: true },
+              { id: 'invoice-cancelled', name: 'Invoice Dibatalkan', order: 2, isActive: true },
+              { id: 'process-cancelled', name: 'Proses Dibatalkan', order: 3, isActive: true },
+              { id: 'admin-process', name: '-', order: 4, isActive: false },
+              { id: 'document-work', name: '-', order: 5, isActive: false },
+              { id: 'delivery', name: '-', order: 6, isActive: false }
+            ]
+          }
+        ]);
+      }
+    };
+
+    fetchStatusStages();
+  }, []);
 
   const handleTrack = async (e) => {
     e.preventDefault();
@@ -45,8 +212,8 @@ export default function ServiceTracker() {
         const invoiceDoc = querySnapshot.docs[0]; // Get the first matching invoice
         const invoiceData = { id: invoiceDoc.id, ...invoiceDoc.data() }; // Include the actual document ID
 
-        // Convert invoice data to tracking format
-        const trackingResult = convertInvoiceToTracking(invoiceData);
+        // Convert invoice data to tracking format using configurable stages
+        const trackingResult = convertInvoiceToTracking(invoiceData, statusStages);
         setResult(trackingResult);
 
         // Set up real-time listener for invoice updates using the actual document ID
@@ -56,7 +223,7 @@ export default function ServiceTracker() {
           if (doc.exists()) {
             const updatedInvoiceData = { id: doc.id, ...doc.data() };
             // Convert updated invoice data to tracking format
-            const updatedTrackingResult = convertInvoiceToTracking(updatedInvoiceData);
+            const updatedTrackingResult = convertInvoiceToTracking(updatedInvoiceData, statusStages);
             setResult(updatedTrackingResult);
           }
         });
@@ -82,75 +249,189 @@ export default function ServiceTracker() {
     };
   }, [unsubscribe]);
 
-  // Function to convert invoice status to tracking data
-  const convertInvoiceToTracking = (invoice) => {
+  // Function to convert invoice status to tracking data using configurable stages
+  const convertInvoiceToTracking = (invoice, statusStagesConfig) => {
+    if (!statusStagesConfig) {
+      // Fallback to default behavior if config is not loaded
+      return convertInvoiceToTrackingDefault(invoice);
+    }
+
+    // Find the status configuration for the current invoice status
+    const statusConfig = statusStagesConfig.find(stage => stage.id === invoice.status);
+
+    if (!statusConfig) {
+      // If no config found, fallback to default behavior
+      return convertInvoiceToTrackingDefault(invoice);
+    }
+
+    // Determine progress based on invoice status using configurable steps
+    let progressSteps = [];
+    let currentStatus = statusConfig.name;
+
+    // Calculate which steps are completed based on the invoice status
+    // For now, we'll mark steps as done up to a certain point, with more sophisticated logic as needed
+    const allSteps = [...statusConfig.steps].sort((a, b) => a.order - b.order);
+
+    // Determine which steps are completed based on status
+    // This is a simplified approach - could be enhanced with more complex business rules
+    let completedSteps = determineCompletedSteps(invoice, statusConfig);
+
+    // If the invoice has been delivered (documents downloaded), mark the delivery step as done
+    if (invoice.isDelivered) {
+      const deliveryStep = allSteps.find(step => step.id === 'delivery' || step.name.toLowerCase().includes('serah terima'));
+      if (deliveryStep) {
+        completedSteps = [...new Set([...completedSteps, deliveryStep.id])]; // Add to completed steps without duplicates
+      }
+    }
+
+    progressSteps = allSteps.map(step => ({
+      id: step.id,
+      step: step.name,
+      date: completedSteps.includes(step.id) ? formatDate(invoice.createdAt || new Date()) :
+            (step.isActive ? "Menunggu" : "-"),
+      done: completedSteps.includes(step.id)
+    }));
+
+    return {
+      id: invoice.invoiceNumber,
+      docId: invoice.id, // Store the actual Firestore document ID
+      clientName: invoice.clientName,
+      service: invoice.serviceName ||
+               (invoice.items && invoice.items.length > 0
+                ? invoice.items.map(item => item.description).join(', ')
+                : "Layanan Pendirian Badan Usaha"), // Ambil semua item utama dari data invoice
+      status: currentStatus,
+      lastUpdate: formatDate(new Date()),
+      history: progressSteps,
+      files: invoice.files || [] // Include attached files
+    };
+  };
+
+  // Helper function to determine which steps are completed based on invoice status
+  const determineCompletedSteps = (invoice, statusConfig) => {
+    const completedSteps = [];
+
+    // Add creation step if invoice exists
+    if (invoice.createdAt) {
+      completedSteps.push('creation');
+    }
+
+    // Add steps based on the invoice status
+    switch (invoice.status) {
+      case 'draft':
+        // Only creation step is done for draft
+        break;
+      case 'sent':
+        completedSteps.push('invoice-sent', 'waiting-payment');
+        break;
+      case 'paid':
+        completedSteps.push('invoice-sent', 'payment-received', 'admin-process', 'document-work');
+        break;
+      case 'partial':
+        completedSteps.push('invoice-sent', 'partial-payment', 'waiting-balance');
+        break;
+      case 'overdue':
+        completedSteps.push('invoice-sent', 'due-date-passed', 'overdue-payment');
+        break;
+      case 'cancelled':
+        completedSteps.push('invoice-cancelled', 'process-cancelled');
+        break;
+      default:
+        break;
+    }
+
+    return completedSteps;
+  };
+
+  // Fallback function with default behavior
+  const convertInvoiceToTrackingDefault = (invoice) => {
     // Determine progress based on invoice status
     let progressSteps = [];
     let currentStatus = "Menunggu Pembayaran";
 
+    // Determine if the delivery step should be marked as done
+    const isDeliveryDone = invoice.isDelivered === true;
+
     if (invoice.status === "draft") {
       currentStatus = "Draft";
       progressSteps = [
-        { step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
-        { step: "Menunggu Pembayaran", date: "Menunggu", done: false },
-        { step: "Proses Administrasi", date: "Menunggu", done: false },
-        { step: "Pengerjaan Dokumen", date: "Menunggu", done: false },
-        { step: "Serah Terima", date: "Menunggu", done: false }
+        { id: 'creation', step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
+        { id: 'waiting-payment', step: "Menunggu Pembayaran", date: "Menunggu", done: false },
+        { id: 'admin-process', step: "Proses Administrasi", date: "Menunggu", done: false },
+        { id: 'document-work', step: "Pengerjaan Dokumen", date: "Menunggu", done: false },
+        { id: 'delivery', step: "Serah Terima", date: "Menunggu", done: isDeliveryDone }
       ];
     } else if (invoice.status === "sent") {
       currentStatus = "Dikirim";
       progressSteps = [
-        { step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
-        { step: "Invoice Dikirim", date: formatDate(invoice.createdAt), done: true },
-        { step: "Menunggu Pembayaran", date: "Sedang Proses", done: false },
-        { step: "Proses Administrasi", date: "Menunggu", done: false },
-        { step: "Pengerjaan Dokumen", date: "Menunggu", done: false },
-        { step: "Serah Terima", date: "Menunggu", done: false }
+        { id: 'creation', step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
+        { id: 'invoice-sent', step: "Invoice Dikirim", date: formatDate(invoice.createdAt), done: true },
+        { id: 'waiting-payment', step: "Menunggu Pembayaran", date: "Sedang Proses", done: false },
+        { id: 'admin-process', step: "Proses Administrasi", date: "Menunggu", done: false },
+        { id: 'document-work', step: "Pengerjaan Dokumen", date: "Menunggu", done: false },
+        { id: 'delivery', step: "Serah Terima", date: "Menunggu", done: isDeliveryDone }
       ];
     } else if (invoice.status === "paid") {
       currentStatus = "Lunas - Proses Administrasi";
       progressSteps = [
-        { step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
-        { step: "Invoice Dikirim", date: formatDate(invoice.createdAt), done: true },
-        { step: "Pembayaran Diterima", date: formatDate(new Date()), done: true },
-        { step: "Proses Administrasi", date: formatDate(new Date()), done: true },
-        { step: "Pengerjaan Dokumen", date: "Sedang Proses", done: false },
-        { step: "Serah Terima", date: "Menunggu", done: false }
+        { id: 'creation', step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
+        { id: 'invoice-sent', step: "Invoice Dikirim", date: formatDate(invoice.createdAt), done: true },
+        { id: 'payment-received', step: "Pembayaran Diterima", date: formatDate(new Date()), done: true },
+        { id: 'admin-process', step: "Proses Administrasi", date: formatDate(new Date()), done: true },
+        { id: 'document-work', step: "Pengerjaan Dokumen", date: "Sedang Proses", done: false },
+        { id: 'delivery', step: "Serah Terima", date: "Menunggu", done: isDeliveryDone }
       ];
     } else if (invoice.status === "partial") {
       currentStatus = "Dibayar Sebagian - Proses";
       progressSteps = [
-        { step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
-        { step: "Invoice Dikirim", date: formatDate(invoice.createdAt), done: true },
-        { step: "Pembayaran Sebagian", date: formatDate(new Date()), done: true },
-        { step: "Menunggu Pelunasan", date: "Sedang Proses", done: false },
-        { step: "Proses Administrasi", date: "Menunggu", done: false },
-        { step: "Pengerjaan Dokumen", date: "Menunggu", done: false }
+        { id: 'creation', step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
+        { id: 'invoice-sent', step: "Invoice Dikirim", date: formatDate(invoice.createdAt), done: true },
+        { id: 'partial-payment', step: "Pembayaran Sebagian", date: formatDate(new Date()), done: true },
+        { id: 'waiting-balance', step: "Menunggu Pelunasan", date: "Sedang Proses", done: false },
+        { id: 'admin-process', step: "Proses Administrasi", date: "Menunggu", done: false },
+        { id: 'document-work', step: "Pengerjaan Dokumen", date: "Menunggu", done: false }
       ];
+      // Add delivery step for partial if needed
+      if (progressSteps.some(step => step.id === 'delivery')) {
+        progressSteps = progressSteps.map(step =>
+          step.id === 'delivery' ? { ...step, done: isDeliveryDone } : step
+        );
+      } else if (isDeliveryDone) {
+        progressSteps.push({ id: 'delivery', step: "Serah Terima", date: "Menunggu", done: isDeliveryDone });
+      }
     } else if (invoice.status === "overdue") {
       currentStatus = "Terlambat Pembayaran";
       progressSteps = [
-        { step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
-        { step: "Invoice Dikirim", date: formatDate(invoice.createdAt), done: true },
-        { step: "Jatuh Tempo Pembayaran", date: formatDate(invoice.dueDate ? new Date(invoice.dueDate) : new Date()), done: true },
-        { step: "Menunggu Pembayaran", date: "Terlambat", done: false },
-        { step: "Proses Administrasi", date: "Menunggu", done: false },
-        { step: "Pengerjaan Dokumen", date: "Menunggu", done: false }
+        { id: 'creation', step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
+        { id: 'invoice-sent', step: "Invoice Dikirim", date: formatDate(invoice.createdAt), done: true },
+        { id: 'due-date-passed', step: "Jatuh Tempo Pembayaran", date: formatDate(invoice.dueDate ? new Date(invoice.dueDate) : new Date()), done: true },
+        { id: 'overdue-payment', step: "Menunggu Pembayaran", date: "Terlambat", done: false },
+        { id: 'admin-process', step: "Proses Administrasi", date: "Menunggu", done: false },
+        { id: 'document-work', step: "Pengerjaan Dokumen", date: "Menunggu", done: false }
       ];
+      // Add delivery step for overdue if needed
+      if (progressSteps.some(step => step.id === 'delivery')) {
+        progressSteps = progressSteps.map(step =>
+          step.id === 'delivery' ? { ...step, done: isDeliveryDone } : step
+        );
+      } else if (isDeliveryDone) {
+        progressSteps.push({ id: 'delivery', step: "Serah Terima", date: "Menunggu", done: isDeliveryDone });
+      }
     } else if (invoice.status === "cancelled") {
       currentStatus = "Dibatalkan";
       progressSteps = [
-        { step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
-        { step: "Invoice Dibatalkan", date: formatDate(new Date()), done: true },
-        { step: "Proses Dibatalkan", date: formatDate(new Date()), done: true },
-        { step: "Proses Administrasi", date: "-", done: false },
-        { step: "Pengerjaan Dokumen", date: "-", done: false },
-        { step: "Serah Terima", date: "-", done: false }
+        { id: 'creation', step: "Pembuatan Draft Invoice", date: formatDate(invoice.createdAt), done: true },
+        { id: 'invoice-cancelled', step: "Invoice Dibatalkan", date: formatDate(new Date()), done: true },
+        { id: 'process-cancelled', step: "Proses Dibatalkan", date: formatDate(new Date()), done: true },
+        { id: 'admin-process', step: "-", done: false },
+        { id: 'document-work', step: "-", done: false },
+        { id: 'delivery', step: "-", done: isDeliveryDone }
       ];
     }
 
     return {
       id: invoice.invoiceNumber,
+      docId: invoice.id, // Store the actual Firestore document ID
       clientName: invoice.clientName,
       service: invoice.serviceName ||
                (invoice.items && invoice.items.length > 0
@@ -292,6 +573,24 @@ export default function ServiceTracker() {
                             href={file.url}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={async (e) => {
+                              try {
+                                // Track the download
+                                await fetch('/api/track-download', {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                  },
+                                  body: JSON.stringify({
+                                    invoiceId: result.docId, // Use the actual Firestore document ID
+                                    fileId: file.name // Use the file name as identifier
+                                  }),
+                                });
+                              } catch (error) {
+                                console.error('Error tracking download:', error);
+                                // Continue with download even if tracking fails
+                              }
+                            }}
                             className="text-blue-600 hover:text-blue-800"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

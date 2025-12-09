@@ -29,9 +29,12 @@ import {
   TrendingUp,
   Clock,
   CheckCircle2,
-  Package
+  Package,
+  File
 } from "lucide-react";
 import InvoiceGenerator from "./InvoiceGenerator";
+import StatusStagesManager from "./StatusStagesManager";
+import DocumentRepository from "./DocumentRepository";
 
 // Vercel Blob imports (we'll handle this in the next step)
 
@@ -197,6 +200,17 @@ const AdminDashboard = ({ userEmail }) => {
     return () => unsubscribe();
   }, [selectedMonth, selectedYear, auth.currentUser]);
 
+  // Update selected invoice when invoices change to reflect file updates
+  useEffect(() => {
+    if (selectedInvoiceForFiles && invoices.length > 0) {
+      // Find the updated invoice and update the state
+      const updatedInvoice = invoices.find(inv => inv.id === selectedInvoiceForFiles.id);
+      if (updatedInvoice) {
+        setSelectedInvoiceForFiles(updatedInvoice);
+      }
+    }
+  }, [invoices]); // This runs whenever the invoices array changes
+
   // Fetch WhatsApp settings
   useEffect(() => {
     if (!auth.currentUser) return;
@@ -258,6 +272,200 @@ const AdminDashboard = ({ userEmail }) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // State variables for Service Pricing settings
+  const [servicePricing, setServicePricing] = useState({});
+  const [loadingPricing, setLoadingPricing] = useState(true);
+  const [savingPricing, setSavingPricing] = useState(false);
+
+  // Fetch Service Pricing settings
+  useEffect(() => {
+    if (!auth.currentUser) return;
+
+    const fetchPricingSettings = async () => {
+      setLoadingPricing(true);
+      try {
+        const settingsRef = doc(db, "settings", "service_pricing");
+        const settingsDoc = await getDoc(settingsRef);
+
+        if (settingsDoc.exists()) {
+          setServicePricing(settingsDoc.data());
+        } else {
+          // Initialize with default values if no pricing settings exist
+          // This will be based on servicesData but with pricing disabled by default
+          const defaultPricing = {};
+          import('../lib/servicesData').then(({ servicesData }) => {
+            servicesData.forEach(service => {
+              defaultPricing[service.slug] = {
+                enabled: false,
+                price: service.price || '',
+                priceNote: service.priceNote || '',
+                priceDescription: service.priceDescription || '',
+                originalPrice: service.price || '' // Keep original for reference
+              };
+            });
+            setServicePricing(defaultPricing);
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching service pricing settings:", error);
+      } finally {
+        setLoadingPricing(false);
+      }
+    };
+
+    fetchPricingSettings();
+  }, [auth.currentUser]);
+
+  // Function to save Service Pricing settings
+  const saveServicePricing = async () => {
+    if (!auth.currentUser) return;
+
+    setSavingPricing(true);
+    try {
+      const settingsRef = doc(db, "settings", "service_pricing");
+      await setDoc(settingsRef, servicePricing);
+
+      // Show success message
+      alert("Pengaturan harga layanan berhasil disimpan!");
+    } catch (error) {
+      console.error("Error saving service pricing settings:", error);
+      alert("Gagal menyimpan pengaturan harga layanan: " + error.message);
+    } finally {
+      setSavingPricing(false);
+    }
+  };
+
+  // Function to handle Service Pricing change
+  const handlePricingChange = (slug, field, value) => {
+    setServicePricing(prev => ({
+      ...prev,
+      [slug]: {
+        ...prev[slug],
+        [field]: value
+      }
+    }));
+  };
+
+  // Fetch banner settings
+  useEffect(() => {
+    if (!auth.currentUser) return;
+
+    const fetchBannerSettings = async () => {
+      setLoadingBanner(true);
+      try {
+        const response = await fetch('/api/banner');
+        if (response.ok) {
+          const data = await response.json();
+          setBannerSettings(data);
+          if (data.imageUrl) {
+            setBannerPreview(data.imageUrl);
+          }
+        } else {
+          // Initialize with default values if no settings exist
+          setBannerSettings({
+            imageUrl: '',
+            title: 'Banner Advertisement',
+            active: true
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching banner settings:", error);
+      } finally {
+        setLoadingBanner(false);
+      }
+    };
+
+    fetchBannerSettings();
+  }, [auth.currentUser]);
+
+  // Function to save banner settings
+  const saveBannerSettings = async () => {
+    if (!auth.currentUser) return;
+
+    setSavingBanner(true);
+    try {
+      // If there's a new image file, upload it first
+      let imageUrl = bannerSettings.imageUrl;
+
+      if (bannerImageFile) {
+        // Upload image to Vercel Blob
+        const formData = new FormData();
+        formData.append('file', bannerImageFile);
+        formData.append('access', 'public');
+
+        const uploadResponse = await fetch('/api/upload-blob', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Upload banner image failed');
+        }
+
+        const result = await uploadResponse.json();
+        imageUrl = result.url;
+      }
+
+      // Save banner settings to Firestore
+      const response = await fetch('/api/banner', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl,
+          title: bannerSettings.title,
+          active: bannerSettings.active
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save banner settings');
+      }
+
+      // Update local state
+      setBannerSettings(prev => ({
+        ...prev,
+        imageUrl
+      }));
+      setBannerPreview(imageUrl);
+
+      // Show success message
+      alert("Pengaturan banner berhasil disimpan!");
+      setBannerImageFile(null);
+    } catch (error) {
+      console.error("Error saving banner settings:", error);
+      alert("Gagal menyimpan pengaturan banner: " + error.message);
+    } finally {
+      setSavingBanner(false);
+    }
+  };
+
+  // Function to handle banner settings change
+  const handleBannerSettingsChange = (field, value) => {
+    setBannerSettings(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle banner image selection
+  const handleBannerImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setBannerImageFile(file);
+
+      // Create a preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setBannerPreview(previewUrl);
+    }
+  };
+
+  // Trigger file input click for banner image
+  const triggerBannerImageUpload = () => {
+    if (bannerFileInputRef.current) {
+      bannerFileInputRef.current.click();
+    }
   };
 
   const formatTime = (date) => {
@@ -588,16 +796,283 @@ const AdminDashboard = ({ userEmail }) => {
                       Menyimpan...
                     </>
                   ) : (
-                    'Simpan Pengaturan'
+                    'Simpan Pengaturan WhatsApp'
                   )}
                 </button>
               </div>
             </div>
           </div>
         )}
+
+        {/* Banner Settings Section */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Pengaturan Banner Iklan</h2>
+              <p className="text-gray-600 mt-1">Atur banner iklan yang muncul di halaman utama website</p>
+            </div>
+
+            {loadingBanner ? (
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span className="ml-3 text-gray-600">Memuat pengaturan banner...</span>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Banner Image Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Gambar Banner
+                  </label>
+                  <div
+                    onClick={triggerBannerImageUpload}
+                    className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 transition-colors bg-gray-50"
+                  >
+                    <input
+                      type="file"
+                      ref={bannerFileInputRef}
+                      onChange={handleBannerImageChange}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    {bannerPreview ? (
+                      <div className="relative">
+                        <img
+                          src={bannerPreview}
+                          alt="Banner Preview"
+                          className="max-h-60 mx-auto rounded-lg object-contain"
+                        />
+                        <div className="mt-3 text-sm text-gray-600">
+                          Klik untuk mengganti gambar banner
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="mx-auto h-12 w-12 text-gray-400">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div className="mt-2 text-sm font-medium text-gray-900">Klik untuk upload gambar banner</div>
+                        <div className="text-xs text-gray-500">PNG, JPG hingga 5MB</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Banner Title */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Judul Banner
+                  </label>
+                  <input
+                    type="text"
+                    value={bannerSettings.title}
+                    onChange={(e) => handleBannerSettingsChange('title', e.target.value)}
+                    placeholder="Masukkan judul banner..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                {/* Banner Status */}
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="bannerStatus"
+                    checked={bannerSettings.active}
+                    onChange={(e) => handleBannerSettingsChange('active', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="bannerStatus" className="ml-2 block text-sm text-gray-900">
+                    Aktifkan banner iklan
+                  </label>
+                </div>
+
+                {/* Banner Actions */}
+                <div className="flex justify-between">
+                  <div>
+                    {bannerSettings.imageUrl && (
+                      <button
+                        onClick={async () => {
+                          if (window.confirm('Apakah Anda yakin ingin menghapus banner iklan ini?')) {
+                            // Set the local state to cleared values
+                            setBannerSettings(prev => ({
+                              ...prev,
+                              imageUrl: '',
+                              active: false
+                            }));
+                            setBannerPreview('');
+                            setBannerImageFile(null);
+
+                            // Save directly with empty values (no file upload)
+                            setSavingBanner(true);
+                            try {
+                              // Save banner settings with empty imageUrl to Firestore
+                              const response = await fetch('/api/banner', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  imageUrl: '',
+                                  title: 'Banner Advertisement', // Keep the title or set as needed
+                                  active: false
+                                })
+                              });
+
+                              if (response.ok) {
+                                alert("Banner berhasil dihapus!");
+                              } else {
+                                throw new Error('Failed to delete banner settings');
+                              }
+                            } catch (error) {
+                              console.error("Error deleting banner:", error);
+                              alert("Gagal menghapus banner: " + error.message);
+                              // Restore the previous state in case of error
+                              setBannerPreview(bannerSettings.imageUrl);
+                            } finally {
+                              setSavingBanner(false);
+                            }
+                          }
+                        }}
+                        className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
+                      >
+                        Hapus Banner
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    onClick={saveBannerSettings}
+                    disabled={savingBanner}
+                    className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  >
+                    {savingBanner ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Menyimpan...
+                      </>
+                    ) : (
+                      'Simpan Pengaturan Banner'
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Service Pricing Settings Section */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Pengaturan Harga Layanan</h2>
+              <p className="text-gray-600 mt-1">Atur harga dan tampilkan/nonaktifkan harga untuk setiap layanan</p>
+            </div>
+
+            {loadingPricing ? (
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span className="ml-3 text-gray-600">Memuat pengaturan harga layanan...</span>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Service Pricing List */}
+                {Object.keys(servicePricing).length > 0 ? (
+                  <div className="space-y-4">
+                    {Object.entries(servicePricing).map(([slug, pricing]) => (
+                      <div key={slug} className="border border-gray-200 rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="font-medium text-gray-800 capitalize">{slug.replace(/-/g, ' ')}</h3>
+                          <div className="flex items-center">
+                            <span className="mr-3 text-sm text-gray-600">Tampilkan Harga:</span>
+                            <input
+                              type="checkbox"
+                              checked={pricing.enabled}
+                              onChange={(e) => handlePricingChange(slug, 'enabled', e.target.checked)}
+                              className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Harga</label>
+                            <input
+                              type="text"
+                              value={pricing.price}
+                              onChange={(e) => handlePricingChange(slug, 'price', e.target.value)}
+                              placeholder="Contoh: 7.500.000"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                              disabled={!pricing.enabled}
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Catatan Harga</label>
+                            <input
+                              type="text"
+                              value={pricing.priceNote || ''}
+                              onChange={(e) => handlePricingChange(slug, 'priceNote', e.target.value)}
+                              placeholder="Contoh: negotiable"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                              disabled={!pricing.enabled}
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Harga</label>
+                            <input
+                              type="text"
+                              value={pricing.priceDescription || ''}
+                              onChange={(e) => handlePricingChange(slug, 'priceDescription', e.target.value)}
+                              placeholder="Contoh: Sudah termasuk semua biaya administrasi"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                              disabled={!pricing.enabled}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    Tidak ada layanan ditemukan
+                  </div>
+                )}
+
+                {/* Save Button */}
+                <div className="flex justify-end pt-4">
+                  <button
+                    onClick={saveServicePricing}
+                    disabled={savingPricing}
+                    className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  >
+                    {savingPricing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Menyimpan...
+                      </>
+                    ) : (
+                      'Simpan Pengaturan Harga'
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     );
   };
+
+  // State for banner settings
+  const [bannerSettings, setBannerSettings] = useState({
+    imageUrl: '',
+    title: 'Banner Advertisement',
+    active: true
+  });
+  const [loadingBanner, setLoadingBanner] = useState(true);
+  const [savingBanner, setSavingBanner] = useState(false);
+  const [bannerImageFile, setBannerImageFile] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState('');
 
   // State for file uploads
   const [selectedInvoiceForFiles, setSelectedInvoiceForFiles] = useState(null);
@@ -606,6 +1081,7 @@ const AdminDashboard = ({ userEmail }) => {
 
   // Refs
   const fileInputRef = useRef(null);
+  const bannerFileInputRef = useRef(null);
 
   // Function to handle file upload click
   const handleFileUploadClick = async () => {
@@ -667,19 +1143,55 @@ const AdminDashboard = ({ userEmail }) => {
             console.log('File uploaded to Vercel Blob:', blobUrl);
 
             // Step 2: Record URL to Firestore
-            const { doc, updateDoc, arrayUnion } = await import('firebase/firestore');
+            const { doc, getDoc, updateDoc } = await import('firebase/firestore');
             const invoiceRef = doc(db, "invoices", invoice.id);
 
-            await updateDoc(invoiceRef, {
-              files: arrayUnion({
+            // First get the current invoice data to update the files array
+            const invoiceSnap = await getDoc(invoiceRef);
+            if (invoiceSnap.exists()) {
+              const invoiceData = invoiceSnap.data();
+              const currentFiles = invoiceData.files || [];
+
+              const newFileData = {
                 name: file.name,
                 url: blobUrl,
                 uploadedAt: new Date(),
                 size: file.size,
                 type: file.type,
                 storage: 'vercel-blob' // Mark that this file is stored in Vercel Blob
-              })
-            });
+              };
+
+              await updateDoc(invoiceRef, {
+                files: [...currentFiles, newFileData]
+              });
+
+              // Update the local state to reflect the new file immediately
+              setSelectedInvoiceForFiles(prev => ({
+                ...prev,
+                files: [...(prev.files || []), newFileData]
+              }));
+
+              // Also save the file to the document repository
+              try {
+                await fetch('/api/documents', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    userId: auth.currentUser.uid,
+                    fileName: file.name,
+                    fileUrl: blobUrl,
+                    fileSize: file.size || 0,
+                    fileType: file.type || 'application/octet-stream',
+                    category: 'legal',
+                    relatedInvoice: invoice.invoiceNumber,
+                    tags: ['document', 'legal', invoice.status]
+                  })
+                });
+              } catch (repoError) {
+                console.error('Error saving to document repository:', repoError);
+                // Don't fail the entire operation if repository save fails
+              }
+            }
 
             console.log('Invoice updated with file:', file.name);
 
@@ -700,21 +1212,57 @@ const AdminDashboard = ({ userEmail }) => {
           } catch (error) {
             console.error("Error uploading file to Vercel Blob:", error);
 
-            // On error, still record the failure in Firestore
+            // On error, still record the failure in Firestore and update local state
             try {
-              const { doc, updateDoc, arrayUnion } = await import('firebase/firestore');
+              const { doc, getDoc, updateDoc } = await import('firebase/firestore');
               const invoiceRef = doc(db, "invoices", invoice.id);
 
-              await updateDoc(invoiceRef, {
-                files: arrayUnion({
+              // First get the current invoice data to update the files array
+              const invoiceSnap = await getDoc(invoiceRef);
+              if (invoiceSnap.exists()) {
+                const invoiceData = invoiceSnap.data();
+                const currentFiles = invoiceData.files || [];
+
+                const failedFileData = {
                   name: file.name,
                   error: error.message,
                   uploadedAt: new Date(),
                   size: file.size,
                   type: file.type,
                   status: 'upload_failed'
-                })
-              });
+                };
+
+                await updateDoc(invoiceRef, {
+                  files: [...currentFiles, failedFileData]
+                });
+
+                // Update the local state to reflect the failed file immediately
+                setSelectedInvoiceForFiles(prev => ({
+                  ...prev,
+                  files: [...(prev.files || []), failedFileData]
+                }));
+
+                // Also save the failed file to the document repository as a record
+                try {
+                  await fetch('/api/documents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      userId: auth.currentUser.uid,
+                      fileName: file.name,
+                      fileUrl: '', // No URL for failed uploads
+                      fileSize: file.size || 0,
+                      fileType: file.type || 'application/octet-stream',
+                      category: 'failed_upload',
+                      relatedInvoice: invoice.invoiceNumber,
+                      tags: ['failed', 'document', 'error']
+                    })
+                  });
+                } catch (repoError) {
+                  console.error('Error saving failed upload to document repository:', repoError);
+                  // Don't fail the operation if repository save fails
+                }
+              }
             } catch (updateError) {
               console.error("Error updating invoice with failed file record:", updateError);
             }
@@ -749,6 +1297,42 @@ const AdminDashboard = ({ userEmail }) => {
     }
   }
 
+  // Function to delete a file from an invoice
+  const handleDeleteFile = async (invoiceId, file, fileIndex) => {
+    if (!window.confirm(`Apakah Anda yakin ingin menghapus dokumen "${file.name}"?`)) {
+      return;
+    }
+
+    try {
+      const { doc, getDoc, updateDoc } = await import('firebase/firestore');
+      const invoiceRef = doc(db, "invoices", invoiceId);
+      const invoiceSnap = await getDoc(invoiceRef);
+
+      if (invoiceSnap.exists()) {
+        const invoiceData = invoiceSnap.data();
+        if (invoiceData.files && Array.isArray(invoiceData.files)) {
+          // Create a new array without the file to be deleted
+          const updatedFiles = invoiceData.files.filter((_, index) => index !== fileIndex);
+
+          await updateDoc(invoiceRef, {
+            files: updatedFiles
+          });
+
+          // Update the local state to reflect the deletion immediately
+          setSelectedInvoiceForFiles(prev => ({
+            ...prev,
+            files: updatedFiles
+          }));
+
+          alert("Dokumen berhasil dihapus!");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting file: ", error);
+      alert(`Error menghapus dokumen: ${error.message}`);
+    }
+  };
+
   // Render Tracking Dashboard
   const renderTracking = () => {
     // Calculate invoice statistics for tracking analytics
@@ -764,8 +1348,8 @@ const AdminDashboard = ({ userEmail }) => {
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Page Header */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">Analisis Status Invoice</h1>
-          <p className="text-gray-600 mt-1">Pantau progres layanan dan status pembayaran secara real-time</p>
+          <h1 className="text-2xl font-bold text-gray-900">Manajemen Status dan Proses</h1>
+          <p className="text-gray-600 mt-1">Pantau progres layanan, status pembayaran, dan konfigurasi tahapan proses secara real-time</p>
         </div>
 
         {/* Stats Overview */}
@@ -889,70 +1473,126 @@ const AdminDashboard = ({ userEmail }) => {
         {/* File Upload Modal for Completed Invoices */}
         {selectedInvoiceForFiles && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-gray-900">Upload Dokumen - {selectedInvoiceForFiles.invoiceNumber}</h3>
-                <button
-                  onClick={() => setSelectedInvoiceForFiles(null)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✕
-                </button>
-              </div>
+            <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold text-gray-900">Manajemen Dokumen - {selectedInvoiceForFiles.invoiceNumber}</h3>
+                  <button
+                    onClick={() => setSelectedInvoiceForFiles(null)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ✕
+                  </button>
+                </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Berkas</label>
-                <input
-                  type="file"
-                  multiple
-                  ref={fileInputRef}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                />
-                <div className="mt-2 space-y-1">
-                  {Object.entries(fileUploadProgress).map(([key, progress]) => {
-                    const fileName = key.split('-').slice(1).join('-'); // Get filename from key
-                    const isUploading = uploadingFiles[key];
-                    if (isUploading) {
-                      return (
-                        <div key={key} className="mb-1">
-                          <div className="flex justify-between text-sm">
-                            <span>{fileName}</span>
-                            <span>{Math.round(progress)}%</span>
+                {/* Existing Files Section */}
+                {selectedInvoiceForFiles.files && selectedInvoiceForFiles.files.length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-gray-800 mb-3">Dokumen Tersimpan</h4>
+                    <div className="space-y-2 max-h-40 overflow-y-auto p-2 border border-gray-200 rounded-lg bg-gray-50">
+                      {selectedInvoiceForFiles.files.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
+                          <div className="flex items-center gap-2">
+                            <div className="bg-blue-100 p-1.5 rounded">
+                              <span className="text-blue-600 font-bold text-xs">
+                                {file.name.split('.').pop()?.toUpperCase() || 'FILE'}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                              <p className="text-xs text-gray-500">
+                                {file.size ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'Ukuran tidak diketahui'}
+                                {' • '}
+                                {file.uploadedAt ? new Date(file.uploadedAt).toLocaleDateString('id-ID') : 'Tanggal tidak tersedia'}
+                              </p>
+                            </div>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${progress}%` }}
-                            ></div>
+                          <div className="flex gap-2">
+                            <a
+                              href={file.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 p-1"
+                              title="Lihat dokumen"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                              </svg>
+                            </a>
+                            <button
+                              onClick={() => handleDeleteFile(selectedInvoiceForFiles.id, file, index)}
+                              className="text-red-600 hover:text-red-800 p-1"
+                              title="Hapus dokumen"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                              </svg>
+                            </button>
                           </div>
                         </div>
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
-              </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedInvoiceForFiles(null)}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleFileUploadClick}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                  disabled={uploadingFiles && Object.keys(uploadingFiles).some(key => uploadingFiles[key])}
-                >
-                  {uploadingFiles && Object.keys(uploadingFiles).some(key => uploadingFiles[key]) ? 'Mengunggah...' : 'Upload'}
-                </button>
+                {/* Upload New Files Section */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Berkas Baru</label>
+                  <input
+                    type="file"
+                    multiple
+                    ref={fileInputRef}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  />
+                  <div className="mt-2 space-y-1">
+                    {Object.entries(fileUploadProgress).map(([key, progress]) => {
+                      const fileName = key.split('-').slice(1).join('-'); // Get filename from key
+                      const isUploading = uploadingFiles[key];
+                      if (isUploading) {
+                        return (
+                          <div key={key} className="mb-1">
+                            <div className="flex justify-between text-sm">
+                              <span>{fileName}</span>
+                              <span>{Math.round(progress)}%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${progress}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedInvoiceForFiles(null)}
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                  >
+                    Tutup
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleFileUploadClick}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    disabled={uploadingFiles && Object.keys(uploadingFiles).some(key => uploadingFiles[key])}
+                  >
+                    {uploadingFiles && Object.keys(uploadingFiles).some(key => uploadingFiles[key]) ? 'Mengunggah...' : 'Upload File Baru'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
+
+        {/* Status Stages Management */}
+        <StatusStagesManager />
 
         {/* Status Tracking Guide */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100">
@@ -983,38 +1623,6 @@ const AdminDashboard = ({ userEmail }) => {
               <div className="text-sm text-gray-600">Invoice telah dibatalkan</div>
             </div>
           </div>
-        </div>
-
-        {/* Firebase Storage Setup Instructions */}
-        <div className="bg-yellow-50 p-6 rounded-2xl border border-yellow-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span className="w-3 h-3 bg-yellow-500 rounded-full"></span>
-            Petunjuk Setup Firebase Storage
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Untuk mengaktifkan fitur upload dokumen, silakan setup Firebase Storage:
-          </p>
-          <ol className="list-decimal list-inside space-y-2 text-gray-600">
-            <li>Buka <a href="https://console.firebase.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Firebase Console</a></li>
-            <li>Pilih project Anda</li>
-            <li>Klik "Storage" di sidebar kiri</li>
-            <li>Klik "Get Started" untuk mengaktifkan Storage</li>
-            <li>Atur lokasi default (misalnya: us-central)</li>
-            <li>Setujui ketentuan penggunaan</li>
-            <li>Atur security rules sebagai berikut:</li>
-          </ol>
-          <pre className="bg-gray-800 text-green-400 p-4 rounded-lg text-sm mt-3 overflow-x-auto">
-            {`service firebase.storage {
-  match /b/{bucket}/o {
-    match /invoices/{allPaths=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}`}
-          </pre>
-          <p className="text-gray-600 mt-3">
-            Setelah setup selesai, fitur upload dokumen akan aktif dan berfungsi sepenuhnya.
-          </p>
         </div>
       </div>
     );
@@ -1053,6 +1661,7 @@ const AdminDashboard = ({ userEmail }) => {
                 <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 mt-8">Manajemen</p>
                 <SidebarItem id="clients" label="Data Klien" icon={Users} soon />
                 <SidebarItem id="tracking" label="Status Tracking" icon={Package} />
+                <SidebarItem id="documents" label="Repositori Dokumen" icon={File} />
                 <SidebarItem id="settings" label="Pengaturan" icon={Settings} />
             </nav>
 
@@ -1127,6 +1736,7 @@ const AdminDashboard = ({ userEmail }) => {
              {activeMenu === "dashboard" && renderDashboard()}
              {activeMenu === "invoice" && <InvoiceGenerator />}
              {activeMenu === "tracking" && renderTracking()}
+             {activeMenu === "documents" && <DocumentRepository userId={auth.currentUser?.uid} />}
              {activeMenu === "settings" && renderSettings()}
           </div>
         </main>

@@ -22,11 +22,25 @@ export async function POST(request) {
     const extension = originalFilename.split('.').pop();
     const filename = `${timestamp}-${originalFilename}`;
 
-    // Upload to Vercel Blob using your store
+    // Check if the required environment variable is set for Vercel Blob
+    if (!process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN === 'your_blob_token_here') {
+      // Fallback for local development - simulate upload with local URL
+      // In production, you should properly configure Vercel Blob
+      console.warn('BLOB_READ_WRITE_TOKEN not configured. Using fallback for local development.');
+      return NextResponse.json({
+        url: `/uploads/${filename}`, // Local fallback URL
+        pathname: `/uploads/${filename}`,
+        size: file.size,
+        uploadedAt: new Date().toISOString(),
+        key: filename,
+        fallback: true // Indicate this is a fallback response
+      });
+    }
+
+    // Upload to Vercel Blob using the official method
     const blob = await put(filename, buffer, {
       access: access,
       contentType: file.type,
-      // For your specific store, you can customize options if needed
     });
 
     return NextResponse.json({
