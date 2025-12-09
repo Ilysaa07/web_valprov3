@@ -49,6 +49,8 @@ const AdminDashboard = ({ userEmail }) => {
   const [totalPending, setTotalPending] = useState(0);
   const [recentActivities, setRecentActivities] = useState([]);
   const [invoices, setInvoices] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredInvoices, setFilteredInvoices] = useState([]);
 
   // State variables for filters
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
@@ -210,6 +212,27 @@ const AdminDashboard = ({ userEmail }) => {
       }
     }
   }, [invoices]); // This runs whenever the invoices array changes
+
+  // Filter invoices based on search term
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredInvoices(invoices);
+      return;
+    }
+
+    const filtered = invoices.filter(invoice => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        invoice.invoiceNumber.toLowerCase().includes(searchLower) ||
+        (invoice.clientName && invoice.clientName.toLowerCase().includes(searchLower)) ||
+        (invoice.email && invoice.email.toLowerCase().includes(searchLower)) ||
+        (invoice.total && invoice.total.toString().includes(searchLower)) ||
+        (invoice.status && invoice.status.toLowerCase().includes(searchLower))
+      );
+    });
+
+    setFilteredInvoices(filtered);
+  }, [searchTerm, invoices]);
 
   // Fetch WhatsApp settings
   useEffect(() => {
@@ -529,151 +552,165 @@ const AdminDashboard = ({ userEmail }) => {
 
   // --- Views ---
 
-  const renderDashboard = () => (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Welcome Hero */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 to-blue-900 rounded-3xl text-white p-8 shadow-xl shadow-blue-900/10">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
-              Halo, Administrator! 👋
-            </h1>
-            <p className="text-blue-100 text-lg opacity-90 max-w-lg">
-              Kelola tagihan, pantau pembayaran, dan atur klien Anda dalam satu tempat yang terintegrasi.
-            </p>
-            <div className="flex items-center mt-6 text-sm font-medium text-blue-200 bg-white/10 w-fit px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
-              <Clock className="w-4 h-4 mr-2" />
-              {formatDate(currentTime)} • {formatTime(currentTime)}
+  const renderDashboard = () => {
+    // Filter recent activities based on search term
+    const recentActivitiesToShow = searchTerm
+      ? recentActivities.filter(activity => {
+          const searchLower = searchTerm.toLowerCase();
+          return (
+            activity.invoiceNumber.toLowerCase().includes(searchLower) ||
+            (activity.clientName && activity.clientName.toLowerCase().includes(searchLower)) ||
+            (activity.total && activity.total.toString().includes(searchLower))
+          );
+        })
+      : recentActivities;
+
+    return (
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {/* Welcome Hero */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 to-blue-900 rounded-3xl text-white p-8 shadow-xl shadow-blue-900/10">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">
+                Halo, Administrator! 👋
+              </h1>
+              <p className="text-blue-100 text-lg opacity-90 max-w-lg">
+                Kelola tagihan, pantau pembayaran, dan atur klien Anda dalam satu tempat yang terintegrasi.
+              </p>
+              <div className="flex items-center mt-6 text-sm font-medium text-blue-200 bg-white/10 w-fit px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
+                <Clock className="w-4 h-4 mr-2" />
+                {formatDate(currentTime)} • {formatTime(currentTime)}
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+               <div className="flex gap-2">
+                 <select
+                   value={selectedMonth}
+                   onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                   className="bg-white text-gray-800 px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 >
+                   {getMonthOptions()}
+                 </select>
+                 <select
+                   value={selectedYear}
+                   onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                   className="bg-white text-gray-800 px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 >
+                   {getYearOptions()}
+                 </select>
+               </div>
+               <button
+                onClick={() => setActiveMenu("invoice")}
+                className="bg-white text-blue-800 px-6 py-3.5 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl flex items-center group"
+              >
+                <Receipt className="w-5 h-5 mr-2" />
+                Buat Invoice Baru
+                <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4">
-             <div className="flex gap-2">
-               <select
-                 value={selectedMonth}
-                 onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                 className="bg-white text-gray-800 px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-               >
-                 {getMonthOptions()}
-               </select>
-               <select
-                 value={selectedYear}
-                 onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                 className="bg-white text-gray-800 px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-               >
-                 {getYearOptions()}
-               </select>
-             </div>
-             <button
-              onClick={() => setActiveMenu("invoice")}
-              className="bg-white text-blue-800 px-6 py-3.5 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl flex items-center group"
-            >
-              <Receipt className="w-5 h-5 mr-2" />
-              Buat Invoice Baru
-              <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
+
+          {/* Decorative Background Elements */}
+          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+          <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         </div>
 
-        {/* Decorative Background Elements */}
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-      </div>
+        {/* Stats Overview (Real-time Data) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <StatCard
+            label="Total Invoice Bulan Ini"
+            value={totalInvoices}
+            icon={Receipt}
+            color="bg-blue-500"
+            trend="+8%"
+          />
+          <StatCard
+            label="Pembayaran Diterima"
+            value={formatCurrencyAbbr(totalPaid)}
+            icon={CheckCircle2}
+            color="bg-green-500"
+            trend="+12%"
+          />
+          <StatCard
+            label="Menunggu Pembayaran"
+            value={formatCurrencyAbbr(totalPending)}
+            icon={Clock}
+            color="bg-orange-400"
+            trend="-2%"
+          />
+        </div>
 
-      {/* Stats Overview (Real-time Data) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard
-          label="Total Invoice Bulan Ini"
-          value={totalInvoices}
-          icon={Receipt}
-          color="bg-blue-500"
-          trend="+8%"
-        />
-        <StatCard
-          label="Pembayaran Diterima"
-          value={formatCurrencyAbbr(totalPaid)}
-          icon={CheckCircle2}
-          color="bg-green-500"
-          trend="+12%"
-        />
-        <StatCard
-          label="Menunggu Pembayaran"
-          value={formatCurrencyAbbr(totalPending)}
-          icon={Clock}
-          color="bg-orange-400"
-          trend="-2%"
-        />
-      </div>
+        {/* Quick Access / Tips */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center justify-between mb-6">
+               <h3 className="text-lg font-bold text-gray-800">Aktivitas Terakhir</h3>
+               <button className="text-sm text-blue-600 font-medium hover:underline">Lihat Semua</button>
+            </div>
+            <div className="space-y-4">
+               {recentActivitiesToShow.map((invoice, index) => {
+                 // Calculate time ago
+                 const createdAt = invoice.createdAt?.toDate ? invoice.createdAt.toDate() : new Date();
+                 const now = new Date();
+                 const diffTime = Math.abs(now - createdAt);
+                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      {/* Quick Access / Tips */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-6">
-             <h3 className="text-lg font-bold text-gray-800">Aktivitas Terakhir</h3>
-             <button className="text-sm text-blue-600 font-medium hover:underline">Lihat Semua</button>
+                 let timeAgo = "";
+                 if (diffDays === 1) {
+                   timeAgo = "1 hari lalu";
+                 } else if (diffDays < 7) {
+                   timeAgo = `${diffDays} hari lalu`;
+                 } else if (diffDays < 30) {
+                   const weeks = Math.floor(diffDays / 7);
+                   timeAgo = `${weeks} minggu lalu`;
+                 } else {
+                   const months = Math.floor(diffDays / 30);
+                   timeAgo = `${months} bulan lalu`;
+                 }
+
+                 return (
+                   <div key={invoice.id} className="flex items-center p-3 hover:bg-gray-50 rounded-xl transition-colors border border-transparent hover:border-gray-100 cursor-pointer">
+                     <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-4">
+                        {invoice.invoiceNumber.substring(0, 3)}
+                     </div>
+                     <div className="flex-1">
+                        <p className="text-sm font-bold text-gray-800">{invoice.invoiceNumber} Dibuat</p>
+                        <p className="text-xs text-gray-500">{invoice.clientName} • {formatCurrency(invoice.total)}</p>
+                     </div>
+                     <span className="text-xs text-gray-400">{timeAgo}</span>
+                   </div>
+                 );
+               })}
+               {recentActivitiesToShow.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    {searchTerm ? 'Tidak ditemukan aktivitas terakhir yang sesuai pencarian' : 'Belum ada aktivitas terakhir'}
+                  </div>
+               )}
+            </div>
           </div>
-          <div className="space-y-4">
-             {recentActivities.map((invoice, index) => {
-               // Calculate time ago
-               const createdAt = invoice.createdAt?.toDate ? invoice.createdAt.toDate() : new Date();
-               const now = new Date();
-               const diffTime = Math.abs(now - createdAt);
-               const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-               let timeAgo = "";
-               if (diffDays === 1) {
-                 timeAgo = "1 hari lalu";
-               } else if (diffDays < 7) {
-                 timeAgo = `${diffDays} hari lalu`;
-               } else if (diffDays < 30) {
-                 const weeks = Math.floor(diffDays / 7);
-                 timeAgo = `${weeks} minggu lalu`;
-               } else {
-                 const months = Math.floor(diffDays / 30);
-                 timeAgo = `${months} bulan lalu`;
-               }
-
-               return (
-                 <div key={invoice.id} className="flex items-center p-3 hover:bg-gray-50 rounded-xl transition-colors border border-transparent hover:border-gray-100 cursor-pointer">
-                   <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-4">
-                      {invoice.invoiceNumber.substring(0, 3)}
-                   </div>
-                   <div className="flex-1">
-                      <p className="text-sm font-bold text-gray-800">{invoice.invoiceNumber} Dibuat</p>
-                      <p className="text-xs text-gray-500">{invoice.clientName} • {formatCurrency(invoice.total)}</p>
-                   </div>
-                   <span className="text-xs text-gray-400">{timeAgo}</span>
-                 </div>
-               );
-             })}
-             {recentActivities.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  Belum ada aktivitas terakhir
+          <div className="bg-gradient-to-b from-gray-900 to-gray-800 rounded-2xl p-6 text-white shadow-lg">
+             <h3 className="text-lg font-bold mb-4 flex items-center">
+                <span className="bg-yellow-400 w-2 h-2 rounded-full mr-2"></span>
+                Tips Pro
+             </h3>
+             <div className="space-y-4">
+                <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/5">
+                   <p className="text-sm text-gray-200 leading-relaxed">
+                     "Selalu kirimkan invoice <b>3 hari sebelum</b> jatuh tempo termin pembayaran untuk mempercepat proses administrasi klien."
+                   </p>
                 </div>
-             )}
+                <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/5">
+                   <p className="text-sm text-gray-200 leading-relaxed">
+                     "Gunakan fitur <b>Sub-item</b> untuk merinci biaya agar klien lebih mudah memahami tagihan."
+                   </p>
+                </div>
+             </div>
           </div>
         </div>
-
-        <div className="bg-gradient-to-b from-gray-900 to-gray-800 rounded-2xl p-6 text-white shadow-lg">
-           <h3 className="text-lg font-bold mb-4 flex items-center">
-              <span className="bg-yellow-400 w-2 h-2 rounded-full mr-2"></span>
-              Tips Pro
-           </h3>
-           <div className="space-y-4">
-              <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/5">
-                 <p className="text-sm text-gray-200 leading-relaxed">
-                   "Selalu kirimkan invoice <b>3 hari sebelum</b> jatuh tempo termin pembayaran untuk mempercepat proses administrasi klien."
-                 </p>
-              </div>
-              <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/5">
-                 <p className="text-sm text-gray-200 leading-relaxed">
-                   "Gunakan fitur <b>Sub-item</b> untuk merinci biaya agar klien lebih mudah memahami tagihan."
-                 </p>
-              </div>
-           </div>
-        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Render Settings View
   const renderSettings = () => {
@@ -1335,14 +1372,15 @@ const AdminDashboard = ({ userEmail }) => {
 
   // Render Tracking Dashboard
   const renderTracking = () => {
-    // Calculate invoice statistics for tracking analytics
-    const totalInvoices = invoices.length;
-    const draftInvoices = invoices.filter(inv => inv.status === 'draft').length;
-    const sentInvoices = invoices.filter(inv => inv.status === 'sent').length;
-    const paidInvoices = invoices.filter(inv => inv.status === 'paid').length;
-    const partialInvoices = invoices.filter(inv => inv.status === 'partial').length;
-    const overdueInvoices = invoices.filter(inv => inv.status === 'overdue').length;
-    const cancelledInvoices = invoices.filter(inv => inv.status === 'cancelled').length;
+    // Calculate invoice statistics for tracking analytics based on filtered results
+    const invoicesToShow = searchTerm ? filteredInvoices : invoices;
+    const totalInvoices = invoicesToShow.length;
+    const draftInvoices = invoicesToShow.filter(inv => inv.status === 'draft').length;
+    const sentInvoices = invoicesToShow.filter(inv => inv.status === 'sent').length;
+    const paidInvoices = invoicesToShow.filter(inv => inv.status === 'paid').length;
+    const partialInvoices = invoicesToShow.filter(inv => inv.status === 'partial').length;
+    const overdueInvoices = invoicesToShow.filter(inv => inv.status === 'overdue').length;
+    const cancelledInvoices = invoicesToShow.filter(inv => inv.status === 'cancelled').length;
 
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -1423,7 +1461,7 @@ const AdminDashboard = ({ userEmail }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {invoices.slice(0, 10).map((invoice) => (
+                {invoicesToShow.slice(0, 10).map((invoice) => (
                   <tr key={invoice.id} className="hover:bg-blue-50/50 transition-colors group">
                     <td className="px-4 py-3 font-bold text-blue-900">{invoice.invoiceNumber}</td>
                     <td className="px-4 py-3">{invoice.clientName}</td>
@@ -1462,9 +1500,9 @@ const AdminDashboard = ({ userEmail }) => {
                 ))}
               </tbody>
             </table>
-            {invoices.length === 0 && (
+            {invoicesToShow.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                Belum ada invoice
+                {!searchTerm ? 'Belum ada invoice' : 'Tidak ditemukan invoice yang sesuai pencarian'}
               </div>
             )}
           </div>
@@ -1721,7 +1759,21 @@ const AdminDashboard = ({ userEmail }) => {
             <div className="flex items-center gap-4">
                <div className="relative">
                   <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input type="text" placeholder="Cari sesuatu..." className="pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-full text-sm focus:ring-2 focus:ring-blue-500 w-64 transition-all" />
+                  <input
+                    type="text"
+                    placeholder="Cari invoice, klien, atau dokumen..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-full text-sm focus:ring-2 focus:ring-blue-500 w-64 transition-all"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      ✕
+                    </button>
+                  )}
                </div>
                <button className="p-2 relative bg-white border border-gray-200 rounded-full text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-all">
                   <Bell className="w-5 h-5" />
@@ -1736,7 +1788,7 @@ const AdminDashboard = ({ userEmail }) => {
              {activeMenu === "dashboard" && renderDashboard()}
              {activeMenu === "invoice" && <InvoiceGenerator />}
              {activeMenu === "tracking" && renderTracking()}
-             {activeMenu === "documents" && <DocumentRepository userId={auth.currentUser?.uid} />}
+             {activeMenu === "documents" && <DocumentRepository userId={auth.currentUser?.uid} searchTerm={searchTerm} />}
              {activeMenu === "settings" && renderSettings()}
           </div>
         </main>

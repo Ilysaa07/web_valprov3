@@ -126,23 +126,37 @@ export default function Navbar() {
       <nav className={navbarClasses}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
-          <Link href="/" className="text-2xl font-bold text-stone-900 tracking-tight z-50 flex items-center gap-1 group/logo">
-             <div className="rounded-lg flex items-center justify-center text-white transition-transform">
-               <Image
-                 src="/logometa.svg"
-                 alt="Valpro Intertech Logo"
-                 width={40}
-                 height={40} 
-                 priority
-               />
-             </div>
-             <span className="text-xl font-semibold">
-               Valpro
-               <span className="bg-gradient-to-r from-[#1e40af] to-[#3b82f6] bg-clip-text text-transparent ml-0.5">
-                 Intertech
-               </span>.
-             </span>
-          </Link>
+          <Link
+  href="/"
+  className="z-50 flex items-center gap-3 group/logo select-none"
+>
+  {/* Logo */}
+  <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-white shrink-0">
+    <Image
+      src="/logometa.svg"
+      alt="Valpro Intertech Logo"
+      width={44}
+      height={44}
+      priority
+      className="object-contain w-8 h-8"
+    />
+  </div>
+
+  {/* Text */}
+  <div className="flex flex-col leading-tight">
+    <span className="text-xl font-bold tracking-tight text-stone-900">
+      Valpro
+      <span className="bg-gradient-to-r from-[#1e40af] to-[#3b82f6] bg-clip-text text-transparent">
+        .
+      </span>
+    </span>
+
+    <span className="text-[11px] font-medium italic text-stone-500 tracking-wide">
+      Driven by Professionalism
+    </span>
+  </div>
+</Link>
+
 
           <div className="hidden md:flex items-center space-x-1">
             <Link href="/" className="px-4 py-2 text-stone-600 font-medium hover:text-[#1e40af] text-[13px] transition-colors rounded-full hover:bg-stone-50">Beranda</Link>

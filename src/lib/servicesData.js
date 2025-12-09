@@ -6,32 +6,34 @@ export const servicesData = [
     title: "Pendirian Badan Usaha (PT/CV)",
     shortDesc: "Pendirian PT, CV, Yayasan lengkap.",
     desc: "Layanan pendirian badan usaha terima beres. Kami mengurus pengecekan nama, Akta Notaris, SK Kemenkumham, hingga NPWP dan NIB perusahaan Anda.",
+    definition: "Pendirian badan usaha adalah proses hukum untuk menciptakan entitas bisnis yang sah secara hukum, baik dalam bentuk Perseroan Terbatas (PT), Comanditaire Vennootschap (CV), maupun yayasan. Layanan ini mencakup perencanaan struktur organisasi, pemenuhan persyaratan hukum, dan pengurusan semua dokumen pendirian serta legalitas usaha.",
+    benefits: [
+      "Entitas bisnis resmi dan sah secara hukum",
+      "Perlindungan aset pribadi dari kewajiban perusahaan",
+      "Kemudahan dalam melakukan transaksi bisnis secara resmi",
+      "Akses kemudahan perbankan dan pinjaman usaha",
+      "Kepatuhan terhadap regulasi hukum dan perpajakan RI"
+    ],
     icon: "Briefcase",
     // Gambar: Meeting kantor profesional
     image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2301&auto=format&fit=crop",
     features: [
-      { title: "Name Verification", desc: "Verification and approval of company name" },
-      { title: "Notary Deed", desc: "Preparation of establishment deed by certified notary" },
-      { title: "Ministry of Law SK", desc: "Official decree from Ministry of Law and Human Rights" },
-      { title: "Tax & NPWP", desc: "Tax registration and NPWP setup" },
-      { title: "NIB OSS RBA", desc: "Business Registration Number through OSS RBA system" }
+      { title: "Verifikasi Nama Usaha", desc: "Pengecekan ketersediaan dan kesesuaian nama perusahaan" },
+      { title: "Akta Notaris", desc: "Penyusunan akta pendirian oleh notaris berlisensi" },
+      { title: "SK Kemenkumham", desc: "Surat Keputusan dari Kementerian Hukum dan HAM RI" },
+      { title: "NPWP Perusahaan", desc: "Pengurusan Nomor Pokok Wajib Pajak untuk perusahaan" },
+      { title: "NIB OSS RBA", desc: "Nomor Induk Berusaha melalui sistem OSS RBA" }
     ],
-    duration: "10-15 Business Days",
+    duration: "10-15 Hari Kerja",
     status: "Valid & Legal",
     requirementsCount: 8,
     price: "7,500,000",
-    priceNote: "negotiable",
-    priceDescription: "Includes all official fees and administrative costs",
-    benefits: [
-      "Officially registered legal entity",
-      "Valid for banking and business operations",
-      "Compliant with Indonesian laws",
-      "Ready for business licensing"
-    ],
+    priceNote: "nego",
+    priceDescription: "Termasuk semua biaya resmi dan biaya administrasi",
     trustFactors: [
-      { title: "Certified Notary", desc: "All deeds prepared by certified legal professionals" },
-      { title: "Government Validated", desc: "Approved by Ministry of Law and Human Rights" },
-      { title: "Fast Process", desc: "Streamlined process with digital documentation" }
+      { title: "Notaris Terdaftar", desc: "Akta disusun oleh notaris profesional berlisensi" },
+      { title: "Disahkan Kemenkumham", desc: "Legalitas diakui secara hukum negara RI" },
+      { title: "Proses Cepat", desc: "Sistem digital untuk efisiensi waktu" }
     ],
     proofImages: [
       "https://images.unsplash.com/photo-1589391886645-d53663a1d6a5?q=80&w=1932&auto=format&fit=crop",
@@ -48,31 +50,33 @@ export const servicesData = [
     title: "Pengurusan NPWP & OSS",
     shortDesc: "Izin berusaha & perpajakan.",
     desc: "Solusi kilat untuk kebutuhan izin dasar. Kami bantu registrasi akun OSS RBA, migrasi data lama, hingga pelaporan pajak pertama.",
+    definition: "OSS (Online Single Submission) RBA adalah sistem perizinan tunggal secara elektronik yang digunakan untuk pengurusan perizinan usaha dan kegiatan usaha. Layanan ini mencakup pengurusan perizinan usaha berbasis risiko, NPWP perusahaan, dan kesiapan pelaporan keuangan dan perpajakan.",
+    benefits: [
+      "Izin berusaha digital secara resmi dari pemerintah",
+      "Berlaku secara nasional di seluruh wilayah Indonesia",
+      "Kepatuhan terhadap regulasi terbaru investasi dan usaha",
+      "Persiapan siap untuk izin operasional lainnya",
+      "Kemudahan dalam proses perizinan secara online"
+    ],
     icon: "FileText",
     // Gambar: Dokumen dan laptop
     image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "OSS Account Registration", desc: "Complete business licensing system registration" },
-      { title: "Data Migration", desc: "Transfer from OSS 1.1 to RBA platform" },
-      { title: "Tax Registration", desc: "NPWP for business entity or individual" },
-      { title: "LKPM Reports", desc: "Periodic business activity reports" }
+      { title: "Registrasi Akun OSS RBA", desc: "Pembuatan akun sistem perizinan usaha resmi" },
+      { title: "Migrasi Data", desc: "Transfer data dari sistem OSS 1.1 ke platform RBA" },
+      { title: "Pengurusan NPWP", desc: "Pembuatan NPWP untuk badan usaha atau individu" },
+      { title: "Pelaporan LKPM", desc: "Laporan Keuangan dan Pajak Masa awal" }
     ],
-    duration: "3-7 Business Days",
+    duration: "3-7 Hari Kerja",
     status: "Digital & Valid",
     requirementsCount: 5,
     price: "2,500,000",
-    priceNote: "inclusive",
-    priceDescription: "Complete OSS registration and tax setup package",
-    benefits: [
-      "Digital business license",
-      "Valid across all Indonesia regions",
-      "Compliant with latest regulations",
-      "Ready for operational permits"
-    ],
+    priceNote: "lengkap",
+    priceDescription: "Paket registrasi OSS dan pengaturan perpajakan",
     trustFactors: [
-      { title: "Government Platform", desc: "Uses official OSS RBA system" },
-      { title: "Certified Process", desc: "Handled by licensed legal consultants" },
-      { title: "Trackable Status", desc: "Real-time progress monitoring" }
+      { title: "Platform Resmi", desc: "Menggunakan sistem resmi OSS RBA pemerintah" },
+      { title: "Proses Bersertifikat", desc: "Ditangani oleh konsultan legal bersertifikat" },
+      { title: "Status Dapat Dilacak", desc: "Monitoring proses secara real-time" }
     ],
     proofImages: [
       "https://images.unsplash.com/photo-1589391886645-d53663a1d6a5?q=80&w=1932&auto=format&fit=crop",
@@ -91,30 +95,31 @@ export const servicesData = [
     title: "Sertifikasi SKK Konstruksi",
     shortDesc: "Sertifikat Tenaga Ahli (SKA).",
     desc: "Sertifikat Kompetensi Kerja (SKK) untuk tenaga ahli sipil, arsitektur, dan mekanikal. Wajib untuk TKK yang menjabat di proyek.",
+    definition: "SKK (Sertifikat Kompetensi Kerja) adalah bukti pengakuan terhadap tenaga kerja di bidang konstruksi yang telah lulus uji kompetensi sesuai standar kompetensi kerja nasional. Sertifikat ini wajib dimiliki oleh tenaga kerja konstruksi yang terlibat dalam proyek pembangunan, terutama untuk menjamin kualitas dan keselamatan kerja konstruksi.",
+    benefits: [
+      "Berlaku untuk penugasan proyek konstruksi",
+      "Memenuhi standar kompetensi konstruksi nasional",
+      "Syarat wajib untuk ikut tender konstruksi",
+      "Meningkatkan kredibilitas profesional"
+    ],
     icon: "HardHat",
     // Gambar: Insinyur di lapangan
     image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "Level 1-9", desc: "All competency levels from basic to expert" },
-      { title: "Fast Assessment", desc: "Accelerated evaluation process" },
-      { title: "LPJK Registered", desc: "Official registration with Construction Service Board" }
+      { title: "Level 1-9", desc: "Tingkat kompetensi dari dasar hingga ahli" },
+      { title: "Asesmen Cepat", desc: "Proses evaluasi yang dipercepat" },
+      { title: "Terdaftar LPJK", desc: "Pendaftaran resmi di Dewan Jasa Konstruksi" }
     ],
-    duration: "15-20 Business Days",
-    status: "Valid & Certified",
+    duration: "15-20 Hari Kerja",
+    status: "Valid & Bersertifikat",
     requirementsCount: 6,
     price: "4,200,000",
-    priceNote: "per certificate",
-    priceDescription: "Including assessment and registration fees",
-    benefits: [
-      "Valid for project assignments",
-      "Compliant with construction standards",
-      "Required for tender participation",
-      "Increases professional credibility"
-    ],
+    priceNote: "per sertifikat",
+    priceDescription: "Termasuk biaya asesmen dan pendaftaran",
     trustFactors: [
-      { title: "Official Certification", desc: "Issued by Construction Service Board (LPJK)" },
-      { title: "Validated Standards", desc: "Meets national competency requirements" },
-      { title: "Industry Recognition", desc: "Accepted by government and private sectors" }
+      { title: "Sertifikasi Resmi", desc: "Dikeluarkan oleh Dewan Jasa Konstruksi (LPJK)" },
+      { title: "Standar Tervalidasi", desc: "Memenuhi persyaratan kompetensi nasional" },
+      { title: "Pengakuan Industri", desc: "Diterima oleh sektor pemerintah dan swasta" }
     ],
     proofImages: [
       "https://images.unsplash.com/photo-1589391886645-d53663a1d6a5?q=80&w=1932&auto=format&fit=crop",
@@ -131,30 +136,31 @@ export const servicesData = [
     title: "Sertifikasi SBU Konstruksi",
     shortDesc: "Legalitas Badan Usaha Jasa.",
     desc: "Pengurusan Sertifikat Badan Usaha (SBU) Konstruksi agar perusahaan Anda bisa mengikuti tender pemerintah maupun swasta.",
+    definition: "SBU (Sertifikat Badan Usaha) adalah bukti bahwa badan usaha jasa konstruksi memiliki kualifikasi untuk melaksanakan pekerjaan tertentu. Sertifikat ini wajib dimiliki oleh perusahaan konstruksi yang ingin mengikuti tender proyek konstruksi, baik dari pemerintah maupun swasta. SBU menjamin bahwa perusahaan memiliki kapasitas, kualifikasi, dan kemampuan teknis serta finansial untuk melaksanakan kontrak konstruksi.",
+    benefits: [
+      "Memenuhi syarat untuk tender proyek pemerintah",
+      "Berlaku untuk partisipasi sektor swasta",
+      "Wajib untuk kontrak konstruksi",
+      "Meningkatkan kredibilitas bisnis"
+    ],
     icon: "HardHat",
     // Gambar: Gedung sedang dibangun / Crane
     image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "Small to Large Qualification", desc: "All business scale categories" },
-      { title: "Association Membership", desc: "Required association membership included" },
-      { title: "Integrated ISO", desc: "Quality standards compliance" }
+      { title: "Kualifikasi Skala Kecil ke Besar", desc: "Semua kategori skala usaha" },
+      { title: "Keanggotaan Asosiasi", desc: "Keanggotaan asosiasi wajib disediakan" },
+      { title: "Integrasi ISO", desc: "Kepatuhan terhadap standar kualitas" }
     ],
-    duration: "20-30 Business Days",
-    status: "Official License",
+    duration: "20-30 Hari Kerja",
+    status: "Izin Resmi",
     requirementsCount: 12,
     price: "15,000,000",
-    priceNote: "complete package",
-    priceDescription: "Full SBU certification and required documentation",
-    benefits: [
-      "Eligible for government tenders",
-      "Valid for private sector participation",
-      "Required for construction contracts",
-      "Enhances business credibility"
-    ],
+    priceNote: "paket lengkap",
+    priceDescription: "Sertifikasi SBU lengkap dan dokumentasi yang dibutuhkan",
     trustFactors: [
-      { title: "Official License", desc: "Validated by Construction Service Board" },
-      { title: "Project Eligibility", desc: "Allows participation in all construction projects" },
-      { title: "Regulation Compliance", desc: "Meets all construction industry requirements" }
+      { title: "Izin Resmi", desc: "Divalidasi oleh Dewan Jasa Konstruksi" },
+      { title: "Eligibilitas Proyek", desc: "Memungkinkan partisipasi dalam semua proyek konstruksi" },
+      { title: "Kepatuhan Regulasi", desc: "Memenuhi semua persyaratan industri konstruksi" }
     ],
     proofImages: [
       "https://images.unsplash.com/photo-1589391886645-d53663a1d6a5?q=80&w=1932&auto=format&fit=crop",
@@ -173,30 +179,31 @@ export const servicesData = [
     title: "Sertifikasi Serkom / SKKTK",
     shortDesc: "Kompetensi Tenaga Listrik.",
     desc: "Sertifikasi wajib bagi tenaga teknik yang bekerja di bidang pembangkitan, transmisi, dan distribusi tenaga listrik.",
+    definition: "Serkom (Sertifikasi Kompetensi) adalah proses sertifikasi wajib bagi tenaga teknik yang bekerja di bidang kelistrikan, termasuk di unit pembangkitan, transmisi, dan distribusi tenaga listrik. Sertifikat ini dikeluarkan oleh Kementerian ESDM sebagai bukti bahwa seseorang memiliki kompetensi sesuai standar nasional di bidang kelistrikan dan memenuhi persyaratan keselamatan kerja.",
+    benefits: [
+      "Wajib untuk pekerjaan listrik",
+      "Berlaku untuk semua sektor listrik",
+      "Memenuhi standar keselamatan",
+      "Harus dimiliki kontraktor listrik"
+    ],
     icon: "Zap",
     // Gambar: Panel Listrik / Teknisi
     image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2338&auto=format&fit=crop",
     features: [
-      { title: "ESDM Certification", desc: "Issued by Ministry of Energy and Mineral Resources" },
-      { title: "Online Assessment", desc: "Digital competency evaluation system" },
-      { title: "5-Year Validity", desc: "Long-term certification period" }
+      { title: "Sertifikasi ESDM", desc: "Dikeluarkan oleh Kementerian Energi dan Sumber Daya Mineral" },
+      { title: "Asesmen Online", desc: "Sistem evaluasi kompetensi digital" },
+      { title: "Masa Berlaku 5 Tahun", desc: "Periode sertifikasi jangka panjang" }
     ],
-    duration: "25-35 Business Days",
-    status: "Digital Certificate",
+    duration: "25-35 Hari Kerja",
+    status: "Sertifikat Digital",
     requirementsCount: 7,
     price: "6,800,000",
-    priceNote: "full process",
-    priceDescription: "Assessment, certification and documentation fees",
-    benefits: [
-      "Required for electrical work",
-      "Valid for all electricity sectors",
-      "Compliant with safety standards",
-      "Mandatory for electrical contractors"
-    ],
+    priceNote: "proses lengkap",
+    priceDescription: "Biaya asesmen, sertifikasi dan dokumentasi",
     trustFactors: [
-      { title: "Government Issued", desc: "Official certificate from ESDM" },
-      { title: "Safety Standard", desc: "Ensures electrical work safety compliance" },
-      { title: "Industry Requirement", desc: "Mandatory for electrical professionals" }
+      { title: "Dikeluarkan Pemerintah", desc: "Sertifikat resmi dari Kementerian ESDM" },
+      { title: "Standar Keselamatan", desc: "Menjamin kepatuhan keselamatan kerja listrik" },
+      { title: "Persyaratan Industri", desc: "Wajib bagi profesional listrik" }
     ],
     proofImages: [
       "https://images.unsplash.com/photo-1589391886645-d53663a1d6a5?q=80&w=1932&auto=format&fit=crop",
@@ -213,30 +220,31 @@ export const servicesData = [
     title: "Sertifikasi SBU JPTL",
     shortDesc: "Izin Penunjang Listrik.",
     desc: "Legalitas untuk badan usaha yang bergerak di bidang jasa penunjang tenaga listrik (Pembangkit/Transmisi).",
+    definition: "SBU JPTL (Sertifikasi Badan Usaha Jasa Penunjang Tenaga Listrik) adalah sertifikasi resmi untuk perusahaan yang bergerak di bidang jasa penunjang ketenagalistrikan, khususnya pada unit pembangkitan dan transmisi. Izin ini wajib dimiliki oleh perusahaan yang ingin mengikuti tender atau pelaksanaan proyek di bidang kelistrikan, sebagai bukti bahwa perusahaan memiliki kualifikasi, kapasitas, serta kompetensi teknis dan finansial yang diperlukan.",
+    benefits: [
+      "Memenuhi syarat untuk proyek listrik",
+      "Berlaku untuk kontrak pemerintah",
+      "Wajib untuk layanan listrik",
+      "Meningkatkan kredibilitas bisnis"
+    ],
     icon: "Zap",
     // Gambar: Sutet / Transmisi Listrik
     image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "IUJPTL License", desc: "Supporting Electricity Service Business License" },
-      { title: "Technical Head", desc: "Qualified technical person compliance" },
-      { title: "Official Accreditation", desc: "Government-recognized certification" }
+      { title: "Izin IUJPTL", desc: "Izin Usaha JPTL (Jasa Penunjang Tenaga Listrik)" },
+      { title: "Penanggung Jawab Teknis", desc: "Kepatuhan terhadap tenaga teknis terkualifikasi" },
+      { title: "Akreditasi Resmi", desc: "Sertifikasi diakui pemerintah" }
     ],
-    duration: "30-40 Business Days",
-    status: "Official Accreditation",
+    duration: "30-40 Hari Kerja",
+    status: "Akreditasi Resmi",
     requirementsCount: 10,
     price: "18,500,000",
-    priceNote: "comprehensive package",
-    priceDescription: "Complete JPTL certification and documentation",
-    benefits: [
-      "Eligible for electricity projects",
-      "Valid for government contracts",
-      "Required for electrical services",
-      "Enhances business credibility"
-    ],
+    priceNote: "paket komplit",
+    priceDescription: "Sertifikasi JPTL lengkap dan dokumentasi",
     trustFactors: [
-      { title: "Official Accreditation", desc: "Recognized by Energy and Mineral Resources" },
-      { title: "Project Access", desc: "Allows participation in electricity sector projects" },
-      { title: "Safety Compliance", desc: "Meets electrical safety standards" }
+      { title: "Akreditasi Resmi", desc: "Dikenali oleh Kementerian Energi dan Sumber Daya Mineral" },
+      { title: "Akses Proyek", desc: "Memungkinkan partisipasi dalam proyek sektor listrik" },
+      { title: "Kepatuhan Keselamatan", desc: "Memenuhi standar keselamatan listrik" }
     ],
     proofImages: [
       "https://images.unsplash.com/photo-1589391886645-d53663a1d6a5?q=80&w=1932&auto=format&fit=crop",
@@ -255,30 +263,31 @@ export const servicesData = [
     title: "Sertifikasi ISO",
     shortDesc: "Manajemen Mutu Internasional.",
     desc: "Tingkatkan kredibilitas bisnis di mata klien global dengan standar manajemen ISO yang terakreditasi.",
+    definition: "ISO (International Organization for Standardization) adalah organisasi internasional yang menetapkan standar kualitas, keselamatan, dan lingkungan. Sertifikasi ISO menunjukkan bahwa sistem manajemen perusahaan memenuhi standar internasional, meningkatkan kredibilitas di pasar global, dan menjadi syarat wajib untuk tender internasional dan perusahaan manufaktur.",
+    benefits: [
+      "Kredibilitas bisnis global",
+      "Dipersyaratkan untuk tender internasional",
+      "Sistem manajemen mutu",
+      "Keunggulan kompetitif"
+    ],
     icon: "Award",
     // Gambar: Quality Control / Standard
     image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "ISO 9001 (Quality)", desc: "Quality Management System standard" },
-      { title: "ISO 14001 (Environment)", desc: "Environmental Management System" },
-      { title: "ISO 45001 (OHS)", desc: "Occupational Health and Safety standard" }
+      { title: "ISO 9001 (Mutu)", desc: "Standar Sistem Manajemen Mutu" },
+      { title: "ISO 14001 (Lingkungan)", desc: "Sistem Manajemen Lingkungan" },
+      { title: "ISO 45001 (K3L)", desc: "Standar Kesehatan dan Keselamatan Kerja" }
     ],
-    duration: "3-4 Months",
-    status: "International Standard",
+    duration: "3-4 Bulan",
+    status: "Standar Internasional",
     requirementsCount: 15,
     price: "25,000,000",
-    priceNote: "varies by scope",
-    priceDescription: "Complete ISO certification process",
-    benefits: [
-      "Global business credibility",
-      "Required for international tenders",
-      "Quality management system",
-      "Competitive advantage"
-    ],
+    priceNote: "bervariasi tergantung cakupan",
+    priceDescription: "Proses sertifikasi ISO komplit",
     trustFactors: [
-      { title: "International Standard", desc: "Globally recognized certification" },
-      { title: "Quality Assurance", desc: "Improves operational efficiency" },
-      { title: "Competitive Edge", desc: "Required by many international clients" }
+      { title: "Standar Internasional", desc: "Sertifikasi yang diakui secara global" },
+      { title: "Jaminan Kualitas", desc: "Meningkatkan efisiensi operasional" },
+      { title: "Keunggulan Kompetitif", desc: "Dipersyaratkan banyak klien internasional" }
     ],
     proofImages: [
       "https://images.unsplash.com/photo-1589391886645-d53663a1d6a5?q=80&w=1932&auto=format&fit=crop",
@@ -295,30 +304,31 @@ export const servicesData = [
     title: "Audit & Laporan Keuangan",
     shortDesc: "Audit independen & PSAK.",
     desc: "Jasa audit laporan keuangan oleh akuntan publik resmi untuk keperluan tender, perbankan, atau RUPS.",
+    definition: "Audit keuangan adalah proses pemeriksaan independen atas laporan keuangan suatu entitas yang dilakukan oleh akuntan publik bersertifikat. Tujuan utama audit adalah memberikan opini atas kewajaran laporan keuangan secara wajar, memastikan kepatuhan terhadap Standar Akuntansi Keuangan (PSAK), dan menunjang kepercayaan investor, kreditor, dan pemangku kepentingan lainnya.",
+    benefits: [
+      "Sah untuk persyaratan perbankan",
+      "Wajib untuk partisipasi tender",
+      "Memenuhi standar PSAK",
+      "Meningkatkan kepercayaan pemangku kepentingan"
+    ],
     icon: "Calculator",
     // Gambar: Calculator / Finance
     image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "Clean Opinion (WTP)", desc: "Without Qualification audit opinion" },
-      { title: "Fiscal Report", desc: "Tax-compliant financial reporting" },
-      { title: "Public Accountant", desc: "Certified public accountant (KAP) services" }
+      { title: "Opini WTP (Tanpa Kecualian)", desc: "Opini audit tanpa kualifikasi" },
+      { title: "Laporan Fiskal", desc: "Pelaporan keuangan sesuai perpajakan" },
+      { title: "Akuntan Publik", desc: "Layanan akuntan publik bersertifikat (KAP)" }
     ],
-    duration: "1-2 Months",
-    status: "Certified Audit",
+    duration: "1-2 Bulan",
+    status: "Audit Bersertifikat",
     requirementsCount: 12,
     price: "12,000,000",
-    priceNote: "based on scope",
-    priceDescription: "Complete audit and reporting services",
-    benefits: [
-      "Valid for banking requirements",
-      "Required for tender participation",
-      "Compliant with PSAK standards",
-      "Increased stakeholder confidence"
-    ],
+    priceNote: "tergantung cakupan",
+    priceDescription: "Layanan audit dan pelaporan komplit",
     trustFactors: [
-      { title: "Certified Auditor", desc: "Conducted by certified public accountants" },
-      { title: "Regulation Compliance", desc: "Meets PSAK and international standards" },
-      { title: "Stakeholder Trust", desc: "Increases investor and creditor confidence" }
+      { title: "Auditor Bersertifikat", desc: "Dilakukan oleh akuntan publik bersertifikat" },
+      { title: "Kepatuhan Regulasi", desc: "Memenuhi PSAK dan standar internasional" },
+      { title: "Kepercayaan Pemangku Kepentingan", desc: "Meningkatkan kepercayaan investor dan kreditor" }
     ],
     proofImages: [
       "https://images.unsplash.com/photo-1589391886645-d53663a1d6a5?q=80&w=1932&auto=format&fit=crop",
@@ -335,30 +345,31 @@ export const servicesData = [
     title: "Konsultasi Pajak UMKM",
     shortDesc: "Lapor SPT & EFIN.",
     desc: "Bimbingan perpajakan lengkap bagi UMKM agar administrasi rapi dan terhindar dari denda pajak.",
+    definition: "Konsultasi pajak UMKM adalah layanan yang memberikan bimbingan dan pendampingan terhadap Usaha Mikro, Kecil dan Menengah dalam pemenuhan kewajiban perpajakan sesuai undang-undang perpajakan yang berlaku. Layanan ini meliputi pembuatan NPWP, pelaporan SPT tahunan, pendaftaran keagenan EFIN, serta konsultasi mengenai kewajiban perpajakan dan strategi pengelolaan administrasi pajak yang baik.",
+    benefits: [
+      "Hindari denda pajak",
+      "Administrasi perpajakan yang benar",
+      "Kepatuhan terhadap regulasi",
+      "Petunjuk profesional"
+    ],
     icon: "Calculator",
     // Gambar: Uang Rupiah / Tax
     image: "https://images.unsplash.com/photo-1593510987046-1f8fcfc517a0?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "NPWP Creation", desc: "Complete tax registration process" },
-      { title: "SPT Filing", desc: "Annual tax return submission" },
-      { title: "Tax Amnesty Consultation", desc: "Special tax compliance program advice" }
+      { title: "Pembuatan NPWP", desc: "Proses pendaftaran pajak lengkap" },
+      { title: "Pelaporan SPT", desc: "Pengisian dan pengiriman SPT tahunan" },
+      { title: "Konsultasi Pengampunan Pajak", desc: "Saran program kepatuhan khusus perpajakan" }
     ],
-    duration: "1-2 Business Days",
-    status: "Compliant & Valid",
+    duration: "1-2 Hari Kerja",
+    status: "Kepatuhan & Valid",
     requirementsCount: 5,
     price: "1,500,000",
-    priceNote: "annual package",
-    priceDescription: "Complete UMKM tax compliance package",
-    benefits: [
-      "Avoid tax penalties",
-      "Proper tax administration",
-      "Compliant with regulations",
-      "Professional guidance"
-    ],
+    priceNote: "paket tahunan",
+    priceDescription: "Paket kepatuhan pajak UMKM komplit",
     trustFactors: [
-      { title: "Official Registration", desc: "Valid NPWP and EFIN registration" },
-      { title: "Compliance Assurance", desc: "Ensures tax regulation compliance" },
-      { title: "Expert Guidance", desc: "Professional tax consultation" }
+      { title: "Pendaftaran Resmi", desc: "Pendaftaran NPWP dan EFIN yang sah" },
+      { title: "Jaminan Kepatuhan", desc: "Memastikan kepatuhan terhadap regulasi perpajakan" },
+      { title: "Bimbingan Ahli", desc: "Konsultasi pajak profesional" }
     ],
     proofImages: [
       "https://images.unsplash.com/photo-1589391886645-d53663a1d6a5?q=80&w=1932&auto=format&fit=crop",

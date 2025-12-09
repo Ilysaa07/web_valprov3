@@ -1,208 +1,174 @@
 "use client";
 import Image from "next/image";
 import { useState, useEffect, useMemo } from "react";
-import { MessageCircle, ArrowRight, Shield } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { getWhatsappSettings, createWhatsAppUrl } from "@/lib/whatsappSettings";
 
 /* ================== COMPONENT ================== */
 export default function HeroModern({ city = null }) {
-  const [whatsappNumber, setWhatsappNumber] = useState("6281399710085"); // Default value
+  const [whatsappNumber, setWhatsappNumber] = useState("6281399710085");
+  const [whatsappMessage, setWhatsappMessage] = useState("Halo, saya ingin konsultasi pengurusan legalitas usaha");
+  const [isMobile, setIsMobile] = useState(false);
 
+  // ✅ Mobile detection (performance safe)
   useEffect(() => {
-    // Load WhatsApp number settings
-    const loadWhatsappSettings = async () => {
-      const settings = await getWhatsappSettings();
-      setWhatsappNumber(settings.mainNumber || "6281399710085");
-    };
-
-    loadWhatsappSettings();
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // ✅ Load WhatsApp settings
+  useEffect(() => {
+    getWhatsappSettings().then((settings) => {
+      setWhatsappNumber(settings.mainNumber || "6281399710085");
+      // Use the template message from settings if available, otherwise use default
+      setWhatsappMessage(settings.messageTemplate || "Halo, saya ingin konsultasi pengurusan legalitas usaha");
+    });
+  }, []);
+
+  // ✅ Kurangi jumlah logo di mobile
+  const logoCount = isMobile ? 14 : 28;
 
   const logos = useMemo(
     () =>
-      Array.from({ length: 32 }, (_, i) => `/images/logos/logo_klien/${i + 1}.png`),
-    []
+      Array.from(
+        { length: logoCount },
+        (_, i) => `/images/logos/logo_klien/${i + 1}.png`
+      ),
+    [logoCount]
   );
 
   return (
-    <section className="relative bg-[#F5F5F7] min-h-screen flex items-center overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full py-20">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+    <section className="relative bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 min-h-screen flex items-center overflow-hidden mt-16 sm:mt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 w-full py-16 sm:py-20 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
 
           {/* ================= LEFT ================= */}
           <div className="relative z-10">
-
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-slate-200 mb-8">
-              <div className="w-6 h-6 bg-[#110e60] rounded-full flex items-center justify-center">
-                <Shield size={14} className="text-white" />
-              </div>
-              <span className="text-sm font-medium text-slate-700">
-                Legalitas Profesional, Proses Mudah
-              </span>
-            </div>
-
-            {/* Heading */}
-            <h1 className="text-6xl lg:text-7xl font-bold text-slate-900 leading-[1.05] mb-6 tracking-tight">
-              Legalitas Usaha<br />
-              Yang Membangun<br />
-              <span className="text-[#110e60]">Kepercayaan</span>
+            {/* ✅ Judul baru — selaras dengan visual GIF */}
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-[1.05] mb-8 tracking-tight">
+              <span className="text-slate-900">Tidak perlu</span>{" "}
+              <span className="text-blue-600">bingung</span>
+              <br />
+              <span className="text-slate-900">mengurus</span>{" "}
+              <span className="text-indigo-600">legalitas</span>
             </h1>
 
-            {/* Desc */}
-            <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-lg">
-              Pengurusan dokumen legal end-to-end dengan transparansi penuh
-              dan pendampingan di setiap tahap.
+            {/* ✅ Deskripsi baru */}
+            <p className="text-lg sm:text-xl text-slate-600 mb-10 leading-relaxed max-w-xl">
+              Serahkan proses legalitas usaha Anda kepada tim profesional.
+              Lebih cepat, lebih aman, tanpa stres.
             </p>
 
             {/* CTA */}
-            <div className="flex items-center gap-4 mb-16">
+            <div className="mb-14">
               <a
-                href={createWhatsAppUrl(
-                  whatsappNumber,
-                  "Halo, saya ingin berkonsultasi mengenai pendirian badan usaha"
-                )}
-                className="group inline-flex items-center justify-center gap-2 bg-[#110e60] hover:bg-[#0d0b4a] text-white px-8 py-4 rounded-full font-medium transition-all shadow-lg shadow-[#110e60]/25"
+                href={createWhatsAppUrl(whatsappNumber, whatsappMessage)}
+                className="group inline-flex items-center justify-center gap-3 bg-[#4F46E5] hover:bg-[#4338CA] text-white px-8 py-4 rounded-xl font-semibold transition-all text-base shadow-lg shadow-indigo-600/25 hover:shadow-xl hover:shadow-indigo-600/30 touch-manipulation"
               >
-                <span>Konsultasi Gratis</span>
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </a>
-
-              <a
-                href="#layanan"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-slate-700 hover:bg-white/60 transition-all border border-slate-300 bg-white/40 backdrop-blur-sm"
-              >
-                Lihat Layanan
+                <span>Konsultasi Gratis via WhatsApp</span>
+                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
-
-            {/* ================= LOGO MARQUEE (DIBESARKAN + TANPA HOVER) ================= */}
-            <div className="relative mt-12">
-              <h3 className="text-sm font-semibold text-slate-900 mb-4">
-                Dipercaya Oleh
-              </h3>
-
-              <div className="relative overflow-hidden">
-                <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#F5F5F7] to-transparent z-10" />
-                <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#F5F5F7] to-transparent z-10" />
-
-                <div className="flex w-max gap-12 animate-marquee will-change-transform">
-                  {[...logos, ...logos].map((src, i) => (
-                    <div
-                      key={i}
-                      className="flex-shrink-0 w-40 h-24 bg-white rounded-2xl flex items-center justify-center p-5"
-                    >
-                      <img
-                        src={src}
-                        alt="Logo Klien"
-                        className="max-w-full max-h-full object-contain"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
           </div>
 
-          {/* ================= RIGHT ================= */}
-          <div className="relative lg:h-[700px] flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#110e60]/20 via-transparent to-purple-500/10 blur-3xl" />
+          {/* ================= RIGHT (GIF) ================= */}
+          <div className="relative flex items-center justify-center">
+            <div className="relative w-full min-h-[520px] sm:min-h-[640px] flex items-center justify-center">
+              <div className="relative">
 
-            <div className="relative w-[420px] h-[580px] bg-gradient-to-br from-slate-900 via-slate-800 to-[#110e60] rounded-[32px] shadow-2xl overflow-hidden p-6">
+                {/* ✅ Optimized GIF using next/image */}
+                <Image
+                  src="/hero.gif"
+                  alt="Ilustrasi orang sedang bingung mengurus legalitas"
+                  width={800}
+                  height={800}
+                  priority={!isMobile}
+                  className="w-full h-auto max-h-[700px] object-contain scale-110"
+                  sizes="(max-width: 768px) 90vw, 800px"
+                />
 
-              {/* Header */}
-              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
-                <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
-                  <MessageCircle size={20} className="text-white" />
-                </div>
-                <div>
-                  <div className="text-white font-semibold text-sm">
-                    Testimoni Klien
-                  </div>
-                  <div className="text-white/60 text-xs">
-                    Real feedback dari pelanggan kami
-                  </div>
-                </div>
+                {/* Floating question marks (dipertahankan tapi lebih ringan) */}
+                {!isMobile && (
+                  <>
+                    <div className="absolute -top-8 -left-8 text-5xl text-blue-500 animate-float font-bold drop-shadow-xl">?</div>
+                    <div className="absolute -top-6 -right-8 text-4xl text-blue-400 animate-float font-bold drop-shadow-xl" style={{ animationDelay: "0.5s" }}>?</div>
+                    <div className="absolute top-16 -left-10 text-3xl text-blue-300 animate-float font-bold drop-shadow-lg" style={{ animationDelay: "1s" }}>?</div>
+                    <div className="absolute bottom-16 -right-10 text-3xl text-blue-300 animate-float font-bold drop-shadow-lg" style={{ animationDelay: "1.5s" }}>?</div>
+                  </>
+                )}
+
+                {/* ✅ Card "Bingung?" DIHILANGKAN sesuai permintaan */}
               </div>
+            </div>
+          </div>
+        </div>
 
-              {/* ✅ TESTIMONI KEMBALI */}
-              <div className="space-y-4 overflow-y-auto h-[450px] scrollbar-hide">
+        {/* ================= LOGO SECTION ================= */}
+        <div className="mt-20 pt-10 border-t border-slate-200">
+          <div className="text-center mb-8">
+            <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+              Dipercaya Oleh
+            </p>
+          </div>
 
-                {[
-                  {
-                    name: "Budi Santoso",
-                    company: "PT Maju Teknologi",
-                    seed: "Budi",
-                    text: "Proses pendirian PT saya cuma 6 hari! Dokumen lengkap semua, SK Kemenkumham langsung terbit. Tim sangat responsif via WA 👍",
-                  },
-                  {
-                    name: "Siti Rahayu",
-                    company: "PT Berkah Mandiri",
-                    seed: "Siti",
-                    text: "Awalnya bingung mau bikin CV atau PT. Konsultasinya detail banget, dijelasin sampai paham. Akhirnya pilih PT dan ga nyesel!",
-                  },
-                  {
-                    name: "Andi Wijaya",
-                    company: "CV Sejahtera Bersama",
-                    seed: "Andi",
-                    text: "Update progress setiap hari lewat WA, jadi tenang. Harga juga transparan, ga ada biaya tersembunyi. Recommended!",
-                  },
-                  {
-                    name: "Dewi Lestari",
-                    company: "PT Cahaya Prima",
-                    seed: "Dewi",
-                    text: "Pelayanan profesional! Semua dokumen diurus sampai selesai. NIB OSS juga langsung dapat. Worth it 💯",
-                  },
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-3">
-                    <img
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.seed}`}
-                      className="w-9 h-9 rounded-full flex-shrink-0"
-                      alt={item.name}
-                    />
-                    <div className="flex-1">
-                      <div className="bg-white/10 backdrop-blur-sm rounded-2xl rounded-tl-none p-4">
-                        <div className="text-white/90 text-sm leading-relaxed">
-                          {item.text}
-                        </div>
-                      </div>
-                      <div className="text-white/40 text-xs mt-1 ml-1">
-                        {item.name} • {item.company}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+          <div className="relative overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
 
-              </div>
+            <div className="flex w-max gap-1 sm:gap-2 animate-marquee will-change-transform">
+              {[...logos, ...logos].map((src, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-40 h-24 sm:w-56 sm:h-32 flex items-center justify-center px-3"
+                >
+                  <Image
+                    src={src}
+                    alt="Logo klien"
+                    width={210}
+                    height={120}
+                    className="max-w-full max-h-full object-contain"
+                    loading="lazy"
+                    quality={75}
+                    sizes="(max-width: 640px) 160px, 220px"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ================= CSS ================= */}
+      {/* ================= CSS (Optimized) ================= */}
       <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        @keyframes marquee {
+          from { transform: translate3d(0, 0, 0); }
+          to { transform: translate3d(-50%, 0, 0); }
         }
 
-        @keyframes marquee {
-          from {
-            transform: translate3d(0, 0, 0);
-          }
-          to {
-            transform: translate3d(-50%, 0, 0);
-          }
+        @keyframes float {
+          0%,100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+          50% { transform: translateY(-14px) rotate(6deg); opacity: 0.7; }
         }
 
         .animate-marquee {
-          animation: marquee 60s linear infinite;
+          animation: marquee 45s linear infinite;
+        }
+
+        .animate-marquee:hover {
+          animation-play-state: paused;
+        }
+
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+          will-change: transform;
+        }
+
+        @media (max-width: 640px) {
+          .animate-marquee {
+            animation-duration: 32s;
+          }
         }
       `}</style>
     </section>

@@ -62,9 +62,36 @@ export default function Footer() {
           {/* COL 1: BRAND IDENTITY (4 Cols) */}
           <div className="lg:col-span-4 flex flex-col justify-between">
             <div>
-              <Link href="/" className="text-3xl font-bold text-white tracking-tight inline-flex items-center gap-2 mb-6">
-                Valpro<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1e40af] to-[#3b82f6]">Intertech</span>.
-              </Link>
+             <Link
+  href="/"
+  className="inline-flex items-center gap-3 mb-6 select-none"
+>
+  {/* Logo */}
+  <div className="flex items-center justify-center w-10 h-10 bg-white rounded-xl shrink-0">
+    <Image
+      src="/logometa.svg"
+      alt="Valpro Intertech Logo"
+      width={32}
+      height={32}
+      className="object-contain w-7 h-7"
+    />
+  </div>
+
+  {/* Text */}
+  <div className="flex flex-col leading-tight">
+    <span className="text-xl font-bold tracking-tight text-white">
+      Valpro
+      <span className="bg-gradient-to-r from-[#1e40af] to-[#3b82f6] bg-clip-text text-transparent">
+        .
+      </span>
+    </span>
+
+    <span className="text-[11px] font-medium italic text-stone-400 tracking-wide">
+      Driven by Professionalism
+    </span>
+  </div>
+</Link>
+
               <p className="text-stone-400 text-sm leading-relaxed max-w-sm mb-8">
                 Mitra legalitas modern yang membantu bisnis Anda berkembang tanpa hambatan birokrasi. Resmi, Transparan, dan Terpercaya.
               </p>

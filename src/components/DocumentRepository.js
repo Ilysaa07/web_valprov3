@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Search, File, Folder, Star, StarOff, Download, Trash2, Filter, Grid, List } from 'lucide-react';
 
-const DocumentRepository = ({ userId }) => {
+const DocumentRepository = ({ userId, searchTerm = '' }) => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [localSearchTerm, setLocalSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [selectedDocument, setSelectedDocument] = useState(null);
@@ -49,6 +49,13 @@ const DocumentRepository = ({ userId }) => {
     }
   }, [userId, categoryFilter]);
 
+  // Update local search term when the prop changes
+  useEffect(() => {
+    if (searchTerm !== undefined) {
+      setLocalSearchTerm(searchTerm);
+    }
+  }, [searchTerm]);
+
   // Update category counts
   const updateCategoryCounts = (docs) => {
     const updatedCategories = [
@@ -62,10 +69,11 @@ const DocumentRepository = ({ userId }) => {
     setCategories(updatedCategories);
   };
 
-  // Filter documents based on search term
+  // Filter documents based on search term (use passed searchTerm if available, otherwise use local state)
+  const effectiveSearchTerm = searchTerm !== undefined ? searchTerm : localSearchTerm;
   const filteredDocuments = documents.filter(doc =>
-    doc.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (doc.tags && doc.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())))
+    doc.fileName.toLowerCase().includes(effectiveSearchTerm.toLowerCase()) ||
+    (doc.tags && doc.tags.some(tag => tag.toLowerCase().includes(effectiveSearchTerm.toLowerCase())))
   );
 
   // Toggle favorite status
@@ -176,8 +184,8 @@ const DocumentRepository = ({ userId }) => {
           <input
             type="text"
             placeholder="Cari dokumen..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchTerm !== undefined ? searchTerm : localSearchTerm}
+            onChange={(e) => setLocalSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
