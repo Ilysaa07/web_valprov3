@@ -46,9 +46,12 @@ const AdBanner = () => {
   }, []);
 
   const handleBannerClick = () => {
-    // Construct WhatsApp URL with the main number and message template
+    // Construct WhatsApp URL with the main number and message template, including banner title
     const phoneNumber = whatsappSettings.mainNumber || '6281399710085'; // Default number
-    const message = encodeURIComponent(whatsappSettings.messageTemplate || 'Halo, saya ingin bertanya tentang layanan Valpro...');
+    // Include the banner title in the message if available
+    const bannerTitle = bannerData?.title || 'Banner Advertisement';
+    const baseMessage = whatsappSettings.messageTemplate || 'Halo, saya ingin bertanya tentang layanan Valpro...';
+    const message = encodeURIComponent(`${baseMessage} - ${bannerTitle}`);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
     // Open WhatsApp in a new tab
