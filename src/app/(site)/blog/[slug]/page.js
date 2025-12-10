@@ -50,7 +50,7 @@ export default async function BlogDetail({ params }) {
       [BLOCKS.OL_LIST]: (node, children) => <ol className="list-decimal pl-5 space-y-2 mb-6 text-stone-600">{children}</ol>,
       [BLOCKS.QUOTE]: (node, children) => (
         <blockquote className="border-l-4 border-[#2a3f9b] pl-6 italic text-stone-600 my-8 bg-stone-50 py-4 pr-4 rounded-r-xl relative">
-          <span className="absolute top-2 left-2 text-4xl text-[#2a3f9b] opacity-20">"</span>
+          <span className="absolute top-2 left-2 text-4xl text-[#2a3f9b] opacity-20">&quot;</span>
           {children}
         </blockquote>
       ),

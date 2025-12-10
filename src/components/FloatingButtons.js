@@ -8,25 +8,46 @@ import { getWhatsappSettings, createWhatsAppUrl } from '@/lib/whatsappSettings';
 export default function FloatingButtons() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [whatsappNumber, setWhatsappNumber] = useState('6289518530306'); // Default value
+  const [whatsappSettings, setWhatsappSettings] = useState({
+    number: '6289518530306',
+    message: 'Halo, saya ingin bertanya tentang layanan Valpro...'
+  });
 
   useEffect(() => {
-    setIsMounted(true);
+    const init = async () => {
+      setIsMounted(true);
 
-    // Load WhatsApp number settings
-    const loadWhatsappSettings = async () => {
-      const settings = await getWhatsappSettings();
-      setWhatsappNumber(settings.secondaryNumber || settings.mainNumber || '6289518530306');
+      // Load WhatsApp number settings
+      const loadWhatsappSettings = async () => {
+        const settings = await getWhatsappSettings();
+        const number = settings.mainNumber || settings.secondaryNumber || '6289518530306';
+        const message = settings.messageTemplate || 'Halo, saya ingin bertanya tentang layanan Valpro...';
+        setWhatsappSettings({ number, message });
+      };
+
+      await loadWhatsappSettings();
+
+      // Reload settings when page becomes visible (in case settings were changed in another tab)
+      const handleVisibilityChange = () => {
+        if (!document.hidden) {
+          loadWhatsappSettings();
+        }
+      };
+
+      const handleScroll = () => {
+        setShowScrollTop(window.scrollY > 300);
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      window.addEventListener('scroll', handleScroll);
+
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('scroll', handleScroll);
+      };
     };
 
-    loadWhatsappSettings();
-
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 300);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    init();
   }, []);
 
   const scrollToTop = () => {
@@ -34,8 +55,7 @@ export default function FloatingButtons() {
   };
 
   const openWhatsApp = () => {
-    const message = 'Halo, saya ingin bertanya tentang layanan Valpro...';
-    const whatsappUrl = createWhatsAppUrl(whatsappNumber, message);
+    const whatsappUrl = createWhatsAppUrl(whatsappSettings.number, whatsappSettings.message);
     window.open(whatsappUrl, '_blank');
   };
 
@@ -58,6 +78,7 @@ export default function FloatingButtons() {
           alt="WhatsApp"
           width={24}
           height={24}
+          key={`wa-icon-${whatsappSettings.number}`} // Force re-render when number changes
         />
       </button>
 

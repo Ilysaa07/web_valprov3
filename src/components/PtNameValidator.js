@@ -198,7 +198,7 @@ export default function PtNameValidator() {
                    {message}
                  </p>
                  <p className="text-xs text-stone-400 bg-white/50 p-2 rounded-lg">
-                   *Saran: Gunakan Bahasa Indonesia (E.g: "Global"  "Dunia/Semesta")
+                   *Saran: Gunakan Bahasa Indonesia (E.g: &quot;Global&quot;  &quot;Dunia/Semesta&quot;)
                  </p>
               </div>
            )}

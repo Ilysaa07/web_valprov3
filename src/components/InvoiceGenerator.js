@@ -60,7 +60,7 @@ const InvoiceGenerator = () => {
     // Items
     items: [
       {
-        id: Date.now(),
+        id: 'default-item-1',
         description: "",
         quantity: 1,
         unitPrice: 0,
@@ -97,11 +97,11 @@ const InvoiceGenerator = () => {
 
   // --- Effects ---
 
-  useEffect(() => {
-    if (auth.currentUser) {
-      loadInvoices();
-    }
-  }, []);
+  const [hasLoadedInitially, setHasLoadedInitially] = useState(false);
+
+  // Extract complex expressions to avoid useMemo dependency issues
+  const itemsStringified = JSON.stringify(formData.items);
+  const terminsStringified = JSON.stringify(formData.termins);
 
   // Calculate totals using useMemo to prevent infinite loop
   const calculatedTotals = useMemo(() => {
@@ -176,7 +176,7 @@ const InvoiceGenerator = () => {
         };
       }),
     };
-  }, [JSON.stringify(formData.items), formData.discountType, formData.discountValue, formData.taxType, formData.taxValue, JSON.stringify(formData.termins), formData.status, formData.dueDate]);
+  }, [itemsStringified, formData.discountType, formData.discountValue, formData.taxType, formData.taxValue, terminsStringified, formData.status, formData.dueDate]);
 
   // Auto-update dueDate
   useEffect(() => {
@@ -776,7 +776,7 @@ const terminRows = dataToUse.termins.map((termin, idx) => {
   <div class="container">
     <!-- Watermark -->
     <div class="watermark-container">
-      <img src="/logo.svg" alt="Logo" />
+      <img src="/logometa.svg" alt="Logo" />
     </div>
 
     <!-- LUNAS Overlay - Sejajar dengan watermark -->
@@ -1004,7 +1004,7 @@ const terminRows = dataToUse.termins.map((termin, idx) => {
     setFormData((prev) => ({
       ...prev,
       items: [...prev.items, {
-        id: Date.now(),
+        id: `item-${Math.random().toString(36).substr(2, 9)}`,
         description: "",
         quantity: 1,
         unitPrice: 0,
@@ -1032,7 +1032,7 @@ const terminRows = dataToUse.termins.map((termin, idx) => {
         ...prev,
         items: prev.items.map(item => item.id === itemId ? {
             ...item,
-            subItems: [...(item.subItems || []), { id: Date.now(), description: "", quantity: 1, unitPrice: 0 }]
+            subItems: [...(item.subItems || []), { id: `subitem-${Math.random().toString(36).substr(2, 9)}`, description: "", quantity: 1, unitPrice: 0 }]
         } : item)
     }));
   };
@@ -1064,7 +1064,7 @@ const addTermin = () => {
     termins: [
       ...prev.termins,
       {
-        id: Date.now(),
+        id: `termin-${Math.random().toString(36).substr(2, 9)}`,
         date: new Date().toISOString().split("T")[0],
         amountType: "fixed",
         value: 0
@@ -1239,7 +1239,7 @@ const editInvoice = (invoice) => {
 
     // Handle Backward Compatibility untuk termins
     termins: (invoice.termins || invoice.payments || []).map(t => ({
-      id: t.id || Date.now() + Math.random(),
+      id: t.id || `termin-${Math.random().toString(36).substr(2, 9)}`,
       date: t.date || new Date().toISOString().split("T")[0],
       amountType: t.amountType || 'fixed',
       value: Number(t.value || t.amount || 0),
@@ -1274,7 +1274,7 @@ const editInvoice = (invoice) => {
             { id: 2, bank: "BCA", number: "4373249575", holder: "PT Valpro Inter Tech" }
         ],
         items: [{
-            id: Date.now(),
+            id: `item-${Math.random().toString(36).substr(2, 9)}`,
             description: "",
             quantity: 1,
             unitPrice: 0,
@@ -1437,14 +1437,14 @@ const editInvoice = (invoice) => {
             // Items - explicitly construct without undefined values
             items: Array.isArray(formData.items)
                 ? formData.items.map(item => ({
-                    id: item.id || Date.now(),
+                    id: item.id || `item-${Math.random().toString(36).substr(2, 9)}`,
                     description: item.description || "",
                     quantity: typeof item.quantity === 'number' ? item.quantity : 1,
                     unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : 0,
                     amount: typeof item.amount === 'number' ? item.amount : 0,
                     subItems: Array.isArray(item.subItems)
                         ? item.subItems.map(subItem => ({
-                            id: subItem.id || Date.now(),
+                            id: subItem.id || `subitem-${Math.random().toString(36).substr(2, 9)}`,
                             description: subItem.description || "",
                             quantity: typeof subItem.quantity === 'number' ? subItem.quantity : 1,
                             unitPrice: typeof subItem.unitPrice === 'number' ? subItem.unitPrice : 0,
@@ -1453,7 +1453,7 @@ const editInvoice = (invoice) => {
                         : []
                   }))
                 : [{
-                    id: Date.now(),
+                    id: `item-${Math.random().toString(36).substr(2, 9)}`,
                     description: "",
                     quantity: 1,
                     unitPrice: 0,
@@ -1474,7 +1474,7 @@ const editInvoice = (invoice) => {
             // Termin - explicitly construct with recalculated amounts
             termins: Array.isArray(updatedTerminsForSave)
                 ? updatedTerminsForSave.map(termin => ({
-                    id: termin.id || Date.now(),
+                    id: termin.id || `termin-${Math.random().toString(36).substr(2, 9)}`,
                     date: termin.date || new Date().toISOString().split("T")[0],
                     amountType: termin.amountType || "fixed",
                     value: typeof termin.value === 'number' ? termin.value : 0,
@@ -1551,6 +1551,13 @@ const editInvoice = (invoice) => {
     setSaving(false);
   };
 
+  // Initial data loading effect
+  useEffect(() => {
+    if (auth.currentUser) {
+      loadInvoices();
+    }
+  }, [auth.currentUser]);
+
   // --- Render ---
 
   return (
@@ -1620,6 +1627,6 @@ const editInvoice = (invoice) => {
       )}
     </div>
   );
-};
+}
 
 export default InvoiceGenerator;

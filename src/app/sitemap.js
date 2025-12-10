@@ -2,13 +2,15 @@ import { servicesData } from "@/lib/servicesData";
 import { getSortedPostsData } from "@/lib/blog";
 import { locations } from "@/lib/locations";
 import kbliData from "@/lib/kbli-full.json";
+import glossaryData from "@/lib/glossary.json";
+import { KBLI_CATEGORIES } from "@/lib/kbli-kategori";
 
 // URL Dasar Website Anda
 const BASE_URL = "https://valprointertech.com";
 
 export default async function sitemap() {
-  // Gunakan tanggal tetap untuk konten yang tidak sering berubah
-  const lastModifiedDate = new Date("2025-01-01");
+  // Gunakan tanggal sekarang untuk lastModified dinamis
+  const currentDate = new Date();
 
   // 1. Ambil Data Blog (Dinamis dari Contentful)
   let blogUrls = [];
@@ -16,7 +18,7 @@ export default async function sitemap() {
     const posts = await getSortedPostsData();
     if (posts && Array.isArray(posts) && posts.length > 0) {
       blogUrls = posts.map((post) => {
-        let postDate = lastModifiedDate;
+        let postDate = currentDate;
         if (post.date) {
           const parsedDate = new Date(post.date);
           if (!isNaN(parsedDate.getTime())) {
@@ -41,7 +43,7 @@ export default async function sitemap() {
     if (Array.isArray(servicesData)) {
       serviceUrls = servicesData.map((service) => ({
         url: `${BASE_URL}/layanan/${service.slug}`,
-        lastModified: lastModifiedDate,
+        lastModified: currentDate,
         changeFrequency: "monthly",
         priority: 0.9,
       }));
@@ -56,7 +58,7 @@ export default async function sitemap() {
     if (Array.isArray(locations)) {
       locationUrls = locations.map((loc) => ({
         url: `${BASE_URL}/area/${loc.slug}`,
-        lastModified: lastModifiedDate,
+        lastModified: currentDate,
         changeFrequency: "monthly",
         priority: 0.7,
       }));
@@ -71,7 +73,7 @@ export default async function sitemap() {
     if (Array.isArray(kbliData)) {
       kbliUrls = kbliData.map((kbli) => ({
         url: `${BASE_URL}/kbli/${kbli.kode}`,
-        lastModified: lastModifiedDate,
+        lastModified: currentDate,
         changeFrequency: "yearly",
         priority: 0.6,
       }));
@@ -80,54 +82,149 @@ export default async function sitemap() {
     console.error("Failed to process KBLI data for sitemap:", error);
   }
 
-  // 5. Halaman Statis Utama (dengan prioritas dan frekuensi yang disesuaikan)
+  // 5. Ambil Data Kategori KBLI
+  let kbliCategoryUrls = [];
+  try {
+    const categoryCodes = Object.keys(KBLI_CATEGORIES).map(code => code.toLowerCase());
+    kbliCategoryUrls = categoryCodes.map(categoryCode => ({
+      url: `${BASE_URL}/kbli/kategori/${categoryCode}`,
+      lastModified: currentDate,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    }));
+  } catch (error) {
+    console.error("Failed to process KBLI category data for sitemap:", error);
+  }
+
+  // 6. Ambil Data Kamus Istilah (dari glossary.json)
+  let kamusUrls = [];
+  try {
+    if (Array.isArray(glossaryData)) {
+      kamusUrls = glossaryData.map(glossaryItem => ({
+        url: `${BASE_URL}/kamus/${glossaryItem.slug}`,
+        lastModified: currentDate,
+        changeFrequency: "monthly",
+        priority: 0.7,
+      }));
+    }
+  } catch (error) {
+    console.error("Failed to process glossary data for sitemap:", error);
+  }
+
+  // 7. Halaman Statis Utama (dengan prioritas dan frekuensi yang disesuaikan)
   const staticRoutes = [
     {
       url: `${BASE_URL}/`,
-      lastModified: lastModifiedDate,
+      lastModified: currentDate,
       priority: 1.0,
       changeFrequency: "daily",
     },
     {
       url: `${BASE_URL}/blog`,
-      lastModified: lastModifiedDate,
+      lastModified: currentDate,
       priority: 0.8,
       changeFrequency: "weekly",
     },
     {
       url: `${BASE_URL}/kbli`,
-      lastModified: lastModifiedDate,
+      lastModified: currentDate,
       priority: 0.7,
       changeFrequency: "monthly",
     },
     {
+      url: `${BASE_URL}/kbli/kategori`,
+      lastModified: currentDate,
+      priority: 0.6,
+      changeFrequency: "monthly",
+    },
+    {
       url: `${BASE_URL}/cek-merek`,
-      lastModified: lastModifiedDate,
+      lastModified: currentDate,
       priority: 0.7,
       changeFrequency: "monthly",
     },
     {
       url: `${BASE_URL}/kalkulator-pajak`,
-      lastModified: lastModifiedDate,
+      lastModified: currentDate,
       priority: 0.7,
       changeFrequency: "monthly",
     },
     {
       url: `${BASE_URL}/cek-nama-pt`,
-      lastModified: lastModifiedDate,
+      lastModified: currentDate,
       priority: 0.7,
       changeFrequency: "monthly",
     },
     {
       url: `${BASE_URL}/simulasi-biaya`,
-      lastModified: lastModifiedDate,
+      lastModified: currentDate,
       priority: 0.7,
       changeFrequency: "monthly",
     },
     {
       url: `${BASE_URL}/buat-surat`,
-      lastModified: lastModifiedDate,
+      lastModified: currentDate,
       priority: 0.7,
+      changeFrequency: "monthly",
+    },
+    {
+      url: `${BASE_URL}/cek-status`,
+      lastModified: currentDate,
+      priority: 0.6,
+      changeFrequency: "weekly",
+    },
+    {
+      url: `${BASE_URL}/kalender-bisnis`,
+      lastModified: currentDate,
+      priority: 0.6,
+      changeFrequency: "weekly",
+    },
+    {
+      url: `${BASE_URL}/kamus`,
+      lastModified: currentDate,
+      priority: 0.8,
+      changeFrequency: "monthly",
+    },
+    {
+      url: `${BASE_URL}/kuis-legalitas`,
+      lastModified: currentDate,
+      priority: 0.6,
+      changeFrequency: "monthly",
+    },
+    {
+      url: `${BASE_URL}/kamus/terbaru`,
+      lastModified: currentDate,
+      priority: 0.5,
+      changeFrequency: "weekly",
+    },
+    {
+      url: `${BASE_URL}/kamus/populer`,
+      lastModified: currentDate,
+      priority: 0.5,
+      changeFrequency: "weekly",
+    },
+    {
+      url: `${BASE_URL}/kontak`,
+      lastModified: currentDate,
+      priority: 0.7,
+      changeFrequency: "yearly",
+    },
+    {
+      url: `${BASE_URL}/tentang`,
+      lastModified: currentDate,
+      priority: 0.7,
+      changeFrequency: "yearly",
+    },
+    {
+      url: `${BASE_URL}/layanan`,
+      lastModified: currentDate,
+      priority: 0.9,
+      changeFrequency: "weekly",
+    },
+    {
+      url: `${BASE_URL}/area`,
+      lastModified: currentDate,
+      priority: 0.6,
       changeFrequency: "monthly",
     },
   ];
@@ -138,5 +235,7 @@ export default async function sitemap() {
     ...blogUrls,
     ...locationUrls,
     ...kbliUrls,
+    ...kbliCategoryUrls,
+    ...kamusUrls,
   ].filter(Boolean); // Filter out any potential null/undefined entries
 }

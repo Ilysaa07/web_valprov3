@@ -343,7 +343,7 @@ const DocumentRepository = ({ userId, searchTerm = '' }) => {
           <div className="bg-white rounded-xl max-w-md w-full p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-2">Hapus Dokumen</h3>
             <p className="text-gray-600 mb-6">
-              Apakah Anda yakin ingin menghapus dokumen "{selectedDocument.fileName}"?
+              Apakah Anda yakin ingin menghapus dokumen &quot;{selectedDocument.fileName}&quot;?
               Tindakan ini tidak dapat dibatalkan.
             </p>
             <div className="flex justify-end gap-3">

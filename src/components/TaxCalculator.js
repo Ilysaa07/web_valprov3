@@ -12,7 +12,7 @@ export default function TaxCalculator() {
     // Load WhatsApp number settings
     const loadWhatsappSettings = async () => {
       const settings = await getWhatsappSettings();
-      setWhatsappNumber(settings.secondaryNumber || settings.mainNumber || '6289518530306');
+      setWhatsappNumber(settings.mainNumber || settings.secondaryNumber || '6289518530306');
     };
 
     loadWhatsappSettings();

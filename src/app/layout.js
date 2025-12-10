@@ -56,18 +56,18 @@ export const metadata = {
   },
 
   openGraph: {
-    title: 'Valpro Intertech - Solusi Legalitas Usaha',
-    description: 'Biro jasa perizinan PT, CV, dan NIB terpercaya dan cepat.',
+    title: 'Valpro Intertech - Jasa Legalitas & Perizinan Terpercaya',
+    description: 'Jasa pendirian PT, CV, sertifikasi ISO, dan SBU Konstruksi terpercaya di Indonesia. Proses cepat, transparan, dan 100% legal.',
     url: 'https://valprointertech.com',
     siteName: 'Valpro Intertech',
     type: 'website',
     locale: 'id_ID',
     images: [
       {
-        url: '/og-image.jpg', // Pastikan nanti Anda punya file ini di public/ untuk thumbnail share WA
+        url: '/gedung.png',
         width: 1200,
         height: 630,
-        alt: 'Valpro Intertech Banner',
+        alt: 'Valpro Intertech - Jasa Legalitas & Perizinan Terpercaya',
       },
     ],
   },

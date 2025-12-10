@@ -65,7 +65,7 @@ const InvoicePreviewPage = ({ formData, handlePrint }) => {
              
              {/* Watermark */}
              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', opacity: 0.1, zIndex: 0 }}>
-                 <img src="/logo.svg" style={{ width: '520px', display: 'block' }} alt="logo" />
+                 <img src="/logometa.svg" style={{ width: '520px', display: 'block' }} alt="logo" />
              </div>
 
              {/* Header */}

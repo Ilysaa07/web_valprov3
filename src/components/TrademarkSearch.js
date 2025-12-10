@@ -81,7 +81,7 @@ export default function TrademarkSearch() {
          ) : (
             <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-stone-300">
                <HelpCircle size={32} className="mx-auto text-stone-300 mb-3" />
-               <p className="text-stone-500">Tidak ditemukan. Coba kata kunci lain (Misal: "Makanan").</p>
+               <p className="text-stone-500">Tidak ditemukan. Coba kata kunci lain (Misal: &quot;Makanan&quot;).</p>
             </div>
          )}
       </div>
@@ -92,7 +92,7 @@ export default function TrademarkSearch() {
          <div>
             <h4 className="font-bold text-[#2a3f9b] text-sm mb-1">Pentingnya Memilih Kelas yang Tepat</h4>
             <p className="text-xs text-blue-800/70 leading-relaxed">
-               Merek hanya dilindungi di kelas tempat ia didaftarkan. Jika Anda menjual "Kopi Bubuk" (Kelas 30) dan membuka "Kafe" (Kelas 43), disarankan mendaftar di kedua kelas tersebut untuk perlindungan maksimal.
+               Merek hanya dilindungi di kelas tempat ia didaftarkan. Jika Anda menjual &quot;Kopi Bubuk&quot; (Kelas 30) dan membuka &quot;Kafe&quot; (Kelas 43), disarankan mendaftar di kedua kelas tersebut untuk perlindungan maksimal.
             </p>
          </div>
       </div>

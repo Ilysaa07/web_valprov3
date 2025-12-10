@@ -36,40 +36,44 @@ export default function Navbar() {
   const toolsRef = useRef(null);
 
   useEffect(() => {
-    setMounted(true);
+    const init = async () => {
+      setMounted(true);
 
-    // Load WhatsApp number settings
-    const loadWhatsappSettings = async () => {
-      const settings = await getWhatsappSettings();
-      setWhatsappNumber(settings.mainNumber || '6281399710085');
+      // Load WhatsApp number settings
+      const loadWhatsappSettings = async () => {
+        const settings = await getWhatsappSettings();
+        setWhatsappNumber(settings.mainNumber || '6281399710085');
+      };
+
+      await loadWhatsappSettings();
+
+      const handleScroll = () => {
+        const isScrolled = window.scrollY > 20;
+        setScrolled(prev => {
+          if (prev !== isScrolled) return isScrolled;
+          return prev;
+        });
+      };
+
+      const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+          setDropdownOpen(false);
+        }
+        if (toolsRef.current && !toolsRef.current.contains(event.target)) {
+          setToolsOpen(false);
+        }
+      };
+
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      document.addEventListener('mousedown', handleClickOutside);
+
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
     };
 
-    loadWhatsappSettings();
-
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 20;
-      setScrolled(prev => {
-        if (prev !== isScrolled) return isScrolled;
-        return prev;
-      });
-    };
-
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-      if (toolsRef.current && !toolsRef.current.contains(event.target)) {
-        setToolsOpen(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    init();
   }, []);
 
   const navbarClasses = useMemo(() => {

@@ -71,7 +71,7 @@ export default function KbliSearch() {
         </div>
         {query && (
             <p className="text-center text-xs text-stone-500 mt-4 font-medium">
-                Hasil pencarian untuk <span className="text-[#2a3f9b] font-bold">"{query}"</span>. Menampilkan <span className="text-[#2a3f9b] font-bold">{visibleData.length}</span> dari {filteredData.length} hasil.
+                Hasil pencarian untuk <span className="text-[#2a3f9b] font-bold">&quot;{query}&quot;</span>. Menampilkan <span className="text-[#2a3f9b] font-bold">{visibleData.length}</span> dari {filteredData.length} hasil.
             </p>
         )}
       </div>
@@ -122,7 +122,7 @@ export default function KbliSearch() {
                     </div>
                     <h3 className="text-lg font-bold text-stone-900 mb-2">Tidak Ditemukan</h3>
                     <p className="text-stone-500 max-w-md mx-auto text-sm">
-                        Kami tidak menemukan kode atau uraian yang cocok dengan kata kunci <strong>"{query}"</strong>. Coba gunakan kata yang lebih umum.
+                        Kami tidak menemukan kode atau uraian yang cocok dengan kata kunci <strong>&quot;{query}&quot;</strong>. Coba gunakan kata yang lebih umum.
                     </p>
                 </div>
             )

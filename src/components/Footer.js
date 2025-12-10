@@ -14,16 +14,34 @@ import {
 import { getWhatsappSettings, createWhatsAppUrl } from '@/lib/whatsappSettings';
 
 export default function Footer() {
-  const [whatsappNumber, setWhatsappNumber] = useState('6289518530306'); // Default value
+  const [whatsappSettings, setWhatsappSettings] = useState({
+    number: '6289518530306',
+    message: 'Halo, saya ingin bertanya tentang layanan Valpro...'
+  });
 
   useEffect(() => {
     // Load WhatsApp number settings
     const loadWhatsappSettings = async () => {
       const settings = await getWhatsappSettings();
-      setWhatsappNumber(settings.secondaryNumber || settings.mainNumber || '6289518530306');
+      const number = settings.mainNumber || settings.secondaryNumber || '6289518530306';
+      const message = settings.messageTemplate || 'Halo, saya ingin bertanya tentang layanan Valpro...';
+      setWhatsappSettings({ number, message });
     };
 
     loadWhatsappSettings();
+
+    // Reload settings when page becomes visible (in case settings were changed in another tab)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadWhatsappSettings();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
   // GANTI DENGAN LINK EMBED GOOGLE MAPS ASLI
   const mapEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.863698428974!2d107.52183957587954!3d-7.025339668822236!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68edec63b93023%3A0x68673321e41e6303!2sJl.%20Gading%20Tutuka%2C%20Soreang%2C%20Kec.%20Soreang%2C%20Kabupaten%20Bandung%2C%20Jawa%20Barat!5e0!3m2!1sid!2sid!4v1708657289337!5m2!1sid!2sid";
@@ -188,7 +206,7 @@ export default function Footer() {
                    <a href="mailto:mail@valprointertech.com" className="w-10 h-10 flex items-center justify-center rounded-xl bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white transition-colors border border-stone-700">
                       <Mail size={18} />
                    </a>
-                   <a href={createWhatsAppUrl(whatsappNumber)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#1e40af] text-white hover:bg-[#3b82f6] shadow-lg shadow-blue-900/20 transition-colors">
+                   <a href={createWhatsAppUrl(whatsappSettings.number, whatsappSettings.message)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#1e40af] text-white hover:bg-[#3b82f6] shadow-lg shadow-blue-900/20 transition-colors">
                       {/* Icon WA Putih */}
                       <Image src="/whatsapp-icon.svg" alt="WA" width={18} height={18} className="invert brightness-0" style={{ filter: 'brightness(0) invert(1)' }} />
                    </a>

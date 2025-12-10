@@ -8,10 +8,14 @@ export default function BlogInteractions({ title, slug }) {
 
   // 1. Cek status "Simpan" saat halaman dimuat
   useEffect(() => {
-    const savedPosts = JSON.parse(localStorage.getItem('valpro_bookmarks') || '[]');
-    if (savedPosts.includes(slug)) {
-      setIsSaved(true);
-    }
+    const init = async () => {
+      const savedPosts = JSON.parse(localStorage.getItem('valpro_bookmarks') || '[]');
+      if (savedPosts.includes(slug)) {
+        setIsSaved(true);
+      }
+    };
+
+    init();
   }, [slug]);
 
   // 2. Logika Tombol Simpan (Bookmark)

@@ -15,13 +15,17 @@ export default function AdminClient() {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
+    const init = async () => {
+      setIsClient(true);
+      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser);
+        setLoading(false);
+      });
 
-    return () => unsubscribe();
+      return () => unsubscribe();
+    };
+
+    init();
   }, []);
 
   // Prevent hydration mismatch by not rendering dynamic content until client-side

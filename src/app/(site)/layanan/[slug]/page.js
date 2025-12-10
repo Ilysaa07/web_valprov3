@@ -45,9 +45,43 @@ export async function generateMetadata({ params }) {
   if (!service) return { title: 'Layanan Tidak Ditemukan' };
 
   return {
-    title: `${service.title} - Solusi Profesional Valpro`,
+    title: `${service.title} - Jasa ${service.category} Profesional | Valpro`,
     description: service.desc,
+    keywords: [
+      service.title,
+      service.category,
+      'jasa legalitas',
+      'biro jasa',
+      'perizinan',
+      'pendirian perusahaan',
+      'solusi bisnis',
+      'pembuatan izin',
+      ...(Array.isArray(service.features) ? service.features.map(f => typeof f === 'string' ? f : f.title || f.description || '') : [])
+    ],
     alternates: { canonical: `/layanan/${slug}` },
+    openGraph: {
+      title: `${service.title} - Jasa ${service.category} Profesional`,
+      description: service.desc,
+      url: `https://valprointertech.com/layanan/${slug}`,
+      siteName: 'Valpro Intertech',
+      type: 'article',
+      publishedTime: new Date().toISOString(),
+      modifiedTime: new Date().toISOString(),
+      images: [
+        {
+          url: service.image || '/gedung.png',
+          width: 1200,
+          height: 630,
+          alt: `${service.title} - Jasa ${service.category} Profesional`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${service.title} - Jasa ${service.category} Profesional`,
+      description: service.desc,
+      images: service.image ? [service.image] : ['/gedung.png'],
+    },
   };
 }
 
@@ -70,10 +104,104 @@ export default async function ServiceDetail({ params }) {
     provider: {
       '@type': 'Organization',
       name: 'Valpro Intertech',
-      url: 'https://valprointertech.com'
+      url: 'https://valprointertech.com',
+      logo: 'https://valprointertech.com/logometa.svg',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Jl. Raya Gading Tutuka No.175 B, Soreang',
+        addressLocality: 'Bandung',
+        addressCountry: 'ID'
+      }
     },
     areaServed: 'Indonesia',
     category: service.category,
+    offers: pricing && pricing.enabled ? {
+      '@type': 'Offer',
+      price: pricing.price,
+      priceCurrency: 'IDR',
+      availability: 'https://schema.org/InStock'
+    } : undefined,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://valprointertech.com/layanan/${slug}`
+    },
+    image: service.image,
+    // Add service specific properties
+    ...service.duration && { processingTime: service.duration },
+    ...service.status && {
+      award: {
+        '@type': 'Award',
+        name: service.status
+      }
+    }
+  };
+
+  // Breadcrumb Schema
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://valprointertech.com'
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Layanan',
+        item: 'https://valprointertech.com/layanan'
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: service.title,
+        item: `https://valprointertech.com/layanan/${slug}`
+      }
+    ]
+  };
+
+  // FAQ Schema for better SEO
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: `Apa itu layanan ${service.title}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: service.desc
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Berapa biaya untuk layanan ${service.title}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: pricing && pricing.enabled
+            ? `Biaya layanan ${service.title} adalah Rp ${pricing.price}. ${pricing.priceDescription || ''} ${pricing.priceNote || ''}`
+            : `Harga untuk layanan ${service.title} bersifat custom sesuai kebutuhan spesifik Anda.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Berapa lama proses pengerjaan ${service.title}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${service.duration}. Proses akan segera dimulai setelah persyaratan lengkap dan pembayaran konfirmasi.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Apa saja persyaratan untuk layanan ${service.title}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `Persyaratan lengkap untuk layanan ${service.title} akan dijelaskan secara detail oleh konsultan kami setelah Anda menghubungi tim kami untuk konsultasi awal.`
+        }
+      }
+    ]
   };
 
   const getWALink = (context = '') => createWhatsAppUrl(
@@ -87,6 +215,16 @@ export default async function ServiceDetail({ params }) {
         type="application/ld+json"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd, null, 2) }}
+      />
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd, null, 2) }}
+      />
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd, null, 2) }}
       />
 
       {/* Decorative Grid Background */}
@@ -229,9 +367,21 @@ export default async function ServiceDetail({ params }) {
                   ) : (
                     <div className="text-xl font-bold text-slate-900">Custom Solution</div>
                   )}
-                  <p className="text-xs text-slate-400 mt-1 italic">
-                    {pricing?.priceNote || service.priceNote || '*Disesuaikan dengan skala kebutuhan'}
-                  </p>
+                  {pricing?.priceNote && (
+                    <p className="text-xs text-slate-400 mt-1 italic">
+                      {pricing.priceNote}
+                    </p>
+                  )}
+                  {pricing?.priceDescription && (
+                    <p className="text-xs text-slate-500 mt-1">
+                      {pricing.priceDescription}
+                    </p>
+                  )}
+                  {!pricing?.priceNote && !pricing?.priceDescription && (
+                    <p className="text-xs text-slate-400 mt-1 italic">
+                      {service.priceNote || '*Disesuaikan dengan skala kebutuhan'}
+                    </p>
+                  )}
                 </div>
 
                 {/* Team Presence - Human Touch */}
@@ -245,7 +395,7 @@ export default async function ServiceDetail({ params }) {
                     <span className="text-xs text-slate-500 font-medium">Tim Legal & Teknis siap membantu.</span>
                   </div>
                   <p className="text-sm text-slate-700">
-                    "Kami akan membantu menjelaskan detail teknis dan legalitas layanan ini untuk Anda."
+                    &quot;Kami akan membantu menjelaskan detail teknis dan legalitas layanan ini untuk Anda.&quot;
                   </p>
                 </div>
 

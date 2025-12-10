@@ -17,29 +17,42 @@ export default function LangDropdown() {
   ];
 
   useEffect(() => {
-    setMounted(true);
+    const init = async () => {
+      setMounted(true);
+    };
+
+    init();
   }, []);
 
   // Cek bahasa saat ini dari Cookie
   useEffect(() => {
-    if (mounted) {
-      const getCookie = (name) => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-      };
-      
-      const cookieVal = getCookie('googtrans');
-      if (cookieVal) {
-        const langCode = cookieVal.split('/')[2];
-        if (langCode) setCurrentLang(langCode);
+    const init = async () => {
+      if (mounted) {
+        const getCookie = (name) => {
+          const value = `; ${document.cookie}`;
+          const parts = value.split(`; ${name}=`);
+          if (parts.length === 2) return parts.pop().split(';').shift();
+        };
+
+        const cookieVal = getCookie('googtrans');
+        if (cookieVal) {
+          const langCode = cookieVal.split('/')[2];
+          if (langCode) setCurrentLang(langCode);
+        }
       }
-    }
+    };
+
+    init();
   }, [mounted]);
 
   const changeLanguage = (langCode) => {
-    document.cookie = `googtrans=/id/${langCode}; path=/; domain=${window.location.hostname}`;
-    document.cookie = `googtrans=/id/${langCode}; path=/;`;
+    // Update cookies using a side-effect friendly method
+    const setCookie = (name, value, path = '/', domain = window.location.hostname) => {
+      document.cookie = `${name}=${value}; path=${path}; domain=${domain}`;
+    };
+
+    setCookie('googtrans', `/id/${langCode}`);
+    setCookie('googtrans', `/id/${langCode}`, '/'); // For backward compatibility
 
     setCurrentLang(langCode);
     setIsOpen(false);

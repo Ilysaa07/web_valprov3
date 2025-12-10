@@ -68,7 +68,7 @@ const AdBanner = () => {
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="relative max-w-4xl w-full max-h-[90vh] overflow-hidden rounded-xl shadow-2xl">
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl shadow-2xl">
         <button
           onClick={handleDismiss}
           className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
@@ -84,7 +84,7 @@ const AdBanner = () => {
             <img
               src={bannerData.imageUrl}
               alt="Advertisement Banner"
-              className="w-full h-auto object-contain max-h-[80vh]"
+              className="w-full h-auto object-contain max-h-[80vh] max-w-full"
               style={{ maxHeight: '80vh' }}
             />
           ) : (

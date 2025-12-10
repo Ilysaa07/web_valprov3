@@ -100,16 +100,20 @@ export default function Services() {
 
   // Update selected service when pagination changes to ensure it stays within current page
   useEffect(() => {
-    // If the selected service is not on the current page, select the first service on the current page
-    const firstServiceIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const lastServiceIndex = Math.min(currentPage * ITEMS_PER_PAGE - 1, services.length - 1);
+    const updateSelection = async () => {
+      // If the selected service is not on the current page, select the first service on the current page
+      const firstServiceIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const lastServiceIndex = Math.min(currentPage * ITEMS_PER_PAGE - 1, services.length - 1);
 
-    if (selectedServiceIndex < firstServiceIndex || selectedServiceIndex > lastServiceIndex) {
-      // If the selected service is outside current page range, select the first service on the page
-      if (firstServiceIndex < services.length) {
-        setSelectedServiceIndex(firstServiceIndex);
+      if (selectedServiceIndex < firstServiceIndex || selectedServiceIndex > lastServiceIndex) {
+        // If the selected service is outside current page range, select the first service on the page
+        if (firstServiceIndex < services.length) {
+          setSelectedServiceIndex(firstServiceIndex);
+        }
       }
-    }
+    };
+
+    updateSelection();
   }, [currentPage, services.length, selectedServiceIndex]);
 
   // Auto-rotate through services every 5 seconds
@@ -150,6 +154,8 @@ export default function Services() {
 
   const header = useRevealOnScroll();
   const grid = useRevealOnScroll();
+  const { ref: headerRef, visible: headerVisible } = header;
+  const { ref: gridRef, visible: gridVisible } = grid;
 
   return (
     <section 
@@ -160,9 +166,9 @@ export default function Services() {
 
         {/* Header */}
         <div
-          ref={header.ref}
+          ref={headerRef}
           className={`max-w-3xl mb-16 transition-all duration-1000 ease-out
-          ${header.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+          ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
         >
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight">
             <span className="text-[color:var(--brand-color,#1e40af)]">
@@ -181,9 +187,9 @@ export default function Services() {
 
         {/* Grid */}
         <div
-          ref={grid.ref}
+          ref={gridRef}
           className={`grid lg:grid-cols-3 gap-8 items-start transition-all duration-1000 ease-out
-          ${grid.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
+          ${gridVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
         >
           {/* Cards */}
           <div className="lg:col-span-2 grid sm:grid-cols-2 gap-6">

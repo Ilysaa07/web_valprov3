@@ -5,31 +5,35 @@ export default function GoogleTranslate() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    
-    // Fungsi inisialisasi
-    window.googleTranslateElementInit = () => {
-      if (!window.google?.translate?.TranslateElement) return;
-      
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: "id",
-          includedLanguages: "en,ja,zh-CN,zh-TW,ko,id", // Bahasa target
-          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE, // Layout simpel
-          autoDisplay: false, // Jangan otomatis popup
-        },
-        "google_translate_element"
-      );
+    const init = async () => {
+      setMounted(true);
+
+      // Fungsi inisialisasi
+      window.googleTranslateElementInit = () => {
+        if (!window.google?.translate?.TranslateElement) return;
+
+        new window.google.translate.TranslateElement(
+          {
+            pageLanguage: "id",
+            includedLanguages: "en,ja,zh-CN,zh-TW,ko,id", // Bahasa target
+            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE, // Layout simpel
+            autoDisplay: false, // Jangan otomatis popup
+          },
+          "google_translate_element"
+        );
+      };
+
+      // Load script jika belum ada
+      if (!document.getElementById("google-translate-script")) {
+        const script = document.createElement("script");
+        script.id = "google-translate-script";
+        script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+        script.async = true;
+        document.body.appendChild(script);
+      }
     };
 
-    // Load script jika belum ada
-    if (!document.getElementById("google-translate-script")) {
-      const script = document.createElement("script");
-      script.id = "google-translate-script";
-      script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-      script.async = true;
-      document.body.appendChild(script);
-    }
+    init();
   }, []);
 
   // Jangan render di server (SSR) untuk hindari mismatch

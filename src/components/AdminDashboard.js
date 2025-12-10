@@ -15,6 +15,7 @@ import {
   setDoc
 } from "firebase/firestore";
 import Image from "next/image";
+import Swal from 'sweetalert2';
 import {
   Receipt,
   LogOut,
@@ -280,10 +281,22 @@ const AdminDashboard = ({ userEmail }) => {
       await setDoc(settingsRef, whatsappSettings);
 
       // Show success message
-      alert("Pengaturan WhatsApp berhasil disimpan!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Pengaturan WhatsApp berhasil disimpan!',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#2a3f9b'
+      });
     } catch (error) {
       console.error("Error saving WhatsApp settings:", error);
-      alert("Gagal menyimpan pengaturan WhatsApp: " + error.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: 'Gagal menyimpan pengaturan WhatsApp: ' + error.message,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#dc2626'
+      });
     } finally {
       setSavingSettings(false);
     }
@@ -351,10 +364,22 @@ const AdminDashboard = ({ userEmail }) => {
       await setDoc(settingsRef, servicePricing);
 
       // Show success message
-      alert("Pengaturan harga layanan berhasil disimpan!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Pengaturan harga layanan berhasil disimpan!',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#2a3f9b'
+      });
     } catch (error) {
       console.error("Error saving service pricing settings:", error);
-      alert("Gagal menyimpan pengaturan harga layanan: " + error.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: 'Gagal menyimpan pengaturan harga layanan: ' + error.message,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#dc2626'
+      });
     } finally {
       setSavingPricing(false);
     }
@@ -454,11 +479,23 @@ const AdminDashboard = ({ userEmail }) => {
       setBannerPreview(imageUrl);
 
       // Show success message
-      alert("Pengaturan banner berhasil disimpan!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Pengaturan banner berhasil disimpan!',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#2a3f9b'
+      });
       setBannerImageFile(null);
     } catch (error) {
       console.error("Error saving banner settings:", error);
-      alert("Gagal menyimpan pengaturan banner: " + error.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: 'Gagal menyimpan pengaturan banner: ' + error.message,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#dc2626'
+      });
     } finally {
       setSavingBanner(false);
     }
@@ -697,12 +734,12 @@ const AdminDashboard = ({ userEmail }) => {
              <div className="space-y-4">
                 <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/5">
                    <p className="text-sm text-gray-200 leading-relaxed">
-                     "Selalu kirimkan invoice <b>3 hari sebelum</b> jatuh tempo termin pembayaran untuk mempercepat proses administrasi klien."
+                     &quot;Selalu kirimkan invoice <b>3 hari sebelum</b> jatuh tempo termin pembayaran untuk mempercepat proses administrasi klien.&quot;
                    </p>
                 </div>
                 <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/5">
                    <p className="text-sm text-gray-200 leading-relaxed">
-                     "Gunakan fitur <b>Sub-item</b> untuk merinci biaya agar klien lebih mudah memahami tagihan."
+                     &quot;Gunakan fitur <b>Sub-item</b> untuk merinci biaya agar klien lebih mudah memahami tagihan.&quot;
                    </p>
                 </div>
              </div>
@@ -877,7 +914,7 @@ const AdminDashboard = ({ userEmail }) => {
                         <img
                           src={bannerPreview}
                           alt="Banner Preview"
-                          className="max-h-60 mx-auto rounded-lg object-contain"
+                          className="max-h-60 w-full max-w-full rounded-lg object-contain"
                         />
                         <div className="mt-3 text-sm text-gray-600">
                           Klik untuk mengganti gambar banner
@@ -956,13 +993,25 @@ const AdminDashboard = ({ userEmail }) => {
                               });
 
                               if (response.ok) {
-                                alert("Banner berhasil dihapus!");
+                                Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Banner berhasil dihapus!',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#2a3f9b'
+                              });
                               } else {
                                 throw new Error('Failed to delete banner settings');
                               }
                             } catch (error) {
                               console.error("Error deleting banner:", error);
-                              alert("Gagal menghapus banner: " + error.message);
+                              Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: 'Gagal menghapus banner: ' + error.message,
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#dc2626'
+                              });
                               // Restore the previous state in case of error
                               setBannerPreview(bannerSettings.imageUrl);
                             } finally {
@@ -1123,7 +1172,13 @@ const AdminDashboard = ({ userEmail }) => {
   // Function to handle file upload click
   const handleFileUploadClick = async () => {
     if (!selectedInvoiceForFiles || !fileInputRef.current || !fileInputRef.current.files || fileInputRef.current.files.length === 0) {
-      alert("Silakan pilih file terlebih dahulu");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Peringatan!',
+        text: 'Silakan pilih file terlebih dahulu',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#f59e0b'
+      });
       return;
     }
 
@@ -1326,11 +1381,23 @@ const AdminDashboard = ({ userEmail }) => {
 
       // Wait for all uploads to complete
       await Promise.all(uploadPromises);
-      alert(`Berhasil upload ${files.length} file ke Vercel Blob!`);
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: `Berhasil upload ${files.length} file ke Vercel Blob!`,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#2a3f9b'
+      });
       setSelectedInvoiceForFiles(null);
     } catch (error) {
       console.error("Error handling file upload to Vercel Blob: ", error);
-      alert(`Error upload: ${error.message}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: `Error upload: ${error.message}`,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#dc2626'
+      });
     }
   }
 
@@ -1361,12 +1428,24 @@ const AdminDashboard = ({ userEmail }) => {
             files: updatedFiles
           }));
 
-          alert("Dokumen berhasil dihapus!");
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Dokumen berhasil dihapus!',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#2a3f9b'
+          });
         }
       }
     } catch (error) {
       console.error("Error deleting file: ", error);
-      alert(`Error menghapus dokumen: ${error.message}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: `Error menghapus dokumen: ${error.message}`,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#dc2626'
+      });
     }
   };
 
