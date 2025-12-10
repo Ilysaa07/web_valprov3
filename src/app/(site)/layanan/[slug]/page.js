@@ -2,15 +2,14 @@ import { servicesData } from '@/lib/servicesData';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { initializeApp, getApps } from 'firebase/app';
 import Link from 'next/link';
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import {
   MessageCircle, Clock, ShieldCheck, FileText, ChevronRight,
-  CheckCircle2
+  CheckCircle2, Building2, Users, ArrowRight, Phone, HelpCircle
 } from 'lucide-react';
 import { getWhatsappSettings, createWhatsAppUrl } from '@/lib/whatsappSettings';
 
-// Initialize Firebase for server component with singleton pattern
+// --- FIREBASE SETUP (LOGIKA TETAP) ---
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -20,11 +19,9 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Only initialize app if it hasn't been initialized yet
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getFirestore(app);
 
-// Function to get service pricing from Firestore
 async function getServicePricing(slug) {
   try {
     const settingsRef = doc(db, "settings", "service_pricing");
@@ -41,18 +38,16 @@ async function getServicePricing(slug) {
   }
 }
 
-// 1. METADATA SEO
+// --- METADATA SEO ---
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const service = servicesData.find((s) => s.slug === slug);
   if (!service) return { title: 'Layanan Tidak Ditemukan' };
 
   return {
-    title: `${service.title} - Layanan Terpercaya - Valpro Intertech`,
+    title: `${service.title} - Solusi Profesional Valpro`,
     description: service.desc,
-    alternates: {
-      canonical: `/layanan/${slug}`,
-    },
+    alternates: { canonical: `/layanan/${slug}` },
   };
 }
 
@@ -60,15 +55,13 @@ export default async function ServiceDetail({ params }) {
   const { slug } = await params;
   const service = servicesData.find((s) => s.slug === slug);
   const pricing = await getServicePricing(slug);
-  const whatsappSettings = await getWhatsappSettings(); // Get WhatsApp settings from dashboard
+  const whatsappSettings = await getWhatsappSettings();
 
   if (!service) {
     return notFound();
   }
 
-  const BRAND_HEX = "#2a3f9b";
-
-  // 2. JSON-LD SCHEMA (Structured data for search engines)
+  // Schema Markup
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -83,335 +76,227 @@ export default async function ServiceDetail({ params }) {
     category: service.category,
   };
 
+  const getWALink = (context = '') => createWhatsAppUrl(
+    whatsappSettings.mainNumber || whatsappSettings.secondaryNumber || '6289518530306',
+    `${whatsappSettings.messageTemplate || 'Halo Tim Valpro, saya tertarik diskusi mengenai'} : ${service.title} ${context}`
+  );
+
   return (
-  <main className="min-h-screen bg-[#f8fafc] font-sans text-gray-900">
-    {/* SEO Schema */}
-    <script
-      type="application/ld+json"
-      suppressHydrationWarning
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(jsonLd, null, 2)
-      }}
-    />
+    <main className="min-h-screen bg-[#FDFDFD] font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd, null, 2) }}
+      />
 
-    {/* Breadcrumb */}
-    <div className="bg-white/70 backdrop-blur border-b border-gray-200/60 sticky top-0 z-30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
-        <nav className="text-sm text-gray-500 flex items-center gap-2">
-          <Link href="/" className="hover:text-[#2a3f9b] transition">Beranda</Link>
-          <ChevronRight size={14} />
-          <Link href="/layanan" className="hover:text-[#2a3f9b] transition">Layanan</Link>
-          <ChevronRight size={14} />
-          <span className="text-gray-900 font-medium">{service.title}</span>
+      {/* Decorative Grid Background */}
+      <div className="absolute inset-0 z-0 h-[600px] w-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:linear-gradient(to_bottom,white,transparent)] pointer-events-none"></div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        
+        {/* Navigation Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm text-slate-500 mb-8 font-medium">
+          <Link href="/" className="hover:text-indigo-700 transition">Home</Link>
+          <ChevronRight size={14} className="text-slate-300" />
+          <Link href="/layanan" className="hover:text-indigo-700 transition">Solusi</Link>
+          <ChevronRight size={14} className="text-slate-300" />
+          <span className="text-slate-900 bg-slate-100 px-2 py-0.5 rounded text-xs uppercase tracking-wide">{service.category || 'Service'}</span>
         </nav>
-      </div>
-    </div>
 
-    {/* Hero Section */}
-    <section className="relative bg-white overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#2a3f9b]/5 to-transparent" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid lg:grid-cols-3 gap-12 items-start relative z-10">
-
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight">
-            {service.title}
-          </h1>
-          <p className="text-lg text-gray-600 leading-relaxed max-w-2xl">
-            {service.desc}
-          </p>
-
-          <div className="flex flex-wrap gap-4 pt-2">
-            <Link
-              href={createWhatsAppUrl(
-                whatsappSettings.mainNumber || whatsappSettings.secondaryNumber || '6289518530306',
-                `${whatsappSettings.messageTemplate || 'Halo, saya ingin bertanya tentang layanan Valpro...'} - ${service.title}`
-              )}
-              className="group inline-flex items-center gap-2 bg-[#2a3f9b] text-white px-8 py-4 rounded-xl font-semibold shadow-lg shadow-[#2a3f9b]/30 hover:shadow-xl hover:scale-[1.02] transition-all"
-            >
-              <MessageCircle size={18} />
-              Konsultasi Gratis
-              <ChevronRight size={16} className="group-hover:translate-x-1 transition" />
-            </Link>
+        {/* --- HERO SECTION --- */}
+        <div className="grid lg:grid-cols-12 gap-12 mb-16 items-center">
+          <div className="lg:col-span-8">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 mb-6 leading-[1.1]">
+              {service.title}
+            </h1>
+            <p className="text-xl text-slate-600 leading-relaxed max-w-3xl mb-8">
+              {service.desc}
+            </p>
+            <div className="flex flex-wrap items-center gap-6 text-sm text-slate-500 border-t border-slate-100 pt-6">
+               <div className="flex items-center gap-2">
+                 <Building2 size={18} className="text-indigo-600" />
+                 <span>Layanan Korporat</span>
+               </div>
+               <div className="flex items-center gap-2">
+                 <Users size={18} className="text-indigo-600" />
+                 <span>Tim Ahli Tersertifikasi</span>
+               </div>
+               <div className="flex items-center gap-2">
+                 <CheckCircle2 size={18} className="text-indigo-600" />
+                 <span>Jaminan Legalitas</span>
+               </div>
+            </div>
           </div>
         </div>
 
-        {/* Floating Info Card */}
-        <div className="relative">
-          <div className="absolute inset-0 bg-[#2a3f9b]/10 blur-2xl rounded-3xl" />
-          <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/60 rounded-3xl p-8 shadow-xl">
+        {/* --- MAIN LAYOUT --- */}
+        <div className="grid lg:grid-cols-12 gap-12 items-start">
+          
+          {/* LEFT CONTENT */}
+          <div className="lg:col-span-8 space-y-16">
+            
+            {/* 1. Overview / Definition */}
+            <section>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-8 w-1 bg-indigo-600 rounded-full"></div>
+                <h2 className="text-2xl font-bold text-slate-900">Gambaran Layanan</h2>
+              </div>
+              <div className="prose prose-lg prose-slate max-w-none text-slate-600 bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+                {service.definition}
+              </div>
+            </section>
 
-            <h2 className="text-lg font-bold mb-6">Informasi Layanan</h2>
-
-            <div className="space-y-4 text-sm">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#2a3f9b]/10 flex items-center justify-center">
-                  <Clock size={18} className="text-[#2a3f9b]" />
+            {/* 2. Process Timeline (NEW - Corporate Feel) */}
+            <section>
+              <div className="flex items-center gap-3 mb-8">
+                 <div className="h-8 w-1 bg-indigo-600 rounded-full"></div>
+                 <h2 className="text-2xl font-bold text-slate-900">Alur Kerja Profesional</h2>
+              </div>
+              
+              <div className="relative border-l-2 border-slate-200 ml-4 space-y-10 pb-4">
+                {/* Step 1 */}
+                <div className="relative pl-8">
+                  <span className="absolute -left-[9px] top-1 h-5 w-5 rounded-full border-4 border-white bg-indigo-600 ring-1 ring-slate-200"></span>
+                  <h3 className="font-bold text-lg text-slate-900">Konsultasi Awal</h3>
+                  <p className="text-slate-600 mt-1">Diskusi kebutuhan spesifik bisnis Anda dengan tim ahli kami.</p>
                 </div>
-                <div>
-                  <p className="text-gray-500 text-xs">Durasi</p>
-                  <p className="font-medium">{service.duration}</p>
+                {/* Step 2 */}
+                <div className="relative pl-8">
+                  <span className="absolute -left-[9px] top-1 h-5 w-5 rounded-full border-4 border-white bg-indigo-600 ring-1 ring-slate-200"></span>
+                  <h3 className="font-bold text-lg text-slate-900">Proses Administrasi & Eksekusi</h3>
+                  <p className="text-slate-600 mt-1">Kami menangani seluruh kelengkapan dokumen dan proses teknis.</p>
+                </div>
+                {/* Step 3 */}
+                <div className="relative pl-8">
+                  <span className="absolute -left-[9px] top-1 h-5 w-5 rounded-full border-4 border-white bg-slate-900 ring-1 ring-slate-200"></span>
+                  <h3 className="font-bold text-lg text-slate-900">Penyelesaian & Serah Terima</h3>
+                  <p className="text-slate-600 mt-1">Layanan selesai tepat waktu dengan laporan lengkap.</p>
                 </div>
               </div>
+            </section>
 
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#2a3f9b]/10 flex items-center justify-center">
-                  <FileText size={18} className="text-[#2a3f9b]" />
-                </div>
-                <div>
-                  <p className="text-gray-500 text-xs">Status</p>
-                  <p className="font-medium">{service.status}</p>
-                </div>
+            {/* 3. Features Grid */}
+            <section>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-8 w-1 bg-indigo-600 rounded-full"></div>
+                <h2 className="text-2xl font-bold text-slate-900">Fitur & Manfaat Utama</h2>
               </div>
+              <div className="grid sm:grid-cols-2 gap-6">
+                {service.features?.map((f, i) => (
+                  <div key={i} className="group bg-slate-50 p-6 rounded-2xl transition-all hover:bg-white hover:shadow-lg border border-transparent hover:border-slate-100">
+                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <span className="text-lg font-bold text-indigo-600">{i+1}</span>
+                    </div>
+                    <h3 className="font-bold text-slate-900 mb-2">
+                      {typeof f === 'string' ? f : f.title}
+                    </h3>
+                    <p className="text-sm text-slate-500 leading-relaxed">
+                      {typeof f === 'string' ? 'Solusi komprehensif untuk kebutuhan bisnis Anda.' : f.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
 
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#2a3f9b]/10 flex items-center justify-center">
-                  <ShieldCheck size={18} className="text-[#2a3f9b]" />
-                </div>
-                <div>
-                  <p className="text-gray-500 text-xs">Persyaratan</p>
-                  <p className="font-medium">
-                    {service.requirementsCount} Dokumen
+             {/* 4. CTA Mobile (Only visible on small screens) */}
+             <div className="lg:hidden mt-8">
+                <Link
+                  href={getWALink()}
+                  className="flex items-center justify-center gap-2 w-full bg-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg"
+                >
+                  <MessageCircle size={20} />
+                  Hubungi Tim Kami
+                </Link>
+             </div>
+          </div>
+
+          {/* RIGHT SIDEBAR (Sticky) */}
+          <div className="lg:col-span-4 relative">
+            <div className="sticky top-24 space-y-6">
+              
+              {/* Humanable Contact Card */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/40 p-6 overflow-hidden relative">
+                <div className="absolute top-0 left-0 w-full h-1 bg-indigo-600"></div>
+                
+                {/* Pricing / Investment */}
+                <div className="mb-6">
+                  <p className="text-slate-500 text-xs uppercase tracking-wider font-semibold mb-1">Estimasi Investasi</p>
+                  {pricing && pricing.enabled ? (
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm font-medium text-slate-500">Rp</span>
+                      <span className="text-3xl font-extrabold text-slate-900">{pricing.price}</span>
+                    </div>
+                  ) : (
+                    <div className="text-xl font-bold text-slate-900">Custom Solution</div>
+                  )}
+                  <p className="text-xs text-slate-400 mt-1 italic">
+                    {pricing?.priceNote || service.priceNote || '*Disesuaikan dengan skala kebutuhan'}
                   </p>
                 </div>
-              </div>
-            </div>
 
-            {/* Pricing */}
-            {pricing && pricing.enabled && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <p className="text-sm text-gray-500 mb-1">Harga Layanan</p>
-                <div className="text-3xl font-bold text-[#2a3f9b]">
-                  Rp {pricing.price}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {pricing.priceNote || service.priceNote}
-                </p>
-              </div>
-            )}
-
-            {/* Benefits */}
-            {service.benefits && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <p className="font-semibold mb-3">Keunggulan</p>
-                <ul className="space-y-2">
-                  {service.benefits.slice(0, 3)?.map((b, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 size={16} className="text-green-500 mt-0.5" />
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {/* Definition */}
-    <section className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="bg-gray-50 rounded-3xl p-8 md:p-12">
-          <h2 className="text-3xl font-bold text-[#2a3f9b] mb-4">Definisi Layanan</h2>
-          <p className="text-gray-700 text-lg leading-relaxed">
-            {service.definition}
-          </p>
-        </div>
-      </div>
-    </section>
-
-    {/* Features */}
-    <section className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="max-w-2xl mx-auto text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-[#2a3f9b] mb-3">
-            Fitur & Manfaat
-          </h2>
-          <p className="text-gray-600">
-            Solusi menyeluruh dari awal hingga akhir proses legalitas Anda.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {service.features?.map((f, i) => (
-            <div
-              key={i}
-              className="group bg-white rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl hover:-translate-y-1 transition-all"
-            >
-              <div className="w-14 h-14 rounded-xl bg-[#2a3f9b] text-white font-bold flex items-center justify-center text-xl mb-4">
-                {i + 1}
-              </div>
-              <h3 className="font-bold text-xl mb-2 text-gray-900">
-                {typeof f === 'string' ? f : f.title}
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                {typeof f === 'string' ? f : f.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    {/* Requirements & Benefits */}
-    <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Requirements */}
-          <div>
-            <h2 className="text-3xl font-bold text-[#2a3f9b] mb-6">Persyaratan Dokumen</h2>
-            <div className="space-y-4">
-              {[...Array(service.requirementsCount)].map((_, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-[#2a3f9b] text-white flex items-center justify-center text-sm mt-0.5 flex-shrink-0">
-                    {i + 1}
+                {/* Team Presence - Human Touch */}
+                <div className="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-100">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="flex -space-x-2">
+                       <div className="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center text-xs font-bold text-indigo-700">A</div>
+                       <div className="w-8 h-8 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center text-xs font-bold text-blue-700">R</div>
+                       <div className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] text-slate-600">+3</div>
+                    </div>
+                    <span className="text-xs text-slate-500 font-medium">Tim Legal & Teknis siap membantu.</span>
                   </div>
-                  <p className="text-gray-700">Dokumen Persyaratan #{i + 1}</p>
+                  <p className="text-sm text-slate-700">
+                    "Kami akan membantu menjelaskan detail teknis dan legalitas layanan ini untuk Anda."
+                  </p>
                 </div>
-              ))}
-            </div>
-            <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
-              <p className="text-blue-800 font-medium">*Proses pengurusan akan lebih cepat jika semua dokumen persyaratan lengkap</p>
-            </div>
-          </div>
 
-          {/* Benefits */}
-          <div>
-            <h2 className="text-3xl font-bold text-[#2a3f9b] mb-6">Keunggulan Layanan</h2>
-            <div className="space-y-4">
-              {service.benefits?.map((benefit, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <CheckCircle2 size={24} className="text-green-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-gray-700">{benefit}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+                {/* Primary CTA */}
+                <Link
+                  href={getWALink()}
+                  className="w-full flex items-center justify-center gap-3 bg-[#2a3f9b] hover:bg-[#233582] text-white py-4 px-6 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg group"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  <span>Diskusi Dengan Pakar</span>
+                  <ArrowRight className="w-4 h-4 opacity-50 group-hover:translate-x-1 transition-transform" />
+                </Link>
 
-    {/* Proof Images */}
-    {service.proofImages && service.proofImages.length > 0 && (
-      <section className="py-20 bg-[#f3f4f6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[#2a3f9b] mb-3">
-              Dokumen & Bukti
-            </h2>
-            <p className="text-gray-600">
-              Contoh dokumen dan bukti hasil layanan kami
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {service.proofImages.slice(0, 4).map((image, i) => (
-              <div key={i} className="group relative overflow-hidden rounded-2xl aspect-[3/4]">
-                <Image
-                  src={image}
-                  alt={`Dokumen bukti layanan ${service.title} - ${i + 1}`}
-                  fill
-                  className="object-cover transition-transform group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                  <p className="text-white text-sm">Dokumen #{i + 1}</p>
+                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-400">
+                  <Clock size={12} />
+                  <span>Respon rata-rata: &lt; 5 Menit</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
 
-    {/* Trust Factors */}
-    {service.trustFactors?.length > 0 && (
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="max-w-2xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold text-[#2a3f9b] mb-3">
-              Alasan Memilih Kami
-            </h2>
-            <p className="text-gray-600">
-              Jaminan kualitas dan pengalaman profesional dalam setiap layanan.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {service.trustFactors?.map((t, i) => (
-              <div
-                key={i}
-                className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all"
-              >
-                <div className="w-14 h-14 rounded-xl bg-[#2a3f9b] text-white flex items-center justify-center mb-4">
-                  <ShieldCheck size={24} className="text-white" />
+              {/* Service Meta Info */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                <h4 className="font-bold text-slate-900 mb-4 text-sm">Spesifikasi Layanan</h4>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center text-sm pb-3 border-b border-slate-50">
+                    <span className="text-slate-500 flex items-center gap-2">
+                        <Clock size={16} /> Durasi
+                    </span>
+                    <span className="font-semibold text-slate-900">{service.duration}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm pb-3 border-b border-slate-50">
+                    <span className="text-slate-500 flex items-center gap-2">
+                        <ShieldCheck size={16} /> Status
+                    </span>
+                    <span className="font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded text-xs">{service.status}</span>
+                  </div>
                 </div>
-                <h3 className="font-bold text-xl mb-2 text-gray-900">{t.title}</h3>
-                <p className="text-gray-600">{t.desc}</p>
+
+                {/* Support Link */}
+                <div className="mt-6 pt-4 border-t border-slate-100">
+                   <Link href="/kontak" className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+                      <HelpCircle size={16} />
+                      <span>Butuh proposal resmi?</span>
+                   </Link>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
 
-    {/* FAQ Section */}
-    <section className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-[#2a3f9b] mb-12 text-center">Pertanyaan Umum</h2>
-
-          <div className="space-y-6">
-            <div className="bg-white rounded-2xl p-6 border border-gray-200/50">
-              <h3 className="font-bold text-lg text-gray-900 mb-2">Berapa lama proses pengerjaan layanan ini?</h3>
-              <p className="text-gray-600">{service.duration}</p>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 border border-gray-200/50">
-              <h3 className="font-bold text-lg text-gray-900 mb-2">Apa saja dokumen yang perlu disiapkan?</h3>
-              <p className="text-gray-600">Dokumen persyaratan sejumlah {service.requirementsCount} item perlu disiapkan untuk mempercepat proses pengerjaan.</p>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 border border-gray-200/50">
-              <h3 className="font-bold text-lg text-gray-900 mb-2">Apakah layanan ini bergaransi?</h3>
-              <p className="text-gray-600">Ya, semua layanan kami dilengkapi dengan jaminan kepuasan pelanggan dan dukungan purna jual selama proses.</p>
             </div>
           </div>
+
         </div>
       </div>
-    </section>
-
-    {/* Final CTA */}
-    <section className="py-20 bg-gradient-to-br from-[#2a3f9b] to-[#1e3a8a]">
-      <div className="max-w-4xl mx-auto text-center px-4">
-        <h2 className="text-4xl font-bold text-white mb-4">
-          Siap Memulai Proses Legalitas Anda?
-        </h2>
-        <p className="text-blue-100 mb-8 text-lg max-w-2xl mx-auto">
-          Konsultasi gratis tanpa biaya, tim profesional siap membantu Anda sekarang.
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Link
-            href={createWhatsAppUrl(
-              whatsappSettings.mainNumber || whatsappSettings.secondaryNumber || '6289518530306',
-              `${whatsappSettings.messageTemplate || 'Halo, saya ingin bertanya tentang layanan Valpro...'} - ${service.title}`
-            )}
-            className="inline-flex items-center gap-3 bg-white text-[#2a3f9b] px-8 py-4 rounded-xl font-bold shadow-xl hover:scale-[1.03] transition"
-          >
-            <MessageCircle size={20} />
-            Konsultasi Sekarang
-          </Link>
-
-          <div className="flex items-center gap-2 text-white/80">
-            <Clock size={20} />
-            <span>Respons cepat dalam 1 menit</span>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-);
+    </main>
+  );
 }
