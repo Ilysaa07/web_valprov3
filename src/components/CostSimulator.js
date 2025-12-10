@@ -9,31 +9,29 @@ export default function CostSimulator() {
     { 
       id: 'pt_perorangan', 
       label: 'Pendirian PT Perorangan', 
-      price: 2900000, 
+      price: 950000, 
       desc: 'Cocok untuk UMK (Pendiri Tunggal), tanggung jawab terbatas.',
       features: ['SK Kemenkumham', 'NIB OSS RBA', 'NPWP Badan']
     },
     { 
       id: 'pt_biasa', 
       label: 'Pendirian PT Umum (Biasa)', 
-      price: 4500000, 
+      price: 5500000, 
       desc: 'Standar bisnis profesional, minimal 2 pendiri (Pemegang Saham).',
       features: ['Akta Notaris', 'SK Kemenkumham', 'NIB OSS', 'NPWP & SKT']
     },
     { 
       id: 'cv', 
       label: 'Pendirian CV', 
-      price: 3500000, 
+      price: 4500000, 
       desc: 'Lebih hemat biaya, minimal 2 orang (Persero Aktif & Pasif).',
       features: ['Akta Notaris', 'SK Kemenkumham', 'NIB OSS', 'NPWP']
     },
   ];
 
   const addons = [
-    { id: 'vo', label: 'Sewa Virtual Office (1 Tahun)', price: 3000000 },
-    { id: 'pkp', label: 'Pengurusan PKP (Pengusaha Kena Pajak)', price: 1500000 },
-    { id: 'merek', label: 'Pendaftaran Merek (HAKI)', price: 2500000 },
-    { id: 'oss_priority', label: 'Layanan Prioritas (Express)', price: 1000000 },
+    { id: 'nib', label: 'Pendaftaran NIB', price: 500000 },
+    { id: 'pkp', label: 'Pengurusan PKP (Pengusaha Kena Pajak)', price: 2000000 },
   ];
   // ---------------------------------------------------------
 
