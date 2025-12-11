@@ -36,8 +36,272 @@ import {
 import InvoiceGenerator from "./InvoiceGenerator";
 import StatusStagesManager from "./StatusStagesManager";
 import DocumentRepository from "./DocumentRepository";
+import { servicesData } from '../lib/servicesData';
 
 // Vercel Blob imports (we'll handle this in the next step)
+
+// Service Management Component
+const ServiceManagement = () => {
+  const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
+  const [definition, setDefinition] = useState('');
+  const [benefits, setBenefits] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        const { collection, getDocs, query, setDoc, doc } = await import('firebase/firestore');
+        const { db } = await import('../lib/firebase');
+
+        // First try to get services from Firestore
+        const servicesCollection = collection(db, 'services');
+        const servicesSnapshot = await getDocs(query(servicesCollection));
+        let servicesList = servicesSnapshot.docs.map(doc => ({
+          slug: doc.id,
+          ...doc.data()
+        }));
+
+        // If no services found in Firestore, initialize with static data
+        if (servicesList.length === 0) {
+          // Add static services to Firestore (only if no services exist)
+          for (const service of servicesData) {
+            await setDoc(doc(db, 'services', service.slug), {
+              title: service.title,
+              category: service.category,
+              definition: service.definition,
+              benefits: service.benefits,
+              // Include other fields as needed
+            }, { merge: true });
+          }
+
+          // Then reload from Firestore
+          const updatedSnapshot = await getDocs(query(servicesCollection));
+          servicesList = updatedSnapshot.docs.map(doc => ({
+            slug: doc.id,
+            ...doc.data()
+          }));
+        }
+
+        setServices(servicesList);
+      } catch (error) {
+        console.error('Error loading services:', error);
+        // Fallback to static data if Firestore operations fail
+        setServices(servicesData);
+      }
+    };
+
+    loadServices();
+  }, []);
+
+  const handleServiceSelect = async (service) => {
+    setLoading(true);
+    try {
+      // Try to fetch the service data from Firestore to get the latest version
+      const { doc, getDoc } = await import('firebase/firestore');
+      const { db } = await import('../lib/firebase');
+
+      const serviceRef = doc(db, 'services', service.slug);
+      const serviceSnap = await getDoc(serviceRef);
+
+      if (serviceSnap.exists()) {
+        const serviceData = serviceSnap.data();
+        setSelectedService({ ...service, ...serviceData });
+        setDefinition(serviceData.definition || service.definition);
+        setBenefits(serviceData.benefits || service.benefits || []);
+      } else {
+        // Fallback to local data if not found in Firestore
+        setSelectedService(service);
+        setDefinition(service.definition);
+        setBenefits(service.benefits || []);
+      }
+    } catch (error) {
+      console.error('Error fetching service:', error);
+      // Fallback to local data
+      setSelectedService(service);
+      setDefinition(service.definition);
+      setBenefits(service.benefits || []);
+    } finally {
+      setLoading(false);
+      setIsEditing(false);
+    }
+  };
+
+  const handleAddBenefit = () => {
+    setBenefits([...benefits, '']);
+  };
+
+  const handleUpdateBenefit = (index, value) => {
+    const updatedBenefits = [...benefits];
+    updatedBenefits[index] = value;
+    setBenefits(updatedBenefits);
+  };
+
+  const handleRemoveBenefit = (index) => {
+    const updatedBenefits = benefits.filter((_, i) => i !== index);
+    setBenefits(updatedBenefits);
+  };
+
+  const handleSave = async () => {
+    if (!selectedService) return;
+
+    try {
+      // Update the service data in Firestore
+      const { doc, updateDoc } = await import('firebase/firestore');
+      const { db } = await import('../lib/firebase');
+
+      const serviceRef = doc(db, 'services', selectedService.slug); // Assuming 'services' as the collection name
+
+      await updateDoc(serviceRef, {
+        definition: definition,
+        benefits: benefits.filter(benefit => benefit.trim() !== '')
+      });
+
+      // Get the updated service data from Firestore
+      const updatedService = {
+        ...selectedService,
+        definition: definition,
+        benefits: benefits.filter(benefit => benefit.trim() !== '')
+      };
+
+      console.log('Updated service in Firestore:', updatedService);
+      alert('Perubahan berhasil disimpan ke database!');
+
+      // Update the services list in the UI
+      const updatedServices = services.map(service =>
+        service.slug === selectedService.slug ? updatedService : service
+      );
+      setServices(updatedServices);
+
+      // Update the selected service state as well
+      setSelectedService(updatedService);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving service:', error);
+      alert('Error saving changes: ' + error.message);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Pengelolaan Layanan</h2>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Service List */}
+          <div className="lg:col-span-1">
+            <h3 className="font-medium text-gray-700 mb-2">Layanan</h3>
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {services.map((service) => (
+                <button
+                  key={service.slug}
+                  onClick={() => handleServiceSelect(service)}
+                  className={`w-full text-left p-3 rounded-lg border ${
+                    selectedService?.slug === service.slug
+                      ? 'bg-blue-50 border-blue-200'
+                      : 'bg-white border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="font-medium text-gray-900">{service.title}</div>
+                  <div className="text-sm text-gray-500">{service.category}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Service Editor */}
+          <div className="lg:col-span-2">
+            {selectedService ? (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">{selectedService.title}</h3>
+                  <div className="text-sm text-gray-500 mb-4">{selectedService.category}</div>
+
+                  <div className="flex gap-2 mb-4">
+                    <button
+                      onClick={() => setIsEditing(!isEditing)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                    >
+                      {isEditing ? 'Batal' : 'Edit'}
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                    >
+                      Simpan Perubahan
+                    </button>
+                  </div>
+                </div>
+
+                {/* Definition Editor */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Deskripsi / Gambaran Layanan
+                  </label>
+                  {isEditing ? (
+                    <textarea
+                      value={definition}
+                      onChange={(e) => setDefinition(e.target.value)}
+                      className="w-full h-64 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                      placeholder="Masukkan deskripsi di sini..."
+                    />
+                  ) : (
+                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg min-h-64 max-h-96 overflow-y-auto">
+                      <pre className="whitespace-pre-wrap font-sans text-sm">{definition}</pre>
+                    </div>
+                  )}
+                </div>
+
+                {/* Benefits Editor */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Manfaat
+                  </label>
+                  <div className="space-y-3">
+                    {benefits.map((benefit, index) => (
+                      <div key={index} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={benefit}
+                          onChange={(e) => handleUpdateBenefit(index, e.target.value)}
+                          disabled={!isEditing}
+                          className={`flex-1 p-2 border rounded-lg ${
+                            isEditing ? 'border-gray-300' : 'border-transparent bg-transparent'
+                          }`}
+                        />
+                        {isEditing && (
+                          <button
+                            onClick={() => handleRemoveBenefit(index)}
+                            className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm"
+                          >
+                            Hapus
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    {isEditing && (
+                      <button
+                        onClick={handleAddBenefit}
+                        className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
+                      >
+                        + Tambah Manfaat
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center text-gray-500 py-8">
+                Pilih layanan untuk mengedit
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const AdminDashboard = ({ userEmail }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -1778,6 +2042,7 @@ const AdminDashboard = ({ userEmail }) => {
                 <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 mt-8">Manajemen</p>
                 <SidebarItem id="clients" label="Data Klien" icon={Users} soon />
                 <SidebarItem id="tracking" label="Status Tracking" icon={Package} />
+                <SidebarItem id="service-management" label="Pengelolaan Layanan" icon={LayoutDashboard} />
                 <SidebarItem id="documents" label="Repositori Dokumen" icon={File} />
                 <SidebarItem id="settings" label="Pengaturan" icon={Settings} />
             </nav>
@@ -1818,7 +2083,9 @@ const AdminDashboard = ({ userEmail }) => {
                     <Menu className="h-6 w-6" />
                   </button>
                   <span className="ml-3 font-bold text-lg text-gray-900">
-                    {activeMenu === 'dashboard' ? 'Dashboard' : 'Invoice Generator'}
+                    {activeMenu === 'dashboard' ? 'Dashboard' :
+                    activeMenu === 'service-management' ? 'Pengelolaan Layanan' :
+                    'Invoice Generator'}
                   </span>
               </div>
               <Image src="/logometa.svg" alt="Logo" width={28} height={28} />
@@ -1829,10 +2096,12 @@ const AdminDashboard = ({ userEmail }) => {
         <header className="hidden lg:flex px-8 h-20 items-center justify-between bg-white/50 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-20">
             <div>
                <h2 className="text-xl font-bold text-gray-800 capitalize">
-                  {activeMenu.replace('-', ' ')}
+                  {activeMenu === 'service-management' ? 'Pengelolaan Layanan' : activeMenu.replace('-', ' ')}
                </h2>
                <p className="text-sm text-gray-500">
-                 {activeMenu === 'dashboard' ? 'Ringkasan aktivitas bisnis Anda.' : 'Buat dan kelola dokumen tagihan.'}
+                 {activeMenu === 'dashboard' ? 'Ringkasan aktivitas bisnis Anda.' :
+                  activeMenu === 'service-management' ? 'Atur deskripsi dan manfaat layanan.' :
+                  'Buat dan kelola dokumen tagihan.'}
                </p>
             </div>
             <div className="flex items-center gap-4">
@@ -1867,6 +2136,7 @@ const AdminDashboard = ({ userEmail }) => {
              {activeMenu === "dashboard" && renderDashboard()}
              {activeMenu === "invoice" && <InvoiceGenerator />}
              {activeMenu === "tracking" && renderTracking()}
+             {activeMenu === "service-management" && <ServiceManagement />}
              {activeMenu === "documents" && <DocumentRepository userId={auth.currentUser?.uid} searchTerm={searchTerm} />}
              {activeMenu === "settings" && renderSettings()}
           </div>

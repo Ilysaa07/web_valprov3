@@ -38,10 +38,49 @@ async function getServicePricing(slug) {
   }
 }
 
+// Function to fetch service from Firestore
+async function getServiceFromFirestore(slug) {
+  try {
+    const serviceRef = doc(db, "services", slug);
+    const serviceDoc = await getDoc(serviceRef);
+
+    if (serviceDoc.exists()) {
+      // Combine static data as fallback with Firestore data
+      const firestoreData = serviceDoc.data();
+
+      // Import the static services data for fallback
+      const { servicesData } = await import('@/lib/servicesData');
+      const staticService = servicesData.find(s => s.slug === slug);
+
+      if (staticService) {
+        return {
+          ...staticService, // Start with static data as base
+          ...firestoreData  // Override with Firestore data where available
+        };
+      } else {
+        // If not in static data, return just Firestore data with slug
+        return {
+          ...firestoreData,
+          slug: serviceDoc.id
+        };
+      }
+    }
+
+    // Fallback to static data if not found in Firestore
+    const { servicesData } = await import('@/lib/servicesData');
+    return servicesData.find(s => s.slug === slug);
+  } catch (error) {
+    console.error("Error fetching service from Firestore:", error);
+    // Fallback to static data in case of error
+    const { servicesData } = await import('@/lib/servicesData');
+    return servicesData.find(s => s.slug === slug);
+  }
+}
+
 // --- METADATA SEO ---
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const service = servicesData.find((s) => s.slug === slug);
+  const service = await getServiceFromFirestore(slug);
   if (!service) return { title: 'Layanan Tidak Ditemukan' };
 
   return {
@@ -87,7 +126,7 @@ export async function generateMetadata({ params }) {
 
 export default async function ServiceDetail({ params }) {
   const { slug } = await params;
-  const service = servicesData.find((s) => s.slug === slug);
+  const service = await getServiceFromFirestore(slug);
   const pricing = await getServicePricing(slug);
   const whatsappSettings = await getWhatsappSettings();
 
@@ -290,53 +329,19 @@ export default async function ServiceDetail({ params }) {
                  <div className="h-8 w-1 bg-indigo-600 rounded-full"></div>
                  <h2 className="text-2xl font-bold text-slate-900">Alur Kerja Profesional</h2>
               </div>
-              
-              <div className="relative border-l-2 border-slate-200 ml-4 space-y-10 pb-4">
-                {/* Step 1 */}
-                <div className="relative pl-8">
-                  <span className="absolute -left-[9px] top-1 h-5 w-5 rounded-full border-4 border-white bg-indigo-600 ring-1 ring-slate-200"></span>
-                  <h3 className="font-bold text-lg text-slate-900">Konsultasi Awal</h3>
-                  <p className="text-slate-600 mt-1">Diskusi kebutuhan spesifik bisnis Anda dengan tim ahli kami.</p>
-                </div>
-                {/* Step 2 */}
-                <div className="relative pl-8">
-                  <span className="absolute -left-[9px] top-1 h-5 w-5 rounded-full border-4 border-white bg-indigo-600 ring-1 ring-slate-200"></span>
-                  <h3 className="font-bold text-lg text-slate-900">Proses Administrasi & Eksekusi</h3>
-                  <p className="text-slate-600 mt-1">Kami menangani seluruh kelengkapan dokumen dan proses teknis.</p>
-                </div>
-                {/* Step 3 */}
-                <div className="relative pl-8">
-                  <span className="absolute -left-[9px] top-1 h-5 w-5 rounded-full border-4 border-white bg-slate-900 ring-1 ring-slate-200"></span>
-                  <h3 className="font-bold text-lg text-slate-900">Penyelesaian & Serah Terima</h3>
-                  <p className="text-slate-600 mt-1">Layanan selesai tepat waktu dengan laporan lengkap.</p>
-                </div>
-              </div>
-            </section>
 
-            {/* 3. Features Grid */}
-            <section>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-8 w-1 bg-indigo-600 rounded-full"></div>
-                <h2 className="text-2xl font-bold text-slate-900">Fitur & Manfaat Utama</h2>
-              </div>
-              <div className="grid sm:grid-cols-2 gap-6">
-                {service.features?.map((f, i) => (
-                  <div key={i} className="group bg-slate-50 p-6 rounded-2xl transition-all hover:bg-white hover:shadow-lg border border-transparent hover:border-slate-100">
-                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <span className="text-lg font-bold text-indigo-600">{i+1}</span>
-                    </div>
-                    <h3 className="font-bold text-slate-900 mb-2">
-                      {typeof f === 'string' ? f : f.title}
-                    </h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">
-                      {typeof f === 'string' ? 'Solusi komprehensif untuk kebutuhan bisnis Anda.' : f.desc}
-                    </p>
+              <div className="relative border-l-2 border-slate-200 ml-4 space-y-10 pb-4">
+                {service.features?.slice(0, 3).map((feature, index) => (
+                  <div key={index} className="relative pl-8">
+                    <span className={`absolute -left-[9px] top-1 h-5 w-5 rounded-full border-4 border-white ${index === service.features.slice(0, 3).length - 1 ? 'bg-slate-900' : 'bg-indigo-600'} ring-1 ring-slate-200`}></span>
+                    <h3 className="font-bold text-lg text-slate-900">{feature.title}</h3>
+                    <p className="text-slate-600 mt-1">{feature.desc}</p>
                   </div>
                 ))}
               </div>
             </section>
 
-             {/* 4. CTA Mobile (Only visible on small screens) */}
+             {/* CTA Mobile (Only visible on small screens) */}
              <div className="lg:hidden mt-8">
                 <Link
                   href={getWALink()}

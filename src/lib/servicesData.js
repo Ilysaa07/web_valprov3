@@ -18,11 +18,9 @@ export const servicesData = [
     // Gambar: Meeting kantor profesional
     image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2301&auto=format&fit=crop",
     features: [
-      { title: "Verifikasi Nama Usaha", desc: "Pengecekan ketersediaan dan kesesuaian nama perusahaan" },
-      { title: "Akta Notaris", desc: "Penyusunan akta pendirian oleh notaris berlisensi" },
-      { title: "SK Kemenkumham", desc: "Surat Keputusan dari Kementerian Hukum dan HAM RI" },
-      { title: "NPWP Perusahaan", desc: "Pengurusan Nomor Pokok Wajib Pajak untuk perusahaan" },
-      { title: "NIB OSS RBA", desc: "Nomor Induk Berusaha melalui sistem OSS RBA" }
+      { title: "Analisis & Perencanaan Struktur", desc: "Diskusi mendalam untuk menentukan jenis badan usaha yang optimal, struktur kepemilikan, serta verifikasi ketersediaan nama perusahaan." },
+      { title: "Pembuatan & Legalisasi Dokumen", desc: "Penyusunan akta notaris, legalitas Kemenkumham, pengurusan NPWP perusahaan dan NIB OSS RBA." },
+      { title: "Finalisasi & Pelaporan Awal", desc: "Dokumen asli diserahkan lengkap dengan pendampingan pelaporan perpajakan awal dan dokumen pendukung lainnya." }
     ],
     duration: "10-15 Hari Kerja",
     status: "Valid & Legal",
@@ -62,10 +60,9 @@ export const servicesData = [
     // Gambar: Dokumen dan laptop
     image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "Registrasi Akun OSS RBA", desc: "Pembuatan akun sistem perizinan usaha resmi" },
-      { title: "Migrasi Data", desc: "Transfer data dari sistem OSS 1.1 ke platform RBA" },
-      { title: "Pengurusan NPWP", desc: "Pembuatan NPWP untuk badan usaha atau individu" },
-      { title: "Pelaporan LKPM", desc: "Laporan Keuangan dan Pajak Masa awal" }
+      { title: "Asesmen Kebutuhan & Legalitas", desc: "Evaluasi komprehensif kebutuhan perizinan dan kesiapan dokumen perusahaan untuk pendaftaran OSS RBA." },
+      { title: "Registrasi & Validasi Sistem", desc: "Proses registrasi akun OSS RBA, verifikasi data dan pengurusan NPWP dengan validasi sistem terpadu." },
+      { title: "Pelaporan & Dokumentasi Selesai", desc: "Laporan LKPM diserahkan lengkap dengan dokumen perpajakan dan panduan pengelolaan sistem OSS." }
     ],
     duration: "3-7 Hari Kerja",
     status: "Digital & Valid",
@@ -106,9 +103,9 @@ export const servicesData = [
     // Gambar: Insinyur di lapangan
     image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "Level 1-9", desc: "Tingkat kompetensi dari dasar hingga ahli" },
-      { title: "Asesmen Cepat", desc: "Proses evaluasi yang dipercepat" },
-      { title: "Terdaftar LPJK", desc: "Pendaftaran resmi di Dewan Jasa Konstruksi" }
+      { title: "Evaluasi & Penilaian Kapabilitas", desc: "Assessment menyeluruh terhadap pengalaman dan keahlian teknis untuk menentukan bidang dan level kompetensi yang paling sesuai." },
+      { title: "Persiapan & Uji Kompetensi", desc: "Kompilasi dokumen pendukung, pendaftaran ke LPJK, dan pelaksanaan uji kompetensi terstruktur." },
+      { title: "Validasi & Penyerahan Sertifikat", desc: "Verifikasi hasil uji kompetensi, penerbitan sertifikat legal dan validasi ke LPJK dengan masa berlaku resmi." }
     ],
     duration: "15-20 Hari Kerja",
     status: "Valid & Bersertifikat",
@@ -147,9 +144,9 @@ export const servicesData = [
     // Gambar: Gedung sedang dibangun / Crane
     image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "Kualifikasi Skala Kecil ke Besar", desc: "Semua kategori skala usaha" },
-      { title: "Keanggotaan Asosiasi", desc: "Keanggotaan asosiasi wajib disediakan" },
-      { title: "Integrasi ISO", desc: "Kepatuhan terhadap standar kualitas" }
+      { title: "Penilaian & Strategi Kualifikasi", desc: "Analisis mendalam terhadap kapasitas perusahaan untuk menentukan kualifikasi SBU yang optimal sesuai bidang usaha." },
+      { title: "Verifikasi & Validasi Teknis", desc: "Kompilasi dokumen, verifikasi keanggotaan asosiasi dan pelaksanaan penilaian kualifikasi teknis serta finansial." },
+      { title: "Pengesahan & Aktivasi Sertifikat", desc: "Proses legalisasi SBU yang terdaftar di LPJK dengan aktivasi untuk partisipasi tender konstruksi." }
     ],
     duration: "20-30 Hari Kerja",
     status: "Izin Resmi",
@@ -176,10 +173,10 @@ export const servicesData = [
   {
     slug: "sertifikasi-serkom",
     category: "Kelistrikan",
-    title: "Sertifikasi Serkom / SKKTK",
+    title: "Sertifikat Kompetensi (Serkom) / SKTTK",
     shortDesc: "Kompetensi Tenaga Listrik.",
     desc: "Sertifikasi wajib bagi tenaga teknik yang bekerja di bidang pembangkitan, transmisi, dan distribusi tenaga listrik.",
-    definition: "Serkom (Sertifikasi Kompetensi) adalah proses sertifikasi wajib bagi tenaga teknik yang bekerja di bidang kelistrikan, termasuk di unit pembangkitan, transmisi, dan distribusi tenaga listrik. Sertifikat ini dikeluarkan oleh Kementerian ESDM sebagai bukti bahwa seseorang memiliki kompetensi sesuai standar nasional di bidang kelistrikan dan memenuhi persyaratan keselamatan kerja.",
+   definition: "Sertifikat Kompetensi (Serkom) Tenaga Teknik Ketenagalistrikan adalah bukti pengakuan formal dan legal terhadap kemampuan seorang tenaga teknik untuk melakukan pekerjaan di bidang ketenagalistrikan. Sertifikat ini menjamin bahwa pemegangnya telah memiliki pengetahuan (knowledge), keterampilan (skill), dan sikap kerja (attitude) yang sesuai dengan Standar Kompetensi Tenaga Teknik Ketenagalistrikan (SKTTK) yang ditetapkan oleh Kementerian Energi dan Sumber Daya Mineral (ESDM). Kewajiban memiliki sertifikasi ini merupakan mandat hukum sebagaimana diatur dalam UU No. 30 Tahun 2009 tentang Ketenagalistrikan Pasal 44 ayat (6) yang menyatakan bahwa setiap tenaga teknik dalam usaha ketenagalistrikan wajib memiliki Sertifikat Kompetensi, Permen ESDM No. 6 Tahun 2021 tentang Standardisasi Kompetensi Tenaga Teknik Ketenagalistrikan, serta Permen ESDM No. 38 Tahun 2018 tentang Tata Cara Akreditasi dan Sertifikasi Ketenagalistrikan. Tujuan utama dari kewajiban sertifikasi ini adalah untuk mewujudkan Keselamatan Ketenagalistrikan (K2) yang meliputi keselamatan kerja untuk melindungi tenaga kerja dari kecelakaan listrik, keselamatan umum untuk melindungi masyarakat di sekitar instalasi listrik, keselamatan lingkungan untuk mencegah pencemaran atau kerusakan lingkungan akibat instalasi, serta keselamatan instalasi untuk menjamin peralatan listrik berfungsi secara aman dan andal. Sertifikasi mencakup ruang lingkup pekerjaan pada bidang pembangkitan seperti pengoperasian dan pemeliharaan mesin pembangkit (PLTU, PLTD, PLTS, dan sejenisnya), bidang transmisi pada jaringan tegangan tinggi dan ekstra tinggi (SUTT dan SUTET) serta Gardu Induk, bidang distribusi pada jaringan tegangan menengah dan rendah (JTM dan JTR), instalasi pemanfaatan pada bangunan gedung, pabrik, atau perumahan, serta bidang konsultasi dan pengawasan yang meliputi perencanaan, pengawasan proyek, dan inspeksi kelistrikan. Proses penerbitan sertifikat dilakukan melalui uji kompetensi oleh Lembaga Sertifikasi Kompetensi (LSK) yang telah terakreditasi oleh Kementerian ESDM melalui uji tulis, uji lisan atau wawancara, serta uji praktek atau observasi, dan tenaga teknik yang lulus akan diregistrasi pada Direktorat Jenderal Ketenagalistrikan (DJK) untuk memperoleh Nomor Registrasi. Jenjang kualifikasi kompetensi dibagi ke dalam level pelaksana (Level 1–3), analis atau supervisor (Level 4–6), serta ahli (Level 7–9). Sertifikat Kompetensi umumnya memiliki masa berlaku selama 3 (tiga) tahun dan wajib dilakukan perpanjangan untuk memastikan kompetensi tetap sesuai dengan perkembangan teknologi dan standar terbaru.",
     benefits: [
       "Wajib untuk pekerjaan listrik",
       "Berlaku untuk semua sektor listrik",
@@ -190,9 +187,9 @@ export const servicesData = [
     // Gambar: Panel Listrik / Teknisi
     image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2338&auto=format&fit=crop",
     features: [
-      { title: "Sertifikasi ESDM", desc: "Dikeluarkan oleh Kementerian Energi dan Sumber Daya Mineral" },
-      { title: "Asesmen Online", desc: "Sistem evaluasi kompetensi digital" },
-      { title: "Masa Berlaku 5 Tahun", desc: "Periode sertifikasi jangka panjang" }
+      { title: "Konsultasi Awal & Pemetaan Okupasi", desc: "Tahap ini krusial untuk mencegah kegagalan uji kompetensi akibat salah memilih jabatan atau level. Meliputi identifikasi kebutuhan: diskusi mendalam untuk mengetahui jenis pekerjaan teknisi di lapangan (Pembangkitan, Transmisi, Distribusi, atau Instalasi); Pemetaan Okupasi (Job Matching): mencocokkan pekerjaan harian teknisi dengan Matriks Okupasi Jabatan di regulasi ESDM (misal: Pelaksana Madya Pemeliharaan Gardu Induk); Penentuan Level Kompetensi: menganalisis ijazah dan pengalaman kerja untuk menentukan Level (1-9) yang paling realistis untuk lulus; Cek Kelayakan Awal: verifikasi awal dokumen dasar (KTP, Ijazah, CV, Pas Foto) untuk memastikan calon peserta memenuhi syarat administrasi DJK. Output: Kesepakatan Judul Okupasi (Jabatan) & Level yang akan diambil." },
+      { title: "Proses Administrasi, Registrasi & Eksekusi Uji", desc: "Kami menangani birokrasi pendaftaran hingga pendampingan saat ujian berlangsung. Meliputi: Pemberkasan Digital: Tim kami menyusun dokumen persyaratan, termasuk formulir Self-Assessment (APL-01 & APL-02) sesuai standar Lembaga Sertifikasi Kompetensi (LSK); Registrasi ke DJK/LSK: Mendaftarkan peserta ke sistem Direktorat Jenderal Ketenagalistrikan dan mendapatkan jadwal uji dari LSK terakreditasi; Coaching / Pembekalan Singkat: Memberikan briefing kepada peserta mengenai materi uji, tips wawancara dengan asesor, dan standar keselamatan (K2) yang sering ditanyakan; Pelaksanaan Uji Kompetensi (Asesmen): Mendampingi peserta menjalani serangkaian tes (biasanya 1-2 hari) meliputi Uji Tulis: mengisi soal teori terkait bidangnya, Uji Praktek/Observasi: simulasi atau demonstrasi kerja sesuai SOP, Uji Lisan (Wawancara): tanya jawab dengan Asesor untuk menggali kedalaman pemahaman teknis. Output: Peserta telah melaksanakan ujian dan dinyatakan \"Kompeten\" oleh Asesor." },
+      { title: "Penyelesaian, Penerbitan & Serah Terima", desc: "Memastikan legalitas terbit secara sah dan terdaftar di sistem pemerintah. Meliputi: Pleno Kelulusan: LSK melakukan rapat pleno untuk mengesahkan hasil uji kompetensi peserta; Penerbitan NoReg (Nomor Registrasi): Pengajuan nomor registrasi resmi ke Kementerian ESDM (DJK). Tanpa NoReg, sertifikat dianggap tidak sah; Cetak Sertifikat: Penerbitan fisik sertifikat dengan standar keamanan (QR Code) dari Kementerian ESDM; Validasi Keaslian: Tim kami melakukan pengecekan silang (cross-check) pada portal Si Ujang Gatrik (Sistem Informasi Usaha Jasa Penunjang Tenaga Listrik) untuk memastikan nama teknisi sudah muncul secara online; Serah Terima: Pengiriman sertifikat asli (hardcopy) dan file digital (softcopy) kepada klien, disertai laporan masa berlaku (valid 3 tahun). Output: Sertifikat SKTTK Asli yang Legal, Valid, dan Terdaftar di ESDM." }
     ],
     duration: "25-35 Hari Kerja",
     status: "Sertifikat Digital",
@@ -220,7 +217,7 @@ export const servicesData = [
     title: "Sertifikasi SBU JPTL",
     shortDesc: "Izin Penunjang Listrik.",
     desc: "Legalitas untuk badan usaha yang bergerak di bidang jasa penunjang tenaga listrik (Pembangkit/Transmisi).",
-    definition: "SBU JPTL (Sertifikasi Badan Usaha Jasa Penunjang Tenaga Listrik) adalah sertifikasi resmi untuk perusahaan yang bergerak di bidang jasa penunjang ketenagalistrikan, khususnya pada unit pembangkitan dan transmisi. Izin ini wajib dimiliki oleh perusahaan yang ingin mengikuti tender atau pelaksanaan proyek di bidang kelistrikan, sebagai bukti bahwa perusahaan memiliki kualifikasi, kapasitas, serta kompetensi teknis dan finansial yang diperlukan.",
+    definition: "Sertifikasi Badan Usaha (SBU) Jasa Penunjang Tenaga Listrik\n1. Definisi dan Konsep Dasar\nSBU JPTL adalah bukti pengakuan formal terhadap klasifikasi dan kualifikasi kemampuan suatu Badan Usaha di bidang jasa penunjang tenaga listrik. Sertifikat ini diterbitkan oleh Lembaga Sertifikasi Badan Usaha (LSBU) yang terakreditasi oleh Kementerian ESDM.\n\nJika SKTTK adalah \"SIM\" untuk personil/individunya, maka SBU JPTL adalah \"SIM\" untuk perusahaannya. SBU ini menjadi syarat mutlak untuk mendapatkan IUJPTL (Izin Usaha Jasa Penunjang Tenaga Listrik) melalui sistem OSS (Online Single Submission).\n\n2. Dasar Hukum\nKewajiban memiliki SBU JPTL diatur dalam regulasi pemerintah yang ketat untuk menjamin keselamatan dan kualitas pekerjaan listrik nasional:\n\nPP No. 5 Tahun 2021: Tentang Penyelenggaraan Perizinan Berusaha Berbasis Risiko.\n\nPermen ESDM No. 12 Tahun 2021: Tentang Klasifikasi, Kualifikasi, Akreditasi, dan Sertifikasi Usaha Jasa Penunjang Tenaga Listrik.\n\nUU No. 30 Tahun 2009: Tentang Ketenagalistrikan.\n\n3. Ruang Lingkup dan Klasifikasi Bidang Usaha\nSBU JPTL memiliki cakupan yang luas, tidak hanya pada pembangunan fisik. Berdasarkan jenis usahanya, SBU JPTL dibagi menjadi:\n\nKonsultansi: Perencanaan dan pengawasan instalasi tenaga listrik.\n\nPembangunan & Pemasangan (EPC): Pelaksanaan konstruksi fisik pembangkit, transmisi, distribusi, dan instalasi pemanfaatan.\n\nPemeriksaan & Pengujian (Riksauji): Lembaga Inspeksi Teknik (LIT) yang menerbitkan SLO.\n\nPengoperasian & Pemeliharaan (O&M): Jasa operasional rutin (maintenance) pembangkit atau jaringan listrik.\n\nLain-lain: Pendidikan/Pelatihan, Sertifikasi, dll.\n\n4. Kualifikasi Badan Usaha\nPerusahaan akan dinilai berdasarkan modal dan kemampuan teknisnya, yang dibagi menjadi tiga kualifikasi utama. Kualifikasi ini menentukan nilai proyek yang boleh dikerjakan:\n\nKecil: Untuk proyek dengan nilai terbatas/kecil.\n\nMenengah: Untuk proyek skala menengah.\n\nBesar: Untuk proyek skala besar dan kompleks (biasanya BUMN atau proyek strategis).\n\n5. Persyaratan Utama (Kunci Keberhasilan)\nUntuk mendapatkan SBU JPTL, perusahaan harus memenuhi persyaratan ketat, terutama dalam aspek Tenaga Ahli:\n\nPersyaratan Administratif: NIB, Akta Perusahaan, NPWP, dan profil badan usaha.\n\nPersyaratan Teknis (Paling Vital): Wajib memiliki Tenaga Teknik yang bersertifikat (SKTTK ESDM).\n\nPJT (Penanggung Jawab Teknik): Tenaga ahli utama yang bertanggung jawab penuh atas teknis pekerjaan.\n\nTT (Tenaga Teknik): Tim teknis pelaksana.\n\nCatatan: Jumlah PJT dan TT disesuaikan dengan kualifikasi yang diajukan (Kecil/Menengah/Besar).\n\nPersyaratan Keuangan: Bukti kepemilikan modal disetor dan neraca keuangan yang diaudit (untuk kualifikasi tertentu).\n\n6. Manfaat dan Fungsi Strategis\nMengapa perusahaan Bapak/Klien wajib mengurus SBU JPTL?\n\nLegalitas Tender: Syarat wajib untuk mengikuti tender di lingkungan PT PLN (Persero), BUMN lain, maupun swasta bonafide.\n\nKepatuhan Hukum: Menghindari sanksi penghentian usaha atau denda administratif dari Kementerian ESDM.\n\nReputasi Perusahaan: Bukti bahwa perusahaan memiliki kompetensi teknis, finansial, dan SDM yang terstandarisasi secara nasional.\n\n7. Masa Berlaku\nSBU JPTL berlaku selama 5 (lima) tahun sejak diterbitkan, dengan kewajiban melakukan pelaporan/surveilans tahunan untuk memastikan perusahaan masih memenuhi standar kualifikasi.\n\nHubungan SBU JPTL & SKTTK (Penting untuk Klien)\nSeringkali klien bingung, jadi poin ini penting ditekankan:\n\n\"Bapak tidak bisa mengurus SBU JPTL (Perusahaan) jika belum memiliki personil yang memegang SKTTK (Sertifikat Perorangan). Kedua layanan ini adalah satu paket kesatuan dalam ekosistem bisnis kelistrikan.\"",
     benefits: [
       "Memenuhi syarat untuk proyek listrik",
       "Berlaku untuk kontrak pemerintah",
@@ -231,9 +228,9 @@ export const servicesData = [
     // Gambar: Sutet / Transmisi Listrik
     image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "Izin IUJPTL", desc: "Izin Usaha JPTL (Jasa Penunjang Tenaga Listrik)" },
-      { title: "Penanggung Jawab Teknis", desc: "Kepatuhan terhadap tenaga teknis terkualifikasi" },
-      { title: "Akreditasi Resmi", desc: "Sertifikasi diakui pemerintah" }
+      { title: "Analisis & Profiling JPTL", desc: "Evaluasi menyeluruh terhadap bidang JPTL yang sesuai dengan kapabilitas perusahaan (Pembangkitan/Transmisi)." },
+      { title: "Verifikasi & Validasi Persyaratan", desc: "Kompilasi dokumen, verifikasi penanggung jawab teknis dan pelaksanaan penilaian kualifikasi perusahaan." },
+      { title: "Legalitas & Aktivasi Sertifikat", desc: "Proses legalisasi SBU JPTL yang terdaftar resmi di Kementerian ESDM dengan aktivasi sistem." }
     ],
     duration: "30-40 Hari Kerja",
     status: "Akreditasi Resmi",
@@ -274,9 +271,9 @@ export const servicesData = [
     // Gambar: Quality Control / Standard
     image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "ISO 9001 (Mutu)", desc: "Standar Sistem Manajemen Mutu" },
-      { title: "ISO 14001 (Lingkungan)", desc: "Sistem Manajemen Lingkungan" },
-      { title: "ISO 45001 (K3L)", desc: "Standar Kesehatan dan Keselamatan Kerja" }
+      { title: "Asesmen & Gap Analysis Sistem", desc: "Evaluasi menyeluruh terhadap sistem manajemen saat ini dan analisis kesenjangan terhadap standar ISO yang ditargetkan." },
+      { title: "Implementasi & Dokumentasi", desc: "Pelatihan staf, pelaksanaan sistem standar ISO, dokumentasi prosedur hingga audit sertifikasi oleh lembaga akreditasi." },
+      { title: "Sertifikasi & Pendampingan", desc: "Penerbitan sertifikat ISO resmi dengan layanan pendampingan pemeliharaan dan perpanjangan sertifikasi." }
     ],
     duration: "3-4 Bulan",
     status: "Standar Internasional",
@@ -315,9 +312,9 @@ export const servicesData = [
     // Gambar: Calculator / Finance
     image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "Opini WTP (Tanpa Kecualian)", desc: "Opini audit tanpa kualifikasi" },
-      { title: "Laporan Fiskal", desc: "Pelaporan keuangan sesuai perpajakan" },
-      { title: "Akuntan Publik", desc: "Layanan akuntan publik bersertifikat (KAP)" }
+      { title: "Perencanaan & Persiapan Audit", desc: "Penyusunan rencana audit menyeluruh dan pemeriksaan awal dokumen keuangan perusahaan." },
+      { title: "Eksekusi & Pemeriksaan Lapangan", desc: "Pelaksanaan audit independen, pengujian substantif, serta verifikasi kepatuhan terhadap PSAK." },
+      { title: "Finalisasi & Laporan Audit", desc: "Penyusunan laporan audit WTP lengkap dengan rekomendasi dan pendampingan keuangan tahun berikutnya." }
     ],
     duration: "1-2 Bulan",
     status: "Audit Bersertifikat",
@@ -356,9 +353,9 @@ export const servicesData = [
     // Gambar: Uang Rupiah / Tax
     image: "https://images.unsplash.com/photo-1593510987046-1f8fcfc517a0?q=80&w=2340&auto=format&fit=crop",
     features: [
-      { title: "Pembuatan NPWP", desc: "Proses pendaftaran pajak lengkap" },
-      { title: "Pelaporan SPT", desc: "Pengisian dan pengiriman SPT tahunan" },
-      { title: "Konsultasi Pengampunan Pajak", desc: "Saran program kepatuhan khusus perpajakan" }
+      { title: "Assessment & Profiling Pajak", desc: "Evaluasi menyeluruh terhadap kewajiban perpajakan berdasarkan jenis usaha dan kondisi UMKM Anda." },
+      { title: "Pengurusan & Pelaporan", desc: "Pembuatan NPWP, pelaporan SPT tahunan dan bulanan, serta pengelolaan administrasi perpajakan profesional." },
+      { title: "Konsultasi & Pendampingan", desc: "Dokumen perpajakan diserahkan lengkap dengan layanan konsultasi dan pendampingan kepatuhan tahunan." }
     ],
     duration: "1-2 Hari Kerja",
     status: "Kepatuhan & Valid",
