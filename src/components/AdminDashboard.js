@@ -31,7 +31,13 @@ import {
   Clock,
   CheckCircle2,
   Package,
-  File
+  File,
+  Plus,
+  Trash2,
+  Euro,
+  Image as ImageIcon,
+  Palette,
+  BookOpen
 } from "lucide-react";
 import InvoiceGenerator from "./InvoiceGenerator";
 import StatusStagesManager from "./StatusStagesManager";
@@ -44,256 +50,590 @@ import { servicesData } from '../lib/servicesData';
 const ServiceManagement = () => {
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
-  const [definition, setDefinition] = useState('');
-  const [benefits, setBenefits] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('general');
 
+  // Form State
+  const [formData, setFormData] = useState({
+    title: '',
+    slug: '',
+    category: 'Legalitas',
+    shortDesc: '',
+    desc: '',
+    definition: '',
+    benefits: [],
+    features: [],
+    price: '',
+    priceNote: '',
+    priceDescription: '',
+    priceEnabled: false,
+    icon: 'FileText',
+    image: '',
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50',
+    trustFactors: []
+  });
+
+  // Fetch initial services
   useEffect(() => {
-    const loadServices = async () => {
-      try {
-        const { collection, getDocs, query, setDoc, doc } = await import('firebase/firestore');
-        const { db } = await import('../lib/firebase');
-
-        // First try to get services from Firestore
-        const servicesCollection = collection(db, 'services');
-        const servicesSnapshot = await getDocs(query(servicesCollection));
-        let servicesList = servicesSnapshot.docs.map(doc => ({
-          slug: doc.id,
-          ...doc.data()
-        }));
-
-        // If no services found in Firestore, initialize with static data
-        if (servicesList.length === 0) {
-          // Add static services to Firestore (only if no services exist)
-          for (const service of servicesData) {
-            await setDoc(doc(db, 'services', service.slug), {
-              title: service.title,
-              category: service.category,
-              definition: service.definition,
-              benefits: service.benefits,
-              // Include other fields as needed
-            }, { merge: true });
-          }
-
-          // Then reload from Firestore
-          const updatedSnapshot = await getDocs(query(servicesCollection));
-          servicesList = updatedSnapshot.docs.map(doc => ({
-            slug: doc.id,
-            ...doc.data()
-          }));
-        }
-
-        setServices(servicesList);
-      } catch (error) {
-        console.error('Error loading services:', error);
-        // Fallback to static data if Firestore operations fail
-        setServices(servicesData);
-      }
-    };
-
     loadServices();
   }, []);
 
+  const loadServices = async () => {
+    try {
+      setLoading(true);
+      const { collection, getDocs, query, setDoc, doc, getDoc } = await import('firebase/firestore');
+      const { db } = await import('../lib/firebase');
+
+      const servicesCollection = collection(db, 'services');
+      const servicesSnapshot = await getDocs(query(servicesCollection));
+      
+      let servicesList = [];
+      
+      if (servicesSnapshot.empty) {
+        // Initialize if empty
+        for (const service of servicesData) {
+           await setDoc(doc(db, 'services', service.slug), service, { merge: true });
+        }
+        const updatedSnapshot = await getDocs(query(servicesCollection));
+        servicesList = updatedSnapshot.docs.map(doc => ({ slug: doc.id, ...doc.data() }));
+      } else {
+        servicesList = servicesSnapshot.docs.map(doc => ({ slug: doc.id, ...doc.data() }));
+      }
+
+      setServices(servicesList);
+    } catch (error) {
+      console.error('Error loading services:', error);
+      setServices(servicesData); // Fallback
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddNew = () => {
+    setSelectedService(null);
+    setIsAdding(true);
+    setIsEditing(true);
+    setFormData({
+      title: '',
+      slug: '',
+      category: 'Legalitas',
+      shortDesc: '',
+      desc: '',
+      definition: '',
+      benefits: [''],
+      features: [],
+      price: '',
+      priceNote: '',
+      priceDescription: '',
+      priceEnabled: false,
+      icon: 'FileText',
+      image: '',
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      trustFactors: []
+    });
+    setActiveTab('general');
+  };
+
   const handleServiceSelect = async (service) => {
     setLoading(true);
+    setIsAdding(false);
     try {
-      // Try to fetch the service data from Firestore to get the latest version
       const { doc, getDoc } = await import('firebase/firestore');
       const { db } = await import('../lib/firebase');
 
+      // Load service data
       const serviceRef = doc(db, 'services', service.slug);
       const serviceSnap = await getDoc(serviceRef);
+      let data = serviceSnap.exists() ? serviceSnap.data() : service;
 
-      if (serviceSnap.exists()) {
-        const serviceData = serviceSnap.data();
-        setSelectedService({ ...service, ...serviceData });
-        setDefinition(serviceData.definition || service.definition);
-        setBenefits(serviceData.benefits || service.benefits || []);
-      } else {
-        // Fallback to local data if not found in Firestore
-        setSelectedService(service);
-        setDefinition(service.definition);
-        setBenefits(service.benefits || []);
+      // Pricing Migration Check
+      if (!data.price && !data.priceEnabled) {
+          try {
+             const settingsRef = doc(db, "settings", "service_pricing");
+             const settingsSnap = await getDoc(settingsRef);
+             if (settingsSnap.exists()) {
+                 const pricingData = settingsSnap.data()[service.slug];
+                 if (pricingData) {
+                     data.price = pricingData.price || '';
+                     data.priceNote = pricingData.priceNote || '';
+                     data.priceDescription = pricingData.priceDescription || '';
+                     data.priceEnabled = pricingData.enabled || false;
+                 }
+             }
+          } catch (e) {
+              console.log("Migration check failed", e);
+          }
       }
+
+      setSelectedService({ ...service, ...data });
+      setFormData({
+        title: data.title || '',
+        slug: service.slug,
+        category: data.category || 'Legalitas',
+        shortDesc: data.shortDesc || '',
+        desc: data.desc || '',
+        definition: data.definition || '',
+        benefits: data.benefits || [],
+        features: data.features || [],
+        price: data.price || '',
+        priceNote: data.priceNote || '',
+        priceDescription: data.priceDescription || '',
+        priceEnabled: data.priceEnabled || false,
+        icon: data.icon || 'FileText',
+        image: data.image || '',
+        color: data.color || 'text-blue-600',
+        bgColor: data.bgColor || 'bg-blue-50',
+        trustFactors: data.trustFactors || []
+      });
     } catch (error) {
       console.error('Error fetching service:', error);
-      // Fallback to local data
-      setSelectedService(service);
-      setDefinition(service.definition);
-      setBenefits(service.benefits || []);
     } finally {
       setLoading(false);
       setIsEditing(false);
+      setActiveTab('general');
     }
   };
 
-  const handleAddBenefit = () => {
-    setBenefits([...benefits, '']);
+  const generateSlug = (title) => {
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
   };
 
-  const handleUpdateBenefit = (index, value) => {
-    const updatedBenefits = [...benefits];
-    updatedBenefits[index] = value;
-    setBenefits(updatedBenefits);
+  const handleFormChange = (field, value) => {
+    setFormData(prev => {
+        const newData = { ...prev, [field]: value };
+        if (field === 'title' && isAdding) {
+            newData.slug = generateSlug(value);
+        }
+        return newData;
+    });
   };
 
-  const handleRemoveBenefit = (index) => {
-    const updatedBenefits = benefits.filter((_, i) => i !== index);
-    setBenefits(updatedBenefits);
+  const handleArrayChange = (arrayName, index, field, value) => {
+      setFormData(prev => {
+          const newArray = [...prev[arrayName]];
+          if (typeof newArray[index] === 'object') {
+              newArray[index] = { ...newArray[index], [field]: value };
+          } else {
+              newArray[index] = value;
+          }
+          return { ...prev, [arrayName]: newArray };
+      });
+  };
+
+  const handleAddArrayItem = (arrayName, emptyItem) => {
+      setFormData(prev => ({
+          ...prev,
+          [arrayName]: [...prev[arrayName], emptyItem]
+      }));
+  };
+
+  const handleRemoveArrayItem = (arrayName, index) => {
+      setFormData(prev => ({
+          ...prev,
+          [arrayName]: prev[arrayName].filter((_, i) => i !== index)
+      }));
   };
 
   const handleSave = async () => {
-    if (!selectedService) return;
+    if (!formData.slug || !formData.title) {
+        alert("Judul dan Slug wajib diisi");
+        return;
+    }
 
     try {
-      // Update the service data in Firestore
-      const { doc, updateDoc } = await import('firebase/firestore');
+      setLoading(true);
+      const { doc, setDoc } = await import('firebase/firestore');
       const { db } = await import('../lib/firebase');
 
-      const serviceRef = doc(db, 'services', selectedService.slug); // Assuming 'services' as the collection name
-
-      await updateDoc(serviceRef, {
-        definition: definition,
-        benefits: benefits.filter(benefit => benefit.trim() !== '')
-      });
-
-      // Get the updated service data from Firestore
-      const updatedService = {
-        ...selectedService,
-        definition: definition,
-        benefits: benefits.filter(benefit => benefit.trim() !== '')
+      const serviceRef = doc(db, 'services', formData.slug);
+      
+      // Filter out empty benefits/features
+      const cleanData = {
+          ...formData,
+          benefits: formData.benefits.filter(b => b && b.trim() !== ''),
+          features: formData.features.filter(f => f.title && f.title.trim() !== '')
       };
 
-      console.log('Updated service in Firestore:', updatedService);
-      alert('Perubahan berhasil disimpan ke database!');
+      await setDoc(serviceRef, cleanData, { merge: true });
 
-      // Update the services list in the UI
-      const updatedServices = services.map(service =>
-        service.slug === selectedService.slug ? updatedService : service
-      );
-      setServices(updatedServices);
-
-      // Update the selected service state as well
-      setSelectedService(updatedService);
+      alert('Layanan berhasil disimpan!');
+      
+      // Refresh list
+      loadServices();
       setIsEditing(false);
+      setIsAdding(false);
+      setSelectedService({ slug: formData.slug, ...cleanData });
+
     } catch (error) {
-      console.error('Error saving service:', error);
-      alert('Error saving changes: ' + error.message);
+      console.error('Error saving:', error);
+      alert('Gagal menyimpan: ' + error.message);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleDelete = async () => {
+      if (!confirm("Yakin ingin menghapus layanan ini?")) return;
+
+      try {
+          const { doc, deleteDoc } = await import('firebase/firestore');
+          const { db } = await import('../lib/firebase');
+          
+          await deleteDoc(doc(db, 'services', selectedService.slug));
+          
+          alert("Layanan dihapus");
+          loadServices();
+          setSelectedService(null);
+          setIsEditing(false);
+      } catch (error) {
+          alert("Gagal menghapus: " + error.message);
+      }
   };
 
   return (
     <div className="space-y-6">
       <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Pengelolaan Layanan</h2>
+        <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg font-medium text-gray-900">Pengelolaan Layanan</h2>
+            <button 
+                onClick={handleAddNew}
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+            >
+                <Plus className="w-4 h-4 mr-2" />
+                Tambah Layanan
+            </button>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Service List */}
-          <div className="lg:col-span-1">
-            <h3 className="font-medium text-gray-700 mb-2">Layanan</h3>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+          <div className="lg:col-span-1 border-r pr-4">
+            <div className="space-y-2 max-h-[600px] overflow-y-auto">
               {services.map((service) => (
                 <button
                   key={service.slug}
                   onClick={() => handleServiceSelect(service)}
-                  className={`w-full text-left p-3 rounded-lg border ${
+                  className={`w-full text-left p-3 rounded-lg border transition-all ${
                     selectedService?.slug === service.slug
-                      ? 'bg-blue-50 border-blue-200'
+                      ? 'bg-blue-50 border-blue-200 shadow-sm'
                       : 'bg-white border-gray-200 hover:bg-gray-50'
                   }`}
                 >
-                  <div className="font-medium text-gray-900">{service.title}</div>
-                  <div className="text-sm text-gray-500">{service.category}</div>
+                  <div className="font-medium text-gray-900 truncate">{service.title}</div>
+                  <div className="flex justify-between mt-1">
+                     <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{service.category}</span>
+                     {service.priceEnabled && <span className="text-xs text-green-600 font-medium">Rp</span>}
+                  </div>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Service Editor */}
-          <div className="lg:col-span-2">
-            {selectedService ? (
+          <div className="lg:col-span-2 pl-2">
+            {selectedService || isAdding ? (
               <div className="space-y-6">
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-2">{selectedService.title}</h3>
-                  <div className="text-sm text-gray-500 mb-4">{selectedService.category}</div>
-
-                  <div className="flex gap-2 mb-4">
-                    <button
-                      onClick={() => setIsEditing(!isEditing)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-                    >
-                      {isEditing ? 'Batal' : 'Edit'}
-                    </button>
-                    <button
-                      onClick={handleSave}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
-                    >
-                      Simpan Perubahan
-                    </button>
+                <div className="flex justify-between items-start border-b pb-4">
+                  <div>
+                      <h3 className="text-xl font-bold text-gray-900">
+                          {isAdding ? 'Tambah Layanan Baru' : formData.title}
+                      </h3>
+                      <p className="text-sm text-gray-500">{formData.slug}</p>
                   </div>
-                </div>
-
-                {/* Definition Editor */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Deskripsi / Gambaran Layanan
-                  </label>
-                  {isEditing ? (
-                    <textarea
-                      value={definition}
-                      onChange={(e) => setDefinition(e.target.value)}
-                      className="w-full h-64 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-                      placeholder="Masukkan deskripsi di sini..."
-                    />
-                  ) : (
-                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg min-h-64 max-h-96 overflow-y-auto">
-                      <pre className="whitespace-pre-wrap font-sans text-sm">{definition}</pre>
-                    </div>
-                  )}
-                </div>
-
-                {/* Benefits Editor */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Manfaat
-                  </label>
-                  <div className="space-y-3">
-                    {benefits.map((benefit, index) => (
-                      <div key={index} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={benefit}
-                          onChange={(e) => handleUpdateBenefit(index, e.target.value)}
-                          disabled={!isEditing}
-                          className={`flex-1 p-2 border rounded-lg ${
-                            isEditing ? 'border-gray-300' : 'border-transparent bg-transparent'
-                          }`}
-                        />
-                        {isEditing && (
-                          <button
-                            onClick={() => handleRemoveBenefit(index)}
-                            className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm"
-                          >
-                            Hapus
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                    {isEditing && (
-                      <button
-                        onClick={handleAddBenefit}
-                        className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
-                      >
-                        + Tambah Manfaat
-                      </button>
+                  <div className="flex gap-2">
+                    {isEditing ? (
+                        <>
+                            <button onClick={() => setIsEditing(false)} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Batal</button>
+                            <button onClick={handleSave} className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 flex items-center">
+                                <CheckCircle2 className="w-4 h-4 mr-1"/> Simpan
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button onClick={() => setIsEditing(true)} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center">
+                                <Settings className="w-4 h-4 mr-1"/> Edit
+                            </button>
+                            <button onClick={handleDelete} className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm hover:bg-red-200 ml-2">
+                                <Trash2 className="w-4 h-4"/>
+                            </button>
+                        </>
                     )}
                   </div>
                 </div>
+
+                {/* Tabs */}
+                <div className="flex border-b overflow-x-auto">
+                    {['general', 'pricing', 'details', 'visual'].map(tab => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
+                                activeTab === tab 
+                                ? 'border-b-2 border-blue-600 text-blue-600' 
+                                : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                        >
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="py-4">
+                    {activeTab === 'general' && (
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Judul Layanan</label>
+                                    <input 
+                                        type="text" 
+                                        value={formData.title} 
+                                        onChange={(e) => handleFormChange('title', e.target.value)}
+                                        disabled={!isEditing}
+                                        className="w-full p-2 border rounded-lg text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                                    <select 
+                                        value={formData.category} 
+                                        onChange={(e) => handleFormChange('category', e.target.value)}
+                                        disabled={!isEditing}
+                                        className="w-full p-2 border rounded-lg text-sm"
+                                    >
+                                        <option value="Legalitas">Legalitas</option>
+                                        <option value="Konstruksi">Konstruksi</option>
+                                        <option value="Kelistrikan">Kelistrikan</option>
+                                        <option value="Standar">Standar</option>
+                                        <option value="Keuangan">Keuangan</option>
+                                        <option value="Lingkungan">Lingkungan</option>
+                                        <option value="Lainnya">Lainnya</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Slug (URL)</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.slug} 
+                                    onChange={(e) => handleFormChange('slug', e.target.value)}
+                                    disabled={!isEditing || !isAdding} // Slug should only be editable when adding new
+                                    className="w-full p-2 border rounded-lg text-sm bg-gray-50"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Singkat</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.shortDesc} 
+                                    onChange={(e) => handleFormChange('shortDesc', e.target.value)}
+                                    disabled={!isEditing}
+                                    className="w-full p-2 border rounded-lg text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Lengkap (Marketing)</label>
+                                <textarea 
+                                    value={formData.desc} 
+                                    onChange={(e) => handleFormChange('desc', e.target.value)}
+                                    disabled={!isEditing}
+                                    rows={3}
+                                    className="w-full p-2 border rounded-lg text-sm"
+                                />
+                            </div>
+                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Definisi (Untuk Halaman Detail)</label>
+                                <textarea 
+                                    value={formData.definition} 
+                                    onChange={(e) => handleFormChange('definition', e.target.value)}
+                                    disabled={!isEditing}
+                                    rows={6}
+                                    className="w-full p-2 border rounded-lg text-sm font-mono bg-gray-50"
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'pricing' && (
+                        <div className="space-y-4">
+                             <div className="flex items-center p-4 bg-blue-50 rounded-lg">
+                                <input
+                                  type="checkbox"
+                                  checked={formData.priceEnabled}
+                                  onChange={(e) => handleFormChange('priceEnabled', e.target.checked)}
+                                  disabled={!isEditing}
+                                  className="h-5 w-5 text-blue-600 rounded"
+                                />
+                                <label className="ml-2 block text-sm font-medium text-gray-900">
+                                  Tampilkan Harga untuk Layanan Ini?
+                                </label>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Harga (Angka)</label>
+                                    <input 
+                                        type="text" 
+                                        value={formData.price} 
+                                        onChange={(e) => handleFormChange('price', e.target.value)}
+                                        disabled={!isEditing}
+                                        placeholder="Contoh: 7500000"
+                                        className="w-full p-2 border rounded-lg text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Catatan Harga</label>
+                                    <input 
+                                        type="text" 
+                                        value={formData.priceNote} 
+                                        onChange={(e) => handleFormChange('priceNote', e.target.value)}
+                                        disabled={!isEditing}
+                                        placeholder="Contoh: per dokumen"
+                                        className="w-full p-2 border rounded-lg text-sm"
+                                    />
+                                </div>
+                            </div>
+                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Paket Harga</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.priceDescription} 
+                                    onChange={(e) => handleFormChange('priceDescription', e.target.value)}
+                                    disabled={!isEditing}
+                                    placeholder="Contoh: Sudah termasuk biaya notaris"
+                                    className="w-full p-2 border rounded-lg text-sm"
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'details' && (
+                        <div className="space-y-6">
+                            {/* Benefits */}
+                            <div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <label className="block text-sm font-medium text-gray-700">Manfaat (Benefits)</label>
+                                    {isEditing && <button onClick={() => handleAddArrayItem('benefits', '')} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">+ Tambah</button>}
+                                </div>
+                                <div className="space-y-2">
+                                    {formData.benefits.map((benefit, idx) => (
+                                        <div key={idx} className="flex gap-2">
+                                            <input 
+                                                type="text" 
+                                                value={benefit} 
+                                                onChange={(e) => handleArrayChange('benefits', idx, null, e.target.value)}
+                                                disabled={!isEditing}
+                                                className="flex-1 p-2 border rounded-lg text-sm"
+                                            />
+                                            {isEditing && <button onClick={() => handleRemoveArrayItem('benefits', idx)} className="text-red-500 hover:text-red-700"><Trash2 className="w-4 h-4"/></button>}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Features */}
+                            <div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <label className="block text-sm font-medium text-gray-700">Alur Kerja</label>
+                                    {isEditing && <button onClick={() => handleAddArrayItem('features', {title: '', desc: ''})} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">+ Tambah</button>}
+                                </div>
+                                <div className="space-y-3">
+                                    {formData.features.map((feature, idx) => (
+                                        <div key={idx} className="p-3 border rounded-lg bg-gray-50">
+                                            <div className="flex justify-between mb-2">
+                                                <span className="text-xs font-bold text-gray-500">Alur #{idx + 1}</span>
+                                                {isEditing && <button onClick={() => handleRemoveArrayItem('features', idx)} className="text-red-500 hover:text-red-700"><Trash2 className="w-3 h-3"/></button>}
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                placeholder="Judul Alur"
+                                                value={feature.title} 
+                                                onChange={(e) => handleArrayChange('features', idx, 'title', e.target.value)}
+                                                disabled={!isEditing}
+                                                className="w-full p-2 border rounded mb-2 text-sm"
+                                            />
+                                            <textarea 
+                                                placeholder="Deskripsi Alur"
+                                                value={feature.desc} 
+                                                onChange={(e) => handleArrayChange('features', idx, 'desc', e.target.value)}
+                                                disabled={!isEditing}
+                                                rows={2}
+                                                className="w-full p-2 border rounded text-sm"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'visual' && (
+                         <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Icon (Lucide Name)</label>
+                                    <input 
+                                        type="text" 
+                                        value={formData.icon} 
+                                        onChange={(e) => handleFormChange('icon', e.target.value)}
+                                        disabled={!isEditing}
+                                        className="w-full p-2 border rounded-lg text-sm"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">Ex: FileText, Briefcase, Zap</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Warna Text (Tailwind)</label>
+                                    <input 
+                                        type="text" 
+                                        value={formData.color} 
+                                        onChange={(e) => handleFormChange('color', e.target.value)}
+                                        disabled={!isEditing}
+                                        className="w-full p-2 border rounded-lg text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Warna Background (Tailwind)</label>
+                                    <input 
+                                        type="text" 
+                                        value={formData.bgColor} 
+                                        onChange={(e) => handleFormChange('bgColor', e.target.value)}
+                                        disabled={!isEditing}
+                                        className="w-full p-2 border rounded-lg text-sm"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.image} 
+                                    onChange={(e) => handleFormChange('image', e.target.value)}
+                                    disabled={!isEditing}
+                                    className="w-full p-2 border rounded-lg text-sm"
+                                />
+                                {formData.image && (
+                                    <div className="mt-2 text-center p-2 border rounded bg-gray-50">
+                                        <img src={formData.image} alt="Preview" className="h-32 mx-auto object-cover rounded"/>
+                                        <p className="text-xs text-gray-500 mt-1">Preview</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
               </div>
             ) : (
-              <div className="text-center text-gray-500 py-8">
-                Pilih layanan untuk mengedit
+              <div className="text-center text-gray-500 py-16 bg-gray-50 rounded-lg border-2 border-dashed">
+                <Package className="w-12 h-12 mx-auto text-gray-300 mb-3"/>
+                <p>Pilih layanan untuk mengedit atau buat baru</p>
+                <button 
+                    onClick={handleAddNew}
+                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm inline-flex items-center"
+                >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Buat Layanan Baru
+                </button>
               </div>
             )}
           </div>
@@ -574,91 +914,7 @@ const AdminDashboard = ({ userEmail }) => {
     }));
   };
 
-  // State variables for Service Pricing settings
-  const [servicePricing, setServicePricing] = useState({});
-  const [loadingPricing, setLoadingPricing] = useState(true);
-  const [savingPricing, setSavingPricing] = useState(false);
 
-  // Fetch Service Pricing settings
-  useEffect(() => {
-    if (!auth.currentUser) return;
-
-    const fetchPricingSettings = async () => {
-      setLoadingPricing(true);
-      try {
-        const settingsRef = doc(db, "settings", "service_pricing");
-        const settingsDoc = await getDoc(settingsRef);
-
-        if (settingsDoc.exists()) {
-          setServicePricing(settingsDoc.data());
-        } else {
-          // Initialize with default values if no pricing settings exist
-          // This will be based on servicesData but with pricing disabled by default
-          const defaultPricing = {};
-          import('../lib/servicesData').then(({ servicesData }) => {
-            servicesData.forEach(service => {
-              defaultPricing[service.slug] = {
-                enabled: false,
-                price: service.price || '',
-                priceNote: service.priceNote || '',
-                priceDescription: service.priceDescription || '',
-                originalPrice: service.price || '' // Keep original for reference
-              };
-            });
-            setServicePricing(defaultPricing);
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching service pricing settings:", error);
-      } finally {
-        setLoadingPricing(false);
-      }
-    };
-
-    fetchPricingSettings();
-  }, [auth.currentUser]);
-
-  // Function to save Service Pricing settings
-  const saveServicePricing = async () => {
-    if (!auth.currentUser) return;
-
-    setSavingPricing(true);
-    try {
-      const settingsRef = doc(db, "settings", "service_pricing");
-      await setDoc(settingsRef, servicePricing);
-
-      // Show success message
-      Swal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: 'Pengaturan harga layanan berhasil disimpan!',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#2a3f9b'
-      });
-    } catch (error) {
-      console.error("Error saving service pricing settings:", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal!',
-        text: 'Gagal menyimpan pengaturan harga layanan: ' + error.message,
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#dc2626'
-      });
-    } finally {
-      setSavingPricing(false);
-    }
-  };
-
-  // Function to handle Service Pricing change
-  const handlePricingChange = (slug, field, value) => {
-    setServicePricing(prev => ({
-      ...prev,
-      [slug]: {
-        ...prev[slug],
-        [field]: value
-      }
-    }));
-  };
 
   // Fetch banner settings
   useEffect(() => {
@@ -810,9 +1066,13 @@ const AdminDashboard = ({ userEmail }) => {
 
   // --- Components ---
 
-  const SidebarItem = ({ id, label, icon: Icon, soon = false }) => (
+  const SidebarItem = ({ id, label, icon: Icon, soon = false, externalUrl = null }) => (
     <button
       onClick={() => {
+        if (externalUrl) {
+          window.open(externalUrl, '_blank');
+          return;
+        }
         if (!soon) {
           setActiveMenu(id);
           setSidebarOpen(false);
@@ -829,6 +1089,7 @@ const AdminDashboard = ({ userEmail }) => {
         <span className="font-medium text-sm">{label}</span>
       </div>
       {soon && <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full border">Soon</span>}
+      {externalUrl && <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-blue-600" />}
     </button>
   );
 
@@ -1309,106 +1570,7 @@ const AdminDashboard = ({ userEmail }) => {
           </div>
         </div>
 
-        {/* Service Pricing Settings Section */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Pengaturan Harga Layanan</h2>
-              <p className="text-gray-600 mt-1">Atur harga dan tampilkan/nonaktifkan harga untuk setiap layanan</p>
-            </div>
 
-            {loadingPricing ? (
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-3 text-gray-600">Memuat pengaturan harga layanan...</span>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Service Pricing List */}
-                {Object.keys(servicePricing).length > 0 ? (
-                  <div className="space-y-4">
-                    {Object.entries(servicePricing).map(([slug, pricing]) => (
-                      <div key={slug} className="border border-gray-200 rounded-xl p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-medium text-gray-800 capitalize">{slug.replace(/-/g, ' ')}</h3>
-                          <div className="flex items-center">
-                            <span className="mr-3 text-sm text-gray-600">Tampilkan Harga:</span>
-                            <input
-                              type="checkbox"
-                              checked={pricing.enabled}
-                              onChange={(e) => handlePricingChange(slug, 'enabled', e.target.checked)}
-                              className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Harga</label>
-                            <input
-                              type="text"
-                              value={pricing.price}
-                              onChange={(e) => handlePricingChange(slug, 'price', e.target.value)}
-                              placeholder="Contoh: 7.500.000"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                              disabled={!pricing.enabled}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Catatan Harga</label>
-                            <input
-                              type="text"
-                              value={pricing.priceNote || ''}
-                              onChange={(e) => handlePricingChange(slug, 'priceNote', e.target.value)}
-                              placeholder="Contoh: negotiable"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                              disabled={!pricing.enabled}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Harga</label>
-                            <input
-                              type="text"
-                              value={pricing.priceDescription || ''}
-                              onChange={(e) => handlePricingChange(slug, 'priceDescription', e.target.value)}
-                              placeholder="Contoh: Sudah termasuk semua biaya administrasi"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                              disabled={!pricing.enabled}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    Tidak ada layanan ditemukan
-                  </div>
-                )}
-
-                {/* Save Button */}
-                <div className="flex justify-end pt-4">
-                  <button
-                    onClick={saveServicePricing}
-                    disabled={savingPricing}
-                    className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                  >
-                    {savingPricing ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Menyimpan...
-                      </>
-                    ) : (
-                      'Simpan Pengaturan Harga'
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     );
   };
@@ -2043,6 +2205,12 @@ const AdminDashboard = ({ userEmail }) => {
                 <SidebarItem id="clients" label="Data Klien" icon={Users} soon />
                 <SidebarItem id="tracking" label="Status Tracking" icon={Package} />
                 <SidebarItem id="service-management" label="Pengelolaan Layanan" icon={LayoutDashboard} />
+                <SidebarItem 
+                  id="blog" 
+                  label="Blog" 
+                  icon={BookOpen} 
+                  externalUrl="https://app.contentful.com/spaces/056qzjyxswib/views/entries" 
+                />
                 <SidebarItem id="documents" label="Repositori Dokumen" icon={File} />
                 <SidebarItem id="settings" label="Pengaturan" icon={Settings} />
             </nav>

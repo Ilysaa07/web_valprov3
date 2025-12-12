@@ -22,21 +22,7 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getFirestore(app);
 
-async function getServicePricing(slug) {
-  try {
-    const settingsRef = doc(db, "settings", "service_pricing");
-    const settingsDoc = await getDoc(settingsRef);
 
-    if (settingsDoc.exists()) {
-      const pricingData = settingsDoc.data();
-      return pricingData[slug] || null;
-    }
-    return null;
-  } catch (error) {
-    console.error("Error fetching service pricing:", error);
-    return null;
-  }
-}
 
 // Function to fetch service from Firestore
 async function getServiceFromFirestore(slug) {
@@ -127,7 +113,6 @@ export async function generateMetadata({ params }) {
 export default async function ServiceDetail({ params }) {
   const { slug } = await params;
   const service = await getServiceFromFirestore(slug);
-  const pricing = await getServicePricing(slug);
   const whatsappSettings = await getWhatsappSettings();
 
   if (!service) {
@@ -154,9 +139,9 @@ export default async function ServiceDetail({ params }) {
     },
     areaServed: 'Indonesia',
     category: service.category,
-    offers: pricing && pricing.enabled ? {
+    offers: service && service.priceEnabled ? {
       '@type': 'Offer',
-      price: pricing.price,
+      price: service.price,
       priceCurrency: 'IDR',
       availability: 'https://schema.org/InStock'
     } : undefined,
@@ -219,8 +204,8 @@ export default async function ServiceDetail({ params }) {
         name: `Berapa biaya untuk layanan ${service.title}?`,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: pricing && pricing.enabled
-            ? `Biaya layanan ${service.title} adalah Rp ${pricing.price}. ${pricing.priceDescription || ''} ${pricing.priceNote || ''}`
+          text: service && service.priceEnabled
+            ? `Biaya layanan ${service.title} adalah Rp ${service.price}. ${service.priceDescription || ''} ${service.priceNote || ''}`
             : `Harga untuk layanan ${service.title} bersifat custom sesuai kebutuhan spesifik Anda.`
         }
       },
@@ -323,6 +308,26 @@ export default async function ServiceDetail({ params }) {
               </div>
             </section>
 
+            {/* 1.5 Benefits (NEW) */}
+            {service.benefits && service.benefits.length > 0 && (
+              <section>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-8 w-1 bg-indigo-600 rounded-full"></div>
+                  <h2 className="text-2xl font-bold text-slate-900">Manfaat Layanan</h2>
+                </div>
+                <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+                  <ul className="grid sm:grid-cols-2 gap-4">
+                    {service.benefits.map((benefit, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-slate-700">{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </section>
+            )}
+
             {/* 2. Process Timeline (NEW - Corporate Feel) */}
             <section>
               <div className="flex items-center gap-3 mb-8">
@@ -364,27 +369,28 @@ export default async function ServiceDetail({ params }) {
                 {/* Pricing / Investment */}
                 <div className="mb-6">
                   <p className="text-slate-500 text-xs uppercase tracking-wider font-semibold mb-1">Estimasi Investasi</p>
-                  {pricing && pricing.enabled ? (
+                  {service && service.priceEnabled ? (
                     <div className="flex items-baseline gap-1">
                       <span className="text-sm font-medium text-slate-500">Rp</span>
-                      <span className="text-3xl font-extrabold text-slate-900">{pricing.price}</span>
+                      <span className="text-3xl font-extrabold text-slate-900">{service.price}</span>
                     </div>
                   ) : (
                     <div className="text-xl font-bold text-slate-900">Custom Solution</div>
                   )}
-                  {pricing?.priceNote && (
+                  {service?.priceNote && (
                     <p className="text-xs text-slate-400 mt-1 italic">
-                      {pricing.priceNote}
+                      {service.priceNote}
                     </p>
                   )}
-                  {pricing?.priceDescription && (
+                  {service?.priceDescription && (
                     <p className="text-xs text-slate-500 mt-1">
-                      {pricing.priceDescription}
+                      {service.priceDescription}
                     </p>
                   )}
-                  {!pricing?.priceNote && !pricing?.priceDescription && (
+                  {!service?.priceNote && !service?.priceDescription && (
                     <p className="text-xs text-slate-400 mt-1 italic">
-                      {service.priceNote || '*Disesuaikan dengan skala kebutuhan'}
+                      {/* Default note if no specific note exists */}
+                      *Disesuaikan dengan skala kebutuhan
                     </p>
                   )}
                 </div>
