@@ -36,11 +36,13 @@ import {
   Image as ImageIcon,
   Palette,
   BookOpen,
-  Download
+  Download,
+  Trash2,
+  Edit,
+  ArrowLeft
 } from "lucide-react";
 import InvoiceGenerator from "./InvoiceGenerator";
 import StatusStagesManager from "./StatusStagesManager";
-import DocumentRepository from "./DocumentRepository";
 import ClientManagement from "./ClientManagement";
 import { servicesData } from '../lib/servicesData';
 
@@ -331,7 +333,7 @@ const ServiceManagement = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Service List */}
-          <div className="lg:col-span-1 border-r pr-4">
+          <div className={`lg:col-span-1 border-r pr-4 ${(selectedService || isAdding) ? 'hidden lg:block' : 'block'}`}>
             <div className="space-y-2 max-h-[600px] overflow-y-auto">
               {services.map((service) => (
                 <button
@@ -354,11 +356,21 @@ const ServiceManagement = () => {
           </div>
 
           {/* Service Editor */}
-          <div className="lg:col-span-2 pl-2">
+          <div className={`lg:col-span-2 pl-2 ${(selectedService || isAdding) ? 'block' : 'hidden lg:block'}`}>
             {selectedService || isAdding ? (
               <div className="space-y-6">
                 <div className="flex justify-between items-start border-b pb-4">
                   <div>
+                      <button 
+                        onClick={() => {
+                            setSelectedService(null);
+                            setIsAdding(false);
+                            setIsEditing(false);
+                        }}
+                        className="lg:hidden mb-2 flex items-center text-sm text-gray-500 hover:text-gray-700"
+                      >
+                        <ArrowLeft className="w-4 h-4 mr-1" /> Kembali
+                      </button>
                       <h3 className="text-xl font-bold text-gray-900">
                           {isAdding ? 'Tambah Layanan Baru' : formData.title}
                       </h3>
@@ -2249,7 +2261,7 @@ const AdminDashboard = ({ userEmail }) => {
                   icon={BookOpen} 
                   externalUrl="https://app.contentful.com/spaces/056qzjyxswib/views/entries" 
                 />
-                <SidebarItem id="documents" label="Repositori Dokumen" icon={File} />
+
                 <SidebarItem id="settings" label="Pengaturan" icon={Settings} />
             </nav>
 
@@ -2344,7 +2356,7 @@ const AdminDashboard = ({ userEmail }) => {
              {activeMenu === "tracking" && renderTracking()}
              {activeMenu === "service-management" && <ServiceManagement />}
              {activeMenu === "clients" && <ClientManagement />}
-             {activeMenu === "documents" && <DocumentRepository userId={auth.currentUser?.uid} searchTerm={searchTerm} />}
+
              {activeMenu === "settings" && renderSettings()}
           </div>
         </main>
