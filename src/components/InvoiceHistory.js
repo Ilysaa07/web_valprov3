@@ -1,4 +1,4 @@
-import { Search, Edit, Trash2, Filter, FileText, Calendar, MoreVertical, AlertCircle, ChevronRight } from "lucide-react";
+import { Search, Edit, Trash2, Filter, FileText, Calendar, MoreVertical, AlertCircle, ChevronRight, Download } from "lucide-react";
 import { INVOICE_STATUSES } from "./InvoiceConstants";
 
 const InvoiceHistory = ({ 
@@ -26,6 +26,18 @@ const InvoiceHistory = ({
     return INVOICE_STATUSES.find(s => s.value === statusValue) || INVOICE_STATUSES[0];
   };
 
+  const handleBackup = () => {
+      const dataStr = JSON.stringify(invoices, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      const exportFileDefaultName = `backup-invoice-history-${new Date().toISOString().split('T')[0]}.json`;
+
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+      linkElement.remove();
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
         {/* HEADER & FILTERS */}
@@ -39,6 +51,14 @@ const InvoiceHistory = ({
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
+                    <button 
+                        onClick={handleBackup}
+                        className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                        title="Download Backup Data"
+                    >
+                        <Download className="w-4 h-4" />
+                        <span className="hidden sm:inline">Backup</span>
+                    </button>
                     {/* Search Input */}
                     <div className="relative group">
                         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"/>

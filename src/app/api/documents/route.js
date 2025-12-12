@@ -35,6 +35,12 @@ export async function GET(request) {
       documents = documents.filter(doc => doc.category === category);
     }
 
+    // Filter by clientId on the client side if specified
+    const clientId = searchParams.get('clientId');
+    if (clientId) {
+      documents = documents.filter(doc => doc.clientId === clientId);
+    }
+
     // Apply limit on the client side if specified
     if (limitParam) {
       documents = documents.slice(0, parseInt(limitParam));
@@ -50,7 +56,7 @@ export async function GET(request) {
 // POST: Save or update a document in the repository
 export async function POST(request) {
   try {
-    const { userId, fileName, fileUrl, fileSize, fileType, category, relatedInvoice, tags } = await request.json();
+    const { userId, fileName, fileUrl, fileSize, fileType, category, relatedInvoice, tags, clientId } = await request.json();
 
     if (!userId || !fileName || !fileUrl) {
       return NextResponse.json({ error: 'User ID, file name, and file URL are required' }, { status: 400 });
@@ -65,6 +71,7 @@ export async function POST(request) {
       fileType: fileType || 'unknown',
       category: category || 'other',
       relatedInvoice: relatedInvoice || null,
+      clientId: clientId || null,
       tags: tags || [],
       uploadedAt: new Date().toISOString(),
       lastAccessed: new Date().toISOString(),

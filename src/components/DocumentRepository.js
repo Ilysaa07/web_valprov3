@@ -219,6 +219,19 @@ const DocumentRepository = ({ userId, searchTerm = '' }) => {
       });
   };
 
+  // Backup function
+  const handleBackup = () => {
+    const dataStr = JSON.stringify(documents, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const exportFileDefaultName = `backup-documents-metadata-${new Date().toISOString().split('T')[0]}.json`;
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    linkElement.remove();
+  };
+
   const effectiveSearchTerm = searchTerm || localSearchTerm;
   const filteredDocuments = documents.filter(doc =>
     doc.fileName.toLowerCase().includes(effectiveSearchTerm.toLowerCase()) ||
@@ -236,6 +249,13 @@ const DocumentRepository = ({ userId, searchTerm = '' }) => {
             <p className="text-gray-500 text-sm">Kelola semua file dan dokumen Anda di satu tempat</p>
         </div>
         <div className="flex items-center gap-3">
+             <button 
+                onClick={handleBackup}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 bg-white rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+            >
+                <Download size={18} />
+                <span>Backup Metadata</span>
+            </button>
             <button 
                 onClick={() => setIsUploadModalOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"

@@ -29,6 +29,7 @@ const InvoiceGenerator = () => {
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [clients, setClients] = useState([]); // New: Clients from CRM
 
   const [formData, setFormData] = useState({
     invoiceNumber: "",
@@ -38,6 +39,7 @@ const InvoiceGenerator = () => {
     customTerms: "",
 
     // Client Information
+    clientId: "", // New: Link to CRM
     clientName: "",
     clientEmail: "",
     clientPhone: "",
@@ -96,6 +98,20 @@ const InvoiceGenerator = () => {
   });
 
   // --- Effects ---
+  useEffect(() => {
+      fetchClients();
+  }, []);
+
+  const fetchClients = async () => {
+    try {
+        const q = query(collection(db, 'clients')); // Fetch all clients
+        const snapshot = await getDocs(q);
+        const clientList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setClients(clientList);
+    } catch (err) {
+        console.error("Error fetching clients for invoice:", err);
+    }
+  };
 
   const [hasLoadedInitially, setHasLoadedInitially] = useState(false);
 
@@ -1403,6 +1419,50 @@ const editInvoice = (invoice) => {
 
     setSaving(true);
     try {
+        // AUTO-CREATE CLIENT LOGIC
+        let finalClientId = formData.clientId;
+        
+        // If no clientId but we have a client name, check if it's a new client
+        if (!finalClientId && formData.clientName) {
+            // Check if client already exists in our fetched list (case insensitive)
+            const existingClient = clients.find(c => c.name.toLowerCase() === formData.clientName.toLowerCase());
+            
+            if (existingClient) {
+                finalClientId = existingClient.id;
+            } else {
+                // Create new client
+                try {
+                    const newClientData = {
+                        name: formData.clientName,
+                        email: formData.clientEmail || "",
+                        phone: formData.clientPhone || "",
+                        address: formData.clientAddress || "",
+                        type: 'personal', // Default type
+                        status: 'active',
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    };
+                    
+                    const docRef = await addDoc(collection(db, 'clients'), newClientData);
+                    finalClientId = docRef.id;
+                    
+                    // Refresh clients list
+                    fetchClients();
+                    
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Klien Baru Dibuat',
+                        text: `Klien "${formData.clientName}" telah ditambahkan ke database CRM secara otomatis.`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } catch (err) {
+                    console.error("Error auto-creating client:", err);
+                    // Continue saving invoice even if client creation fails, just without clientId
+                }
+            }
+        }
+
         const invNum = formData.invoiceNumber || generateInvoiceNumber();
 
         // Explicitly construct the payload to avoid undefined values
@@ -1419,7 +1479,8 @@ const editInvoice = (invoice) => {
             clientEmail: formData.clientEmail || "",
             clientPhone: formData.clientPhone || "",
             clientAddress: formData.clientAddress || "",
-
+            clientId: finalClientId || "", // USE THE FINAL ID
+            
             // Business info
             businessName: formData.businessName || "PT. VALPRO INTER TECH",
             businessSubtitle: formData.businessSubtitle || "Business Entity Partner",
@@ -1609,6 +1670,7 @@ const editInvoice = (invoice) => {
             updateSubItem={updateSubItem}
             removeSubItem={removeSubItem}
             generateInvoiceNumber={generateInvoiceNumber}
+            clients={clients} // New prop
           />
         </div>
       )}

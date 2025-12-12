@@ -37,7 +37,8 @@ const InvoiceForm = ({
   addSubItem,
   updateSubItem,
   removeSubItem,
-  generateInvoiceNumber
+  generateInvoiceNumber,
+  clients // New prop
 }) => {
   return (
     <div className={`${showPreview ? 'lg:col-span-5' : 'lg:col-span-12'} space-y-6 transition-all duration-300 w-full font-sans`}>
@@ -55,15 +56,46 @@ const InvoiceForm = ({
         <div className="p-6 space-y-5">
             <div>
                 <Label required>Nama Perusahaan / Klien</Label>
-                <div className="relative">
-                    <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                    <input 
-                        type="text" 
-                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
-                        placeholder="Contoh: PT. Sinar Mas Jaya"
-                        value={formData.clientName}
-                        onChange={e => handleInputChange("clientName", e.target.value)}
-                    />
+                <div className="space-y-3">
+                     {/* Client Selector */}
+                     {clients && clients.length > 0 && (
+                        <div className="relative">
+                            <select
+                                className="w-full px-4 py-2 border border-blue-200 bg-blue-50/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 text-gray-700 font-medium"
+                                onChange={(e) => {
+                                    const selectedClient = clients.find(c => c.id === e.target.value);
+                                    if (selectedClient) {
+                                        // Auto-fill form data
+                                        const newData = { ...formData };
+                                        newData.clientId = selectedClient.id; // Link to CRM
+                                        newData.clientName = selectedClient.name || newData.clientName;
+                                        newData.clientEmail = selectedClient.email || newData.clientEmail;
+                                        newData.clientPhone = selectedClient.phone || newData.clientPhone;
+                                        newData.clientAddress = selectedClient.address || newData.clientAddress;
+                                        
+                                        // Call setFormData passed from parent
+                                        setFormData(newData);
+                                    }
+                                }}
+                            >
+                                <option value="">-- Pilih Klien Dari Database CRM --</option>
+                                {clients.map(c => (
+                                    <option key={c.id} value={c.id}>{c.brandName ? `${c.name} (${c.brandName})` : c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                     )}
+
+                    <div className="relative">
+                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <input 
+                            type="text" 
+                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
+                            placeholder="Contoh: PT. Sinar Mas Jaya"
+                            value={formData.clientName}
+                            onChange={e => handleInputChange("clientName", e.target.value)}
+                        />
+                    </div>
                 </div>
             </div>
 

@@ -33,15 +33,15 @@ import {
   Package,
   File,
   Plus,
-  Trash2,
-  Euro,
   Image as ImageIcon,
   Palette,
-  BookOpen
+  BookOpen,
+  Download
 } from "lucide-react";
 import InvoiceGenerator from "./InvoiceGenerator";
 import StatusStagesManager from "./StatusStagesManager";
 import DocumentRepository from "./DocumentRepository";
+import ClientManagement from "./ClientManagement";
 import { servicesData } from '../lib/servicesData';
 
 // Vercel Blob imports (we'll handle this in the next step)
@@ -276,6 +276,18 @@ const ServiceManagement = () => {
     }
   };
 
+  const handleBackupServices = () => {
+    const dataStr = JSON.stringify(services, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const exportFileDefaultName = `backup-services-${new Date().toISOString().split('T')[0]}.json`;
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    linkElement.remove();
+  };
+
   const handleDelete = async () => {
       if (!confirm("Yakin ingin menghapus layanan ini?")) return;
 
@@ -299,13 +311,22 @@ const ServiceManagement = () => {
       <div className="bg-white shadow rounded-lg p-6">
         <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-medium text-gray-900">Pengelolaan Layanan</h2>
-            <button 
-                onClick={handleAddNew}
-                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-            >
-                <Plus className="w-4 h-4 mr-2" />
-                Tambah Layanan
-            </button>
+            <div className="flex gap-2">
+                 <button 
+                    onClick={handleBackupServices}
+                    className="flex items-center px-4 py-2 border border-gray-300 text-gray-700 bg-white rounded-lg hover:bg-gray-50 text-sm"
+                >
+                    <Download className="w-4 h-4 mr-2" />
+                    Backup Data
+                </button>
+                <button 
+                    onClick={handleAddNew}
+                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Tambah Layanan
+                </button>
+            </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1890,9 +1911,26 @@ const AdminDashboard = ({ userEmail }) => {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Page Header */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex justify-between items-center">
+         <div>
           <h1 className="text-2xl font-bold text-gray-900">Manajemen Status dan Proses</h1>
           <p className="text-gray-600 mt-1">Pantau progres layanan, status pembayaran, dan konfigurasi tahapan proses secara real-time</p>
+         </div>
+         <button 
+            onClick={() => {
+                const dataStr = JSON.stringify(invoices, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                const exportFileDefaultName = `backup-invoices-${new Date().toISOString().split('T')[0]}.json`;
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            }}
+            className="flex items-center px-4 py-2 border border-gray-300 text-gray-700 bg-white rounded-lg hover:bg-gray-50 text-sm"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Backup Data
+          </button>
         </div>
 
         {/* Stats Overview */}
@@ -2202,7 +2240,7 @@ const AdminDashboard = ({ userEmail }) => {
                 <SidebarItem id="invoice" label="Invoice Generator" icon={Receipt} />
 
                 <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 mt-8">Manajemen</p>
-                <SidebarItem id="clients" label="Data Klien" icon={Users} soon />
+                <SidebarItem id="clients" label="Data Klien" icon={Users} />
                 <SidebarItem id="tracking" label="Status Tracking" icon={Package} />
                 <SidebarItem id="service-management" label="Pengelolaan Layanan" icon={LayoutDashboard} />
                 <SidebarItem 
@@ -2305,6 +2343,7 @@ const AdminDashboard = ({ userEmail }) => {
              {activeMenu === "invoice" && <InvoiceGenerator />}
              {activeMenu === "tracking" && renderTracking()}
              {activeMenu === "service-management" && <ServiceManagement />}
+             {activeMenu === "clients" && <ClientManagement />}
              {activeMenu === "documents" && <DocumentRepository userId={auth.currentUser?.uid} searchTerm={searchTerm} />}
              {activeMenu === "settings" && renderSettings()}
           </div>
